@@ -1523,7 +1523,7 @@ function loadPersistedDims() {
 }
 $('export').onclick = e => {   // portable sidecar: comments + dimensions + scenes travel with the model
   e.preventDefault(); if ($('export').classList.contains('disabled')) return;
-  const bundle = { file: fileName, version: 2, sizes: sizesObj(), comments: serializeComments(), dimensions: serializeDims(), scenes: scenes.filter(s => !s.locked) };
+  const bundle = { file: fileName, version: 3, sizes: sizesObj(), comments: serializeComments(), dimensions: serializeDims(), scenes: scenes.filter(s => !s.locked), sheets };
   const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = fileName.replace(/\.(glb|gltf)$/i, '') + '.annot.json'; a.click();
@@ -1535,6 +1535,7 @@ function importAnnotationBundle(o) {   // shared by file-Import and the auto-fet
   (o.comments || []).forEach(d => createComment(new THREE.Vector3(d.x, d.y, d.z), d.text || '', d.id, d.replies || []));
   if (Array.isArray(o.scenes)) { o.scenes.forEach(s => { if (s && !s.locked && !scenes.some(x => x.id === s.id)) scenes.push(s); }); renderScenes(); persistScenes(); }
   (o.dimensions || []).forEach(addDimFromObj);
+  if (Array.isArray(o.sheets)) { o.sheets.forEach(sh => { if (sh && !sheets.some(x => x.id === sh.id)) sheets.push(sh); }); persistSheets(); renderSheetTabs(); }
   if (dimensions.length) $('clear').classList.remove('disabled');
   updateDimVisibility(); renderDimsList(); persistDims(); renderCommentList();
 }
