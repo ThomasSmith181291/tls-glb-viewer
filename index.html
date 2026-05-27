@@ -1,0 +1,1765 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TLS GLB Model Viewer</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #f4f4f1; overflow: hidden;
+               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 12px 16px; background: #1d3557; color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  header h1 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: 0.4px; white-space: nowrap; }
+  header .meta { font-size: 12px; opacity: 0.9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  main { display: flex; flex-direction: column; height: calc(100vh - 48px); }
+  .body { flex: 1 1 auto; display: flex; min-height: 0; }
+  .stage { position: relative; flex: 1 1 auto; min-width: 0; }
+  .stage canvas { display: block; }
+  .labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .tabbars { position: absolute; top: 0; left: 0; right: 0; z-index: 15; display: flex; flex-direction: column; gap: 3px; padding: 6px 8px 0; pointer-events: none; }
+  .tabrow { display: flex; gap: 4px; align-items: center; min-height: 22px; }
+  .tablabel { flex: none; pointer-events: none; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: #5b6b7a; background: rgba(255,255,255,.75); border-radius: 3px; padding: 2px 5px; width: 42px; text-align: center; }
+  .scenetabs { display: flex; gap: 2px; overflow-x: auto; pointer-events: none; }
+  .scenetabs .stab { pointer-events: auto; cursor: pointer; font-size: 12px; font-weight: 600; color: #1d3557; background: rgba(255,255,255,.92);
+                     border: 1px solid #ccc; border-radius: 6px 6px 0 0; padding: 5px 10px; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,.12); display: inline-flex; align-items: center; gap: 6px; }
+  .scenetabs .stab.active { background: #1d3557; color: #fff; border-color: #1d3557; }
+  .scenetabs .stab .x { font-size: 11px; opacity: .6; }
+  .scenetabs .stab .x:hover { opacity: 1; }
+  .stab.addtab { pointer-events: auto; cursor: pointer; font-size: 13px; font-weight: 700; color: #1d3557; background: rgba(255,255,255,.85); border: 1px dashed #9aa6b2; border-radius: 6px 6px 0 0; padding: 4px 9px; }
+
+  .banner { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 20;
+            max-width: 90%; padding: 8px 14px; border-radius: 6px; font-size: 13px; display: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .banner.err  { background: #b00020; color: #fff; }
+  .banner.warn { background: #ffb703; color: #1d3557; }
+
+  .drop { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+          color: #1d3557; text-align: center; padding: 24px; z-index: 10; }
+  .drop.hidden { display: none; }
+  .drop.dragover { background: rgba(29,53,87,.08); outline: 3px dashed #1d3557; outline-offset: -16px; }
+  .drop .big { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+  .drop .sub { font-size: 13px; opacity: .7; margin-bottom: 18px; }
+  .btn { color: #fff; background: #1d3557; text-decoration: none; padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; }
+
+  .pin { display: flex; align-items: center; gap: 6px; pointer-events: auto; cursor: pointer; padding-left: 10px; }
+  .pin .n { flex: none; width: 22px; height: 22px; border-radius: 50% 50% 50% 2px; background: #ffb703; color: #1d3557;
+            font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+  .pin .txt { max-width: 160px; font-size: 12px; color: #1d3557; background: rgba(255,255,255,.92); padding: 2px 6px;
+              border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.25); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .side { flex: none; width: 280px; background: #fff; border-left: 1px solid #ddd; display: none; flex-direction: column; }
+  .side.open { display: flex; }
+  .side h2 { margin: 0; padding: 10px 12px; font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: #555; border-bottom: 1px solid #eee; }
+  .side .list { flex: 1 1 auto; overflow-y: auto; }
+  .cmt { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+  .cmt.hl { background: #fff7e0; }
+  .cmt .head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .cmt .badge { width: 18px; height: 18px; border-radius: 50%; background: #ffb703; color: #1d3557; font-size: 11px; font-weight: 800;
+                display: flex; align-items: center; justify-content: center; flex: none; }
+  .cmt .body { color: #333; white-space: pre-wrap; word-break: break-word; }
+  .cmt .acts { margin-top: 6px; display: flex; gap: 6px; }
+  .cmt .acts button { font-size: 11px; padding: 2px 7px; border: 1px solid #d0d0d0; background: #fafafa; border-radius: 4px; cursor: pointer; color: #1d3557; }
+  .side .empty { padding: 16px 12px; color: #999; font-size: 12px; }
+  .cmt .replies { margin: 4px 0 0 6px; }
+  .cmt .reply { font-size: 12px; color: #444; border-left: 2px solid #ffb703; padding: 2px 0 2px 8px; margin: 3px 0; white-space: pre-wrap; word-break: break-word; }
+  .cmt .reply .ra { font-weight: 700; color: #1d3557; }
+  #popup .reply { border-left: 2px solid #ffb703; padding-left: 8px; margin-top: 4px; color: #444; font-size: 12px; }
+
+  .popover { position: absolute; z-index: 30; background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 10px 12px;
+             box-shadow: 0 4px 16px rgba(0,0,0,.22); font-size: 13px; }
+  .popover[hidden] { display: none; }
+  .popover label { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 5px 0; color: #1d3557; }
+  .popover input { width: 72px; padding: 3px 6px; border: 1px solid #ccc; border-radius: 4px; }
+  .popover .acts { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .popover .acts button { font-size: 12px; padding: 3px 9px; border: 1px solid #d0d0d0; background: #fafafa; border-radius: 4px; cursor: pointer; color: #1d3557; }
+  #settings { bottom: 8px; right: 12px; }
+  #settings .ub { font-size: 12px; padding: 2px 9px; border: 1px solid #d0d0d0; background: #fafafa; border-radius: 4px; cursor: pointer; color: #1d3557; }
+  #settings .ub.active { background: #1d3557; color: #fff; border-color: #1d3557; }
+  #dimsPop { bottom: 8px; left: 12px; min-width: 210px; }
+  #dimsPop .scenelist { max-height: 220px; overflow-y: auto; }
+  #dimsPop .empty { color: #999; font-size: 12px; padding: 6px 2px; }
+  #dimsPop .sceneitem { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px solid #f0f0f0; }
+  #dimsPop .snm { flex: 1 1 auto; cursor: pointer; color: #1d3557; font-weight: 600; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #dimsPop .snm:hover { text-decoration: underline; }
+  #dimsPop .sceneitem button { font-size: 11px; padding: 2px 6px; border: 1px solid #d0d0d0; background: #fafafa; border-radius: 4px; cursor: pointer; color: #1d3557; }
+  #viewsPop { bottom: 8px; left: 12px; }
+  #viewsPop .vgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  #viewsPop .vgrid button { font-size: 12px; padding: 6px 10px; border: 1px solid #d0d0d0; background: #fafafa; border-radius: 4px; cursor: pointer; color: #1d3557; }
+  #viewsPop .vgrid button:hover { background: #1d3557; color: #fff; border-color: #1d3557; }
+  #sectionPop { bottom: 8px; left: 50%; transform: translateX(-50%); }
+  #sectionPop input[type=range] { width: 140px; vertical-align: middle; }
+  #sectionPop .seccyc { font-size: 12px; padding: 2px 12px; border: 1px solid #d0d0d0; background: #fafafa; border-radius: 4px; cursor: pointer; color: #1d3557; font-weight: 700; }
+  #sectionPop .seccyc.active { background: #1d3557; color: #fff; border-color: #1d3557; }
+  #sectionPop .bx { width: 60px; vertical-align: middle; }
+  #sectionPop label span { display: inline-flex; gap: 4px; align-items: center; }
+  #scenesPop { bottom: 8px; left: 50%; transform: translateX(-50%); min-width: 220px; }
+  #scenesPop .scenelist { margin-top: 8px; max-height: 200px; overflow-y: auto; }
+  #scenesPop .empty { color: #999; font-size: 12px; padding: 6px 2px; }
+  #scenesPop .sceneitem { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px solid #f0f0f0; }
+  #scenesPop .snm { flex: 1 1 auto; cursor: pointer; color: #1d3557; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #scenesPop .snm:hover { text-decoration: underline; }
+  #scenesPop .sceneitem button { font-size: 11px; padding: 2px 6px; border: 1px solid #d0d0d0; background: #fafafa; border-radius: 4px; cursor: pointer; color: #1d3557; }
+  #popup { max-width: 260px; }
+  #popup_text { white-space: pre-wrap; word-break: break-word; color: #222; margin-bottom: 4px; }
+  #dimEdit { min-width: 180px; }
+  #dimEdit #dimEditTitle { font-weight: 600; color: #1d3557; margin-bottom: 6px; font-size: 12px; }
+  #dimEdit input { width: 80px; padding: 3px 6px; border: 1px solid #ccc; border-radius: 4px; }
+  #dimsPop .sceneitem.sel { background: #fff7e0; }
+  #dimsPop .sceneitem input[type=checkbox] { flex: none; margin: 0 2px 0 0; cursor: pointer; }
+  #dimsPop .editbar { display: flex; gap: 6px; align-items: center; padding: 8px 2px 2px; border-top: 1px solid #eee; margin-top: 4px; flex-wrap: wrap; }
+  #dimsPop .editbar input { width: 64px; padding: 2px 5px; border: 1px solid #ccc; border-radius: 4px; }
+  #dimsPop .editbar button { font-size: 11px; padding: 2px 7px; border: 1px solid #d0d0d0; background: #fafafa; border-radius: 4px; cursor: pointer; color: #1d3557; }
+
+  .toolbar { flex: none; padding: 8px 12px; background: #fff; border-top: 1px solid #ddd; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 13px; }
+  .toolbar a { color: #1d3557; text-decoration: none; padding: 4px 8px; border-radius: 4px; border: 1px solid #d0d0d0; cursor: pointer; }
+  .toolbar a:active { background: #1d3557; color: #fff; }
+  .toolbar a.active { background: #ffb703; color: #1d3557; border-color: #ffb703; }
+  .toolbar a.jogbtn { background: #e63946; color: #fff; border-color: #e63946; }
+  .toolbar a.disabled { opacity: .4; pointer-events: none; }
+  .toolbar .dimtypes { display: inline-flex; gap: 4px; border: 1px solid #d0d0d0; border-radius: 6px; padding: 2px; }
+  .toolbar .dimtypes.disabled { opacity: .4; pointer-events: none; }
+  .toolbar .dimtypes a { display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent; padding: 3px 7px; border-radius: 4px; color: #1d3557; cursor: pointer; }
+  .toolbar .dimtypes a.active { background: #1d3557; color: #fff; }
+  .toolbar .dimtypes a svg { display: block; }
+  .toolbar .sep { width: 1px; align-self: stretch; background: #e3e3e3; margin: 0 2px; }
+  .toolbar .hint { color: #888; font-size: 12px; margin-left: auto; }
+
+  /* ---- sheet (drawing) view ---- */
+  #sheetOverlay { position: absolute; inset: 0; z-index: 45; background: #5b5f63; display: none; flex-direction: column; }
+  #sheetOverlay.open { display: flex; }
+  #sheetBar { flex: none; display: flex; gap: 8px; align-items: center; padding: 7px 12px; background: #1d3557; color: #fff; flex-wrap: wrap; }
+  #sheetBar strong { font-size: 13px; }
+  #sheetBar label { font-size: 11px; display: inline-flex; gap: 4px; align-items: center; }
+  #sheetBar input { font-size: 12px; padding: 3px 6px; border: 1px solid #ccc; border-radius: 4px; }
+  #sheetBar button { font-size: 12px; padding: 4px 11px; border: 1px solid #ccc; background: #fafafa; color: #1d3557; border-radius: 4px; cursor: pointer; }
+  #sheetBar .sp { margin-left: auto; }
+  #sheetScroll { flex: 1 1 auto; overflow: auto; display: flex; align-items: center; justify-content: center; padding: 18px; }
+  #sheetPaper { position: relative; background: #fff; box-shadow: 0 6px 28px rgba(0,0,0,.55); }
+  #sheetPaper svg { display: block; width: 100%; height: 100%; }
+  #sheetBar select { font-size: 12px; padding: 2px 4px; border: 1px solid #ccc; border-radius: 4px; }
+  #sheetBar .seg { display: inline-flex; gap: 6px; align-items: center; padding: 0 8px; border-left: 1px solid rgba(255,255,255,.25); }
+  #sheetPaper .svp { position: absolute; overflow: hidden; outline: 1px dashed rgba(29,53,87,.5); cursor: move; }
+  #sheetPaper .svp.sel { outline: 2px solid #ffb703; z-index: 2; }
+  #sheetPaper .svp img { display: block; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
+  #sheetPaper .svp .hd { position: absolute; background: #ffb703; border: 1px solid #1d3557; display: none; z-index: 3; }
+  #sheetPaper .svp.sel .hd { display: block; }
+  #sheetPaper .svp .hd.nw { left: -6px; top: -6px; width: 11px; height: 11px; cursor: nwse-resize; }
+  #sheetPaper .svp .hd.ne { right: -6px; top: -6px; width: 11px; height: 11px; cursor: nesw-resize; }
+  #sheetPaper .svp .hd.sw { left: -6px; bottom: -6px; width: 11px; height: 11px; cursor: nesw-resize; }
+  #sheetPaper .svp .hd.se { right: -6px; bottom: -6px; width: 11px; height: 11px; cursor: nwse-resize; }
+  #sheetPaper .svp .hd.n { top: -5px; left: 50%; transform: translateX(-50%); width: 18px; height: 9px; cursor: ns-resize; }
+  #sheetPaper .svp .hd.s { bottom: -5px; left: 50%; transform: translateX(-50%); width: 18px; height: 9px; cursor: ns-resize; }
+  #sheetPaper .svp .hd.w { left: -5px; top: 50%; transform: translateY(-50%); width: 9px; height: 18px; cursor: ew-resize; }
+  #sheetPaper .svp .hd.e { right: -5px; top: 50%; transform: translateY(-50%); width: 9px; height: 18px; cursor: ew-resize; }
+
+  @media print {
+    body > *:not(#sheetOverlay) { display: none !important; }
+    #sheetOverlay { position: static; display: block; background: #fff; }
+    #sheetBar { display: none; }
+    #sheetScroll { overflow: visible; padding: 0; display: block; }
+    #sheetPaper { width: 420mm !important; height: 297mm !important; box-shadow: none; }
+    #sheetPaper .svp { outline: none !important; }
+    #sheetPaper .svp .hd { display: none !important; }
+    @page { size: A3 landscape; margin: 0; }
+  }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<header>
+  <h1>TLS GLB Model Viewer</h1>
+  <span class="meta" id="meta">Drag a .glb / .gltf file in, or open one</span>
+</header>
+<main>
+  <div class="body">
+    <div class="stage" id="stage">
+      <div class="labels" id="labels"></div>
+      <div class="tabbars" id="tabBars">
+        <div class="tabrow"><span class="tablabel">Scenes</span><div class="scenetabs" id="sceneTabs"></div></div>
+        <div class="tabrow"><span class="tablabel">Sheets</span><div class="scenetabs" id="sheetTabs"></div><div class="stab addtab" id="sheetAddTab" title="New sheet from current view">＋</div></div>
+      </div>
+      <div class="banner" id="banner"></div>
+
+      <div class="popover" id="settings" hidden>
+        <label>Text height <span><input id="s_text" type="number" min="1" step="10" value="150"> mm</span></label>
+        <label>Arrowhead <span><input id="s_arrow" type="number" min="1" step="10" value="150"> mm</span></label>
+        <label>Jog offset <span><input id="s_jog" type="number" min="1" step="10" value="300"> mm</span></label>
+        <label>Ext. gap <span><input id="s_gap" type="number" min="0" step="10" value="0"> mm</span></label>
+        <label>Ext. past <span><input id="s_past" type="number" min="0" step="10" value="150"> mm</span></label>
+        <label title="Fixed extension-line length measured from the dimension line (arrowhead). 0 = run back to the picked point.">Ext. from line <span><input id="s_extlen" type="number" min="0" step="10" value="0"> mm</span></label>
+        <label>Units <span><button id="u_mm" class="ub">mm</button><button id="u_in" class="ub">"</button><button id="u_both" class="ub active">both</button></span></label>
+        <label>Font <span><select id="s_font">
+          <option value="sans-serif">Sans</option>
+          <option value="'Arial Narrow',sans-serif">Narrow</option>
+          <option value="Georgia,serif">Georgia</option>
+          <option value="'Courier New',monospace">Mono</option>
+          <option value="'Trebuchet MS',sans-serif">Trebuchet</option>
+        </select></span></label>
+        <label>Arrows <span><button id="ar_arrow" class="ub active">Arrow</button><button id="ar_tick" class="ub">Tick</button><button id="ar_dot" class="ub">Dot</button></span></label>
+        <div class="acts"><button id="s_close">Close</button></div>
+      </div>
+
+      <div class="popover" id="viewsPop" hidden>
+        <div class="vgrid">
+          <button data-v="front">Front</button>
+          <button data-v="back">Rear</button>
+          <button data-v="iso">Iso</button>
+          <button data-v="left">Left</button>
+          <button data-v="right">Right</button>
+          <button data-v="top">Top</button>
+          <button data-v="bottom">Bottom</button>
+        </div>
+        <div class="acts" style="margin-top:8px;justify-content:center">
+          <button data-rot="-90">⟲ Rotate 90°</button>
+          <button data-rot="90">⟳ Rotate 90°</button>
+        </div>
+      </div>
+
+      <div class="popover" id="sectionPop" hidden>
+        <div class="acts" style="margin-top:0;align-items:center">
+          <button id="secModePlane" class="seccyc active">Plane</button>
+          <button id="secModeBox" class="seccyc">Box</button>
+          <label style="margin-left:8px"><input type="checkbox" id="secShow" checked> Show guide</label>
+          <label style="margin-left:8px"><input type="checkbox" id="secCap"> Cap faces</label>
+        </div>
+        <div id="secPlane">
+          <label>Axis <span><button id="secaxis" class="seccyc">X</button></span></label>
+          <label>Position <input id="secpos" type="range" min="0" max="100" value="50"></label>
+          <div class="acts"><button id="secflip">Flip</button></div>
+        </div>
+        <div id="secBoxCtl" hidden>
+          <label>X <span><input class="bx" id="bx0" type="range" min="0" max="100" value="0"><input class="bx" id="bx1" type="range" min="0" max="100" value="100"></span></label>
+          <label>Y <span><input class="bx" id="by0" type="range" min="0" max="100" value="0"><input class="bx" id="by1" type="range" min="0" max="100" value="100"></span></label>
+          <label>Z <span><input class="bx" id="bz0" type="range" min="0" max="100" value="0"><input class="bx" id="bz1" type="range" min="0" max="100" value="100"></span></label>
+        </div>
+        <div class="acts"><button id="secoff">Off</button></div>
+      </div>
+
+      <div class="popover" id="dimsPop" hidden>
+        <div id="dimsList" class="scenelist"></div>
+      </div>
+
+      <div class="popover" id="scenesPop" hidden>
+        <div class="acts" style="margin-top:0"><button id="sceneSave">＋ Save current view</button></div>
+        <div id="sceneList" class="scenelist"></div>
+      </div>
+
+      <div class="popover" id="popup" hidden>
+        <div id="popup_text"></div>
+        <div class="acts">
+          <button data-a="reply">Reply</button>
+          <button data-a="focus">Focus</button>
+          <button data-a="edit">Edit</button>
+          <button data-a="del">Delete</button>
+          <button data-a="close">Close</button>
+        </div>
+      </div>
+
+      <div class="popover" id="dimEdit" hidden>
+        <div id="dimEditTitle"></div>
+        <label>Offset <span><input id="dimOff" type="number" step="10"> mm</span></label>
+        <label title="Fixed extension-line length from the arrowhead (0 = back to the picked point)">Ext. from line <span><input id="dimExt" type="number" min="0" step="10"> mm</span></label>
+        <div class="acts">
+          <button id="dimFlip">Flip side</button>
+          <button id="dimDel">Delete</button>
+          <button id="dimEditClose">Close</button>
+        </div>
+      </div>
+
+      <div class="drop" id="drop">
+        <div class="big">Drop a 3D model here</div>
+        <div class="sub">.glb or .gltf (Draco supported) — stays on your device</div>
+        <button class="btn" id="openbtn">Open file…</button>
+        <input type="file" id="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" style="display:none">
+      </div>
+    </div>
+    <aside class="side" id="side">
+      <h2>Comments</h2>
+      <div class="list" id="cmtlist"></div>
+    </aside>
+  </div>
+  <div class="toolbar">
+    <span id="dimtypes" class="dimtypes disabled">
+      <a data-dim="aligned" title="Aligned — true point-to-point distance"></a>
+      <a data-dim="linear" title="Linear — horizontal / vertical (projected)"></a>
+      <a data-dim="continuous" title="Continuous — running string at a shared baseline"></a>
+      <a data-dim="baseline" title="Baseline — all from one origin, stacked"></a>
+      <a data-dim="angular" title="Angular — angle between two ends"></a>
+    </span>
+    <a id="finish" style="display:none">Finish</a>
+    <a id="stepback" style="display:none">↩ Back</a>
+    <a id="jogv" class="jogbtn" style="display:none">Vertical</a>
+    <a id="jogh" class="jogbtn" style="display:none">Horizontal</a>
+    <span class="sep"></span>
+    <a id="comment" class="disabled">💬 Comment mode</a>
+    <a id="list" class="disabled">🗂 Comments</a>
+    <span class="sep"></span>
+    <a id="dims" class="disabled">📏 Dims</a>
+    <a id="clear" class="disabled">Clear dimensions</a>
+    <a id="sizes" class="disabled">⚙ Sizes</a>
+    <a id="reset" class="disabled">Reset view</a>
+    <a id="views" class="disabled">📐 Views</a>
+    <a id="parallel" class="disabled">◉ Perspective</a>
+    <a id="uniform" class="disabled">💡 Flat</a>
+    <a id="section" class="disabled">✂ Section</a>
+    <a id="scenes" class="disabled">🎬 Scenes</a>
+    <a id="sheet" class="disabled">🗂 Sheet</a>
+    <a id="lock2d" class="disabled">🔓 Lock 2D</a>
+    <span class="sep"></span>
+    <a id="open2">Open…</a>
+    <a id="export" class="disabled">💾 Save annotations</a>
+    <a id="import">📂 Load annotations</a>
+    <input type="file" id="impfile" accept=".json,application/json" style="display:none">
+    <span class="hint" id="hint">Drag to orbit · tap two points to dimension (snaps to corners/edges)</span>
+  </div>
+</main>
+
+<div id="sheetOverlay">
+  <div id="sheetBar">
+    <strong>🗂</strong>
+    <label>Name <input id="f_sheetname" size="10"></label>
+    <span class="seg"><label>Add view <select id="sheetAddSel"></select></label><button id="sheetAdd">＋ Add</button></span>
+    <span class="seg" id="vpCtl" hidden><label>Scale 1:<input id="vpScale" size="5"></label><button id="vpDelete">Delete view</button></span>
+    <label>Title <input id="f_title" size="12"></label>
+    <label>No. <input id="f_number" size="6"></label>
+    <label>Rev <input id="f_sheet" size="3"></label>
+    <label>Author <input id="f_author" size="8"></label>
+    <button id="sheetPrint" class="sp">🖨 Print / PDF</button>
+    <button id="sheetClose">✕ Close</button>
+  </div>
+  <div id="sheetScroll"><div id="sheetPaper"></div></div>
+</div>
+
+<script>
+  (function () {
+    const show = (m) => { var b = document.getElementById('banner'); if (b) { b.textContent = '⚠ ' + m; b.className = 'banner err'; b.style.display = 'block'; } };
+    window.addEventListener('error', e => show((e.message || 'Script error') + (e.filename ? '  (' + e.filename.split('/').pop() + ')' : '')));
+    window.addEventListener('unhandledrejection', e => show('Load error: ' + (e.reason && e.reason.message ? e.reason.message : e.reason)));
+    if (location.protocol === 'file:') show('Opened from file:// — modules are blocked. Serve this folder over http (e.g. "py -m http.server") and open via http://localhost.');
+  })();
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+const SNAP_PX = 24;
+const RED = 0x000000, AMBER = 0xffb703;   // dimension geometry (lines/arrows/dots/pick markers) is black
+const W = mm => mm / 1000;                          // mm → world metres (glTF is metres)
+let units = 'both';                                 // 'mm' | 'in' | 'both'
+function fmt(mm) { const a = `${mm.toFixed(0)}`, b = `${(mm / 25.4).toFixed(1)}`; return units === 'mm' ? a : units === 'in' ? b : `${a} · ${b}`; }
+
+const $ = id => document.getElementById(id);
+const stage = $('stage'), labelsEl = $('labels'), dropEl = $('drop'), metaEl = $('meta'), banner = $('banner');
+function meta(t) { metaEl.textContent = t; }
+function warn(m) { banner.textContent = m; banner.className = 'banner warn'; banner.style.display = 'block'; }
+function err(m) { banner.textContent = '⚠ ' + m; banner.className = 'banner err'; banner.style.display = 'block'; }
+function clearBanner() { banner.style.display = 'none'; }
+
+// adjustable sizes (mm) + style
+let textMm = 150, arrowMm = 150, jogMm = 300;
+let extGapMm = 0, extPastMm = 150;   // extension line: gap from origin point, and length past the dimension line
+let extFixedMm = 0;                  // fixed extension-line length measured FROM the dimension line (0 = reach the picked point)
+let fontFamily = 'sans-serif', arrowStyle = 'arrow';   // arrowStyle: 'arrow' | 'tick' | 'dot'
+
+// ---- dimension types (AutoCAD-style) + SVG icons ---------------------------
+const DIM_TYPES = ['aligned', 'linear', 'continuous', 'baseline', 'angular'];
+const DIM_LABEL = { aligned: 'Aligned', linear: 'Linear', continuous: 'Continuous', baseline: 'Baseline', angular: 'Angular' };
+const ICONS = {
+  aligned: '<svg viewBox="0 0 24 16" width="20" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="4" y1="13" x2="20" y2="3"/><path d="M4 13l4-1M4 13l1-4"/><path d="M20 3l-4 1M20 3l-1 4"/></svg>',
+  linear: '<svg viewBox="0 0 24 16" width="20" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="4" y1="11" x2="20" y2="11"/><line x1="4" y1="4" x2="4" y2="13"/><line x1="20" y1="4" x2="20" y2="13"/><path d="M4 11l4-2M4 11l4 2"/><path d="M20 11l-4-2M20 11l-4 2"/></svg>',
+  continuous: '<svg viewBox="0 0 24 16" width="20" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="3" y1="11" x2="21" y2="11"/><line x1="3" y1="7" x2="3" y2="13"/><line x1="9" y1="7" x2="9" y2="13"/><line x1="15" y1="7" x2="15" y2="13"/><line x1="21" y1="7" x2="21" y2="13"/></svg>',
+  baseline: '<svg viewBox="0 0 24 16" width="20" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="4" y1="2" x2="4" y2="14"/><line x1="4" y1="5" x2="13" y2="5"/><line x1="4" y1="9" x2="18" y2="9"/><line x1="4" y1="13" x2="22" y2="13"/></svg>',
+  angular: '<svg viewBox="0 0 24 16" width="20" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="4" y1="14" x2="21" y2="14"/><line x1="4" y1="14" x2="19" y2="3"/><path d="M15 14a11 11 0 0 0-3-6"/></svg>',
+};
+let dimMode = 'aligned', jogDirDefault = 'horizontal', linearOrient = 'horizontal';
+
+// ---- three.js setup --------------------------------------------------------
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf4f4f1);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.001, 10000);
+const ocam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.001, 100000);
+let activeCam = camera, parallel = false, orthoHalfH = 1;
+const renderer = new THREE.WebGLRenderer({ antialias: true, stencil: true, alpha: true });   // alpha → transparent sheet snapshots
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));   // cap DPR — heavy models are fragment-bound on HiDPI
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.localClippingEnabled = true; // section cuts apply to model materials only
+stage.insertBefore(renderer.domElement, labelsEl);
+const labelRenderer = new CSS2DRenderer({ element: labelsEl });
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x666666, 0.6));
+const dl = new THREE.DirectionalLight(0xffffff, 1.3); dl.position.set(1, 2, 1.5); scene.add(dl);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = false;   // damping drifts for ages at low FPS on heavy models — stop on release instead
+
+const draco = new DRACOLoader();
+draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+const loader = new GLTFLoader();
+loader.setDRACOLoader(draco);
+
+const raycaster = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+
+let modelRoot = null, meshes = [], modelScale = 1, markerR = 0.02, fileName = '', modelUrl = '';
+let commentMode = false;
+let flatShade = true, blockMatStore = [];   // flat/unlit removes two-tone from BCDS's inconsistent baked normals
+
+let dimensions = [];                 // committed defs: {type, a, b, [v], jogDir|orient, jogMult, group, label}
+let picks = [], pickMarkers = [], previewDefs = [], pendingDef = null, awaitJog = false;
+let measurePlane = null, lastPickNormal = null;   // after the 1st pick, bias snaps onto its plane (coplanar runs)
+let selectedDims = new Set();                      // dims selected in the 📏 list / via right-click, for edit + bulk delete
+let jogPhase = false, chainJog = null, jogCandidate = null, jogPreview = null, chainJogDir = new THREE.Vector3(0, 1, 0), jogForPending = false;
+
+// section: plane or clip-box (per-scene model differentiation without tags)
+let sectionOn = false, sectionMode = 'plane', sectionAxis = 'X', sectionFlip = false, sectionT = 0.5, sectionShowHelper = true;
+let boxFrac = { x: [0, 1], y: [0, 1], z: [0, 1] };
+const clipPlanes = [];                       // stable array; materials reference it, contents mutate live
+const planePlane = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
+const boxPlanes = [0, 0, 0, 0, 0, 0].map(() => new THREE.Plane());
+let planeHelper = null, boxHelper = null, secBox = null;
+
+const snapMarker = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12),
+  new THREE.MeshBasicMaterial({ color: 0x32cd32, depthTest: false, transparent: true }));
+snapMarker.renderOrder = 1000; snapMarker.visible = false; scene.add(snapMarker);
+
+let comments = [];
+
+function setOrthoFrustum(halfH) {
+  orthoHalfH = halfH; const a = (stage.clientWidth / stage.clientHeight) || 1;
+  ocam.left = -halfH * a; ocam.right = halfH * a; ocam.top = halfH; ocam.bottom = -halfH; ocam.updateProjectionMatrix();
+}
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  camera.aspect = w / h || 1; camera.updateProjectionMatrix();
+  setOrthoFrustum(orthoHalfH);
+  renderer.setSize(w, h); labelRenderer.setSize(w, h);
+}
+window.addEventListener('resize', resize);
+function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, activeCam); labelRenderer.render(scene, activeCam); }
+resize(); animate();
+
+// ---- geometry helpers ------------------------------------------------------
+function makeSphere(color, p, scale) {
+  const m = new THREE.Mesh(new THREE.SphereGeometry(markerR * (scale || 1), 16, 12), new THREE.MeshBasicMaterial({ color, depthTest: false }));
+  m.position.copy(p); m.renderOrder = 999; return m;
+}
+function lineSeg(p, q, mat) { const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([p, q]), mat); l.renderOrder = 998; return l; }
+function makeArrow(tip, axisDir, h, r, mat) {
+  const dir = axisDir.clone().normalize();
+  if (arrowStyle === 'dot') {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(r * 1.2, 12, 10), mat); m.position.copy(tip); m.renderOrder = 999; return m;
+  }
+  if (arrowStyle === 'tick') {  // architectural 45° oblique tick across the line at the tip
+    const up = new THREE.Vector3(0, 1, 0);
+    let perp = new THREE.Vector3().crossVectors(dir, up); if (perp.lengthSq() < 1e-9) perp = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(1, 0, 0)); perp.normalize();
+    const d1 = dir.clone().add(perp).multiplyScalar(h * 0.6), d2 = dir.clone().sub(perp).multiplyScalar(h * 0.6);
+    const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([tip.clone().add(d1), tip.clone().sub(d1)]), new THREE.LineBasicMaterial({ color: mat.color, depthTest: false }));
+    l.renderOrder = 999; return l;
+  }
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(r, h, 14), mat);   // default filled arrow
+  cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+  cone.position.copy(tip.clone().sub(dir.clone().multiplyScalar(h / 2)));
+  cone.renderOrder = 999; return cone;
+}
+// world-sized billboard text → scales 1:1 with the model
+function makeTextSprite(text, worldHeight) {
+  const fontPx = 160, pad = 16;   // high-res label texture so text stays crisp when enlarged for print
+  const c = document.createElement('canvas'), ctx = c.getContext('2d');
+  ctx.font = `bold ${fontPx}px ${fontFamily}`;
+  const tw = Math.ceil(ctx.measureText(text).width);
+  c.width = tw + pad * 2; c.height = fontPx + pad * 2;
+  const w = c.width, h = c.height;
+  ctx.font = `bold ${fontPx}px ${fontFamily}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#000'; ctx.fillText(text, w / 2, h / 2 + 2);   // black text, no halo (user asked to drop the white outline)
+  const tex = new THREE.CanvasTexture(c); tex.anisotropy = 8; tex.minFilter = THREE.LinearFilter;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
+  sp.renderOrder = 1001;
+  sp.scale.set(worldHeight * (w / fontPx), worldHeight * (h / fontPx), 1);
+  return sp;
+}
+
+// ---- model loading ---------------------------------------------------------
+function clearModel() {
+  if (modelRoot) { scene.remove(modelRoot); modelRoot.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
+  modelRoot = null; meshes = [];
+  clearAllDimensions();
+  if (planeHelper) { scene.remove(planeHelper); planeHelper = null; }
+  if (boxHelper) { scene.remove(boxHelper); boxHelper = null; }
+  sectionOn = false; secBox = null; boxFrac = { x: [0, 1], y: [0, 1], z: [0, 1] };
+  clearCaps(); cappingOn = false; $('secCap').checked = false;
+  $('section').classList.remove('active'); $('sectionPop').hidden = true;
+  scenes = []; activeSceneId = null; $('scenesPop').hidden = true; renderScenes();
+  $('dimsPop').hidden = true;
+  comments.forEach(c => { scene.remove(c.obj); if (c.anchor) scene.remove(c.anchor); });
+  comments = []; renderCommentList(); $('popup').hidden = true;
+  sheets = []; sheetCurId = null; sheetVPs = []; $('sheetOverlay').classList.remove('open'); if ($('sheetTabs')) $('sheetTabs').innerHTML = '';
+}
+function loadFromURL(url, name) {
+  modelUrl = url;   // remember the source so we can auto-fetch the sidecar annotations next to it
+  loader.load(url, g => onLoaded(g, name), undefined, e => { console.error(e); err('Could not load model: ' + (e.message || e)); });
+}
+function loadFile(file) {
+  if (!file) return;
+  if (!/\.(glb|gltf)$/i.test(file.name)) { err('Not a .glb / .gltf file'); return; }
+  modelUrl = '';   // dropped/opened local file has no shareable URL → no sidecar fetch
+  meta(`${file.name} — loading…`); clearBanner();
+  const url = URL.createObjectURL(file);
+  loader.load(url, g => { URL.revokeObjectURL(url); onLoaded(g, file.name); }, undefined,
+    e => { console.error(e); err('Could not load model: ' + (e.message || e)); });
+}
+function onLoaded(gltf, name) {
+  clearBanner(); clearModel();
+  fileName = name || 'model';
+  modelRoot = gltf.scene; scene.add(modelRoot); modelRoot.updateMatrixWorld(true);
+  modelRoot.traverse(o => {
+    if (o.isMesh && o.geometry && o.geometry.attributes.position) {
+      meshes.push(o);
+      const mats = Array.isArray(o.material) ? o.material : [o.material];   // push faces back so baked edge-lines win the depth test (esp. in orthographic)
+      mats.forEach(m => { if (m) { m.polygonOffset = true; m.polygonOffsetFactor = 1; m.polygonOffsetUnits = 1; } });
+    }
+  });
+  if (!meshes.length) warn('Model loaded but contains no measurable mesh geometry.');
+  optimizeModel();                               // merge by material → far fewer draw calls (smoother orbit)
+  indexBlockMaterials(); applyFlatShade();        // unlit render → blue faces one colour, orange cut-faces preserved
+
+  const box = new THREE.Box3().setFromObject(modelRoot);
+  const size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
+  modelScale = size.length() || 1; markerR = modelScale * 0.0022;   // smaller markers/dots
+  snapMarker.geometry.dispose(); snapMarker.geometry = new THREE.SphereGeometry(markerR, 16, 12);
+  fitCamera(center, size);
+
+  dropEl.classList.add('hidden');
+  ['dimtypes', 'comment', 'list', 'dims', 'reset', 'export', 'sizes', 'views', 'parallel', 'uniform', 'section', 'scenes', 'sheet', 'lock2d'].forEach(id => $(id).classList.remove('disabled'));
+  meta(`${fileName}  —  ${Math.round(size.x*1000)} × ${Math.round(size.y*1000)} × ${Math.round(size.z*1000)} mm (bbox)  ·  ${meshes.length} meshes`);
+  const hadLocal = hasLocalAnnotations();
+  loadPersistedComments(); loadPersistedScenes(); loadPersistedDims();   // dims after scenes so each dim re-binds to its scene
+  loadSheets();   // sheets reference scene ids, so load after scenes
+  if (!hadLocal) tryLoadSidecar();   // first-time / link-shared viewer: pull annotations published next to the model
+}
+function fitCamera(center, size) {
+  const maxDim = Math.max(size.x, size.y, size.z) || 1;
+  const dist = (maxDim / 2) / Math.tan((camera.fov * Math.PI / 180) / 2) * 1.6;
+  const pos = new THREE.Vector3(center.x + dist * 0.7, center.y + dist * 0.55, center.z + dist * 0.7);
+  camera.near = maxDim / 1000; camera.far = maxDim * 100; camera.position.copy(pos); camera.updateProjectionMatrix();
+  ocam.near = maxDim / 1000; ocam.far = maxDim * 200; ocam.position.copy(pos); ocam.zoom = 1; setOrthoFrustum(maxDim * 0.62);
+  camera.up.set(0, 1, 0); ocam.up.set(0, 1, 0);
+  controls.target.copy(center); controls.update();
+}
+// rotate the current view in-plane about the vertical axis (spins a Top/Bottom plan view portrait↔landscape)
+function rotateView(deg) {
+  if (!modelRoot) return;
+  const t = controls.target, ax = new THREE.Vector3(0, 1, 0), ang = deg * Math.PI / 180;
+  [camera, ocam].forEach(c => { const off = c.position.clone().sub(t); off.applyAxisAngle(ax, ang); c.position.copy(t.clone().add(off)); });
+  controls.update(); scheduleSceneUpdate();
+}
+function setParallel(on) {
+  const from = activeCam, to = on ? ocam : camera;
+  to.position.copy(from.position); to.up.copy(from.up);
+  if (on) { const d = from.position.distanceTo(controls.target); setOrthoFrustum(d * Math.tan((camera.fov * Math.PI / 180) / 2)); ocam.zoom = 1; }
+  parallel = on; activeCam = to; controls.object = to;
+  $('parallel').classList.toggle('active', on); $('parallel').textContent = on ? '▱ Parallel' : '◉ Perspective';
+  to.updateProjectionMatrix(); controls.update(); scheduleSceneUpdate();
+}
+$('parallel').onclick = e => { e.preventDefault(); if (!$('parallel').classList.contains('disabled')) setParallel(!parallel); };
+let lock2d = false;
+function setLock2D(on) { lock2d = on; controls.enableRotate = !on; $('lock2d').classList.toggle('active', on); $('lock2d').textContent = on ? '🔒 2D locked' : '🔓 Lock 2D'; }
+$('lock2d').onclick = e => { e.preventDefault(); if (!$('lock2d').classList.contains('disabled')) setLock2D(!lock2d); };
+$('reset').onclick = e => { e.preventDefault(); if (modelRoot) { setParallel(false); camera.up.set(0, 1, 0); const b = new THREE.Box3().setFromObject(modelRoot); fitCamera(b.getCenter(new THREE.Vector3()), b.getSize(new THREE.Vector3())); } };
+
+// ---- standard views --------------------------------------------------------
+const VIEWS = {
+  front: { dir: [0, 0, 1], up: [0, 1, 0] }, back: { dir: [0, 0, -1], up: [0, 1, 0] },
+  left: { dir: [-1, 0, 0], up: [0, 1, 0] }, right: { dir: [1, 0, 0], up: [0, 1, 0] },
+  top: { dir: [0, 1, 0], up: [0, 1, 0] }, bottom: { dir: [0, -1, 0], up: [0, 1, 0] },
+  iso: { dir: [1, 0.8, 1], up: [0, 1, 0] },   // ALL views share standard Y-up so orbit pivot never reorients
+};
+function setView(dir, up) {
+  if (!modelRoot) return;
+  const box = new THREE.Box3().setFromObject(modelRoot);
+  const center = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z) || 1;
+  const dist = (maxDim / 2) / Math.tan((camera.fov * Math.PI / 180) / 2) * 1.6;
+  const pos = center.clone().add(dir.clone().normalize().multiplyScalar(dist));
+  [camera, ocam].forEach(c => { c.position.copy(pos); c.up.copy(up); });
+  camera.near = maxDim / 1000; camera.far = maxDim * 100; camera.updateProjectionMatrix();
+  ocam.near = maxDim / 1000; ocam.far = maxDim * 200; ocam.zoom = 1; setOrthoFrustum(maxDim * 0.62);
+  // standard views are orthographic (parallel) — that's what 2D views need
+  parallel = true; activeCam = ocam; controls.object = ocam;
+  $('parallel').classList.add('active'); $('parallel').textContent = '▱ Parallel';
+  controls.target.copy(center); controls.update(); scheduleSceneUpdate();
+}
+$('views').onclick = e => { e.preventDefault(); if (!$('views').classList.contains('disabled')) $('viewsPop').hidden = !$('viewsPop').hidden; };
+$('viewsPop').querySelectorAll('button[data-v]').forEach(b => b.onclick = () => { const v = VIEWS[b.dataset.v]; setView(new THREE.Vector3(...v.dir), new THREE.Vector3(...v.up)); });
+$('viewsPop').querySelectorAll('button[data-rot]').forEach(b => b.onclick = () => rotateView(+b.dataset.rot));
+
+// ---- section plane ---------------------------------------------------------
+function applyClipToModel(on) {
+  if (!modelRoot) return;
+  modelRoot.traverse(o => {
+    if (!o.material) return;                 // meshes AND lines (baked edges) — so edges get clipped too
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    mats.forEach(m => { if (!m) return; m.clippingPlanes = on ? clipPlanes : null; if (o.isMesh) m.side = (on && cappingOn) ? THREE.FrontSide : THREE.DoubleSide; m.needsUpdate = true; });
+  });
+}
+function fracPos(ax, f) { return secBox.min[ax] + f * (secBox.max[ax] - secBox.min[ax]); }
+function updateClip() {
+  if (!secBox) return;
+  clipPlanes.length = 0;
+  const ctr = secBox.getCenter(new THREE.Vector3());
+  if (sectionMode === 'plane') {
+    const ax = sectionAxis.toLowerCase();
+    const n = new THREE.Vector3(); n[ax] = sectionFlip ? 1 : -1;
+    const c = ctr.clone(); c[ax] = fracPos(ax, sectionT);
+    planePlane.setFromNormalAndCoplanarPoint(n, c); clipPlanes.push(planePlane);
+  } else {                                   // clip box = 6 inward planes (intersection of half-spaces)
+    let bi = 0;
+    ['x', 'y', 'z'].forEach(ax => {
+      const nMin = new THREE.Vector3(); nMin[ax] = 1; const cMin = ctr.clone(); cMin[ax] = fracPos(ax, boxFrac[ax][0]); boxPlanes[bi].setFromNormalAndCoplanarPoint(nMin, cMin); clipPlanes.push(boxPlanes[bi++]);
+      const nMax = new THREE.Vector3(); nMax[ax] = -1; const cMax = ctr.clone(); cMax[ax] = fracPos(ax, boxFrac[ax][1]); boxPlanes[bi].setFromNormalAndCoplanarPoint(nMax, cMax); clipPlanes.push(boxPlanes[bi++]);
+    });
+  }
+  updateSecHelper(); ensureCaps(); scheduleSceneUpdate();
+}
+function updateSecHelper() {
+  if (planeHelper) { scene.remove(planeHelper); planeHelper = null; }
+  if (boxHelper) { scene.remove(boxHelper); boxHelper = null; }
+  if (!sectionOn || !sectionShowHelper || !secBox) return;
+  if (sectionMode === 'plane') { planeHelper = new THREE.PlaneHelper(planePlane, modelScale * 1.1, 0x1d3557); scene.add(planeHelper); }
+  else {
+    const b = new THREE.Box3();
+    b.min.set(fracPos('x', boxFrac.x[0]), fracPos('y', boxFrac.y[0]), fracPos('z', boxFrac.z[0]));
+    b.max.set(fracPos('x', boxFrac.x[1]), fracPos('y', boxFrac.y[1]), fracPos('z', boxFrac.z[1]));
+    boxHelper = new THREE.Box3Helper(b, 0x1d3557); scene.add(boxHelper);
+  }
+}
+function setSection(on) {
+  if (!modelRoot && on) return;
+  sectionOn = on; $('section').classList.toggle('active', on);
+  if (on) { secBox = new THREE.Box3().setFromObject(modelRoot); updateClip(); applyClipToModel(true); }
+  else { applyClipToModel(false); updateSecHelper(); ensureCaps(); scheduleSceneUpdate(); }
+}
+function setSectionMode(m) {
+  sectionMode = m;
+  $('secModePlane').classList.toggle('active', m === 'plane');
+  $('secModeBox').classList.toggle('active', m === 'box');
+  $('secPlane').hidden = m !== 'plane'; $('secBoxCtl').hidden = m !== 'box';
+  if (sectionOn) updateClip();
+}
+$('section').onclick = e => {
+  e.preventDefault(); if ($('section').classList.contains('disabled')) return;
+  if ($('sectionPop').hidden) { if (!sectionOn) setSection(true); $('sectionPop').hidden = false; $('section').classList.add('active'); }
+  else { $('sectionPop').hidden = true; $('section').classList.toggle('active', sectionOn); } // collapse, keep the cut active
+};
+$('secModePlane').onclick = () => setSectionMode('plane');
+$('secModeBox').onclick = () => setSectionMode('box');
+$('secShow').onchange = () => { sectionShowHelper = $('secShow').checked; updateSecHelper(); };
+$('secaxis').onclick = e => { e.preventDefault(); sectionAxis = ({ X: 'Y', Y: 'Z', Z: 'X' })[sectionAxis]; $('secaxis').textContent = sectionAxis; updateClip(); };
+$('secpos').addEventListener('input', () => { sectionT = (+$('secpos').value) / 100; updateClip(); });
+$('secflip').onclick = () => { sectionFlip = !sectionFlip; updateClip(); };
+['x', 'y', 'z'].forEach(ax => {
+  $('b' + ax + '0').addEventListener('input', () => { let v = (+$('b' + ax + '0').value) / 100; if (v > boxFrac[ax][1]) v = boxFrac[ax][1]; boxFrac[ax][0] = v; updateClip(); });
+  $('b' + ax + '1').addEventListener('input', () => { let v = (+$('b' + ax + '1').value) / 100; if (v < boxFrac[ax][0]) v = boxFrac[ax][0]; boxFrac[ax][1] = v; updateClip(); });
+});
+$('secoff').onclick = () => { setSection(false); $('sectionPop').hidden = true; $('section').classList.remove('active'); };
+setSectionMode('plane');
+
+// ---- section caps: cheap interior fill (back faces in a flat colour; works on any geometry) ----
+let cappingOn = false, capGroup = null;
+const capColor = 0x9aa0a6;
+function clearCaps() {
+  if (capGroup) { scene.remove(capGroup); if (capGroup.userData.fillMat) capGroup.userData.fillMat.dispose(); capGroup = null; }
+}
+function buildCaps() {
+  clearCaps();
+  if (!cappingOn || !sectionOn || !meshes.length || !clipPlanes.length) return;
+  capGroup = new THREE.Group(); scene.add(capGroup);
+  const fillMat = new THREE.MeshBasicMaterial({ color: capColor, side: THREE.BackSide }); // inner faces revealed by the cut
+  fillMat.clippingPlanes = clipPlanes;             // live reference — follows the section as it moves
+  capGroup.userData.fillMat = fillMat;
+  meshes.forEach(mesh => { const m = new THREE.Mesh(mesh.geometry, fillMat); m.applyMatrix4(mesh.matrixWorld); m.renderOrder = 1; capGroup.add(m); });
+}
+function ensureCaps() {
+  if (!modelRoot) return;
+  if (cappingOn && sectionOn) { if (!capGroup) buildCaps(); }
+  else clearCaps();
+}
+$('secCap').onchange = () => { cappingOn = $('secCap').checked; applyClipToModel(sectionOn); ensureCaps(); };
+
+// ---- perf: merge by material (8124 meshes → ~1 draw call each) -------------
+// The model is hundreds of meshes = hundreds of draw calls/frame = orbit judder.
+// Merge geometry per material into one mesh each (baking world transforms), so the
+// GPU draws a handful of batches. Picking/snapping still work (hit.face → vertices).
+function optimizeModel() {
+  try {
+    const meshGeo = new Map(), lineGeo = new Map();           // material → [world-baked geometries]
+    modelRoot.updateMatrixWorld(true);
+    const grab = (o, map) => {
+      const m = o.material; if (!m || Array.isArray(m) || !o.geometry) return;
+      const g = o.geometry.clone(); g.applyMatrix4(o.matrixWorld);
+      if (!map.has(m)) map.set(m, []); map.get(m).push(g);
+    };
+    modelRoot.traverse(o => { if (o.isMesh) grab(o, meshGeo); else if (o.isLine) grab(o, lineGeo); });
+    const root = new THREE.Group(), newMeshes = [];
+    meshGeo.forEach((geos, mat) => { const g = mergeGeometries(geos, false); geos.forEach(x => x.dispose()); if (g) { const mesh = new THREE.Mesh(g, mat); root.add(mesh); newMeshes.push(mesh); } });
+    lineGeo.forEach((geos, mat) => { const g = mergeGeometries(geos, false); geos.forEach(x => x.dispose()); if (g) root.add(new THREE.LineSegments(g, mat)); });
+    if (!newMeshes.length) return;                            // merge produced nothing → keep original
+    scene.remove(modelRoot); modelRoot.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+    modelRoot = root; scene.add(modelRoot); modelRoot.updateMatrixWorld(true);
+    meshes = newMeshes;
+  } catch (e) { console.warn('mesh merge skipped:', e); }      // fall back to the unmerged model
+}
+
+// ---- flat (unlit) shading --------------------------------------------------
+// Blue block faces share one colour, but BCDS bakes inconsistent face normals, so under
+// lighting coplanar blocks shade light/dark (two-tone). Unlit rendering removes that —
+// each face shows its true material colour (blue → one blue; orange cut-faces stay orange).
+// Baked edge LINES are already unlit, so they're untouched. Reversible via the 💡 Flat toggle.
+const unlitCache = new Map();   // original mesh material uuid → unlit twin
+function unlitTwin(m) {
+  if (unlitCache.has(m.uuid)) return unlitCache.get(m.uuid);
+  const b = new THREE.MeshBasicMaterial({ color: m.color ? m.color.getHex() : 0xffffff, map: m.map || null,
+    transparent: m.transparent, opacity: m.opacity, alphaTest: m.alphaTest, side: m.side, depthWrite: m.depthWrite });
+  b.polygonOffset = true; b.polygonOffsetFactor = 1; b.polygonOffsetUnits = 1;   // keep baked edges winning the depth test
+  unlitCache.set(m.uuid, b); return b;
+}
+function indexBlockMaterials() {
+  blockMatStore = []; unlitCache.clear();
+  meshes.forEach(mesh => { if (mesh.material && !Array.isArray(mesh.material)) blockMatStore.push({ mesh, origMat: mesh.material }); });
+}
+function applyFlatShade() {
+  $('uniform').classList.toggle('active', flatShade);
+  blockMatStore.forEach(s => { s.mesh.material = flatShade ? unlitTwin(s.origMat) : s.origMat; });
+  if (sectionOn) applyClipToModel(true);   // re-sync section clipping onto whichever materials are active
+}
+$('uniform').onclick = e => { e.preventDefault(); if ($('uniform').classList.contains('disabled')) return; flatShade = !flatShade; applyFlatShade(); };
+
+// ---- scenes (saved views: camera + projection + section) -------------------
+let scenes = [], activeSceneId = null, restoringScene = false, sceneUpdT = null;
+function makeDefaultScene() { const s = captureScene('Default'); s.id = '__default__'; s.locked = true; return s; }
+function autoUpdateActiveScene() {
+  if (restoringScene || !activeSceneId) return;
+  const s = scenes.find(x => x.id === activeSceneId); if (!s) return;
+  if (s.locked) return; // Default scene is fixed — don't edit it, but stay on it so per-scene dims still resolve
+  const f = captureScene(s.name); f.id = s.id; f.name = s.name; f.locked = false; Object.assign(s, f); persistScenes();
+}
+function updateDimVisibility() {   // each dimension belongs to the scene it was made in; show only the active scene's
+  dimensions.forEach(d => { const v = d.sceneId === activeSceneId; if (d.group) d.group.visible = v; if (d.label) d.label.visible = v; });
+}
+function scheduleSceneUpdate() { clearTimeout(sceneUpdT); sceneUpdT = setTimeout(autoUpdateActiveScene, 250); }
+controls.addEventListener('end', scheduleSceneUpdate);
+function captureScene(name) {
+  const c = activeCam;
+  return {
+    id: 's' + Date.now() + Math.random().toString(36).slice(2, 5),
+    name: name || ('View ' + (scenes.length + 1)),
+    parallel, lock2d,
+    cam: { px: c.position.x, py: c.position.y, pz: c.position.z, tx: controls.target.x, ty: controls.target.y, tz: controls.target.z, ux: c.up.x, uy: c.up.y, uz: c.up.z, zoom: ocam.zoom, halfH: orthoHalfH },
+    section: { on: sectionOn, mode: sectionMode, axis: sectionAxis, flip: sectionFlip, t: sectionT, show: sectionShowHelper, box: JSON.parse(JSON.stringify(boxFrac)) },
+  };
+}
+function restoreScene(s) {
+  restoringScene = true; cancelDim();
+  // section state + UI sync, then apply
+  sectionMode = s.section.mode; sectionAxis = s.section.axis; sectionFlip = s.section.flip; sectionT = s.section.t; sectionShowHelper = s.section.show; boxFrac = JSON.parse(JSON.stringify(s.section.box));
+  $('secaxis').textContent = sectionAxis; $('secpos').value = Math.round(sectionT * 100); $('secShow').checked = sectionShowHelper;
+  $('bx0').value = Math.round(boxFrac.x[0] * 100); $('bx1').value = Math.round(boxFrac.x[1] * 100);
+  $('by0').value = Math.round(boxFrac.y[0] * 100); $('by1').value = Math.round(boxFrac.y[1] * 100);
+  $('bz0').value = Math.round(boxFrac.z[0] * 100); $('bz1').value = Math.round(boxFrac.z[1] * 100);
+  setSectionMode(sectionMode); setSection(s.section.on);
+  // projection + camera
+  setParallel(s.parallel);
+  [camera, ocam].forEach(c => { c.position.set(s.cam.px, s.cam.py, s.cam.pz); c.up.set(s.cam.ux, s.cam.uy, s.cam.uz); });
+  ocam.zoom = s.cam.zoom || 1; setOrthoFrustum(s.cam.halfH || orthoHalfH);
+  controls.target.set(s.cam.tx, s.cam.ty, s.cam.tz);
+  activeCam.updateProjectionMatrix(); controls.update();
+  setLock2D(!!s.lock2d);
+  activeSceneId = s.id; renderSceneTabs(); updateDimVisibility(); renderDimsList();
+  clearTimeout(sceneUpdT); restoringScene = false;  // drop any auto-update queued by the restore itself
+}
+function renderSceneTabs() {
+  const bar = $('sceneTabs'); bar.innerHTML = '';
+  scenes.forEach(s => {
+    const t = document.createElement('div'); t.className = 'stab' + (s.id === activeSceneId ? ' active' : '');
+    t.textContent = s.name; t.title = 'Switch to ' + s.name; t.onclick = () => restoreScene(s);
+    bar.appendChild(t);
+  });
+}
+function renderScenes() {
+  renderSceneTabs();
+  const list = $('sceneList');
+  if (!scenes.length) { list.innerHTML = '<div class="empty">No saved views yet — set a view, then “Save current view”.</div>'; return; }
+  list.innerHTML = '';
+  scenes.forEach(s => {
+    const el = document.createElement('div'); el.className = 'sceneitem';
+    const nm = document.createElement('span'); nm.className = 'snm'; nm.textContent = s.name + (s.locked ? '  (home)' : ''); nm.title = 'Restore'; nm.onclick = () => restoreScene(s);
+    el.append(nm);
+    if (!s.locked) {   // Default scene is fixed — auto-updates handle the rest, so only a Rename + Delete here
+      const ren = document.createElement('button'); ren.textContent = 'Rename'; ren.onclick = () => { const n = prompt('Scene name:', s.name); if (n) { s.name = n.trim(); renderScenes(); persistScenes(); } };
+      const del = document.createElement('button'); del.textContent = '✕'; del.title = 'Delete'; del.onclick = () => {
+        dimensions.filter(d => d.sceneId === s.id).forEach(removeDef); dimensions = dimensions.filter(d => d.sceneId !== s.id);   // delete the scene's dimensions too
+        scenes = scenes.filter(x => x !== s); if (activeSceneId === s.id) activeSceneId = '__default__';
+        renderScenes(); persistScenes(); updateDimVisibility(); renderDimsList(); persistDims();
+      };
+      el.append(ren, del);
+    }
+    list.appendChild(el);
+  });
+}
+function sceneKey() { return 'tlsglb-scenes::' + fileName; }
+function persistScenes() { try { localStorage.setItem(sceneKey(), JSON.stringify(scenes.filter(s => !s.locked))); } catch (e) {} }
+function loadPersistedScenes() {
+  let raw; try { raw = localStorage.getItem(sceneKey()); } catch (e) {}
+  const saved = raw ? (JSON.parse(raw) || []) : [];
+  scenes = [makeDefaultScene(), ...saved.filter(s => !s.locked)];   // Default always first, can't be edited/deleted
+  activeSceneId = '__default__'; renderScenes();
+}
+$('scenes').onclick = e => { e.preventDefault(); if (!$('scenes').classList.contains('disabled')) $('scenesPop').hidden = !$('scenesPop').hidden; };
+$('sceneSave').onclick = () => {
+  const n = prompt('Name this view:', 'View ' + scenes.filter(s => !s.locked).length);
+  if (n === null) return;
+  const s = captureScene(n.trim() || undefined); scenes.push(s); activeSceneId = s.id;  // becomes active → auto-updates from here
+  renderScenes(); persistScenes(); updateDimVisibility(); renderDimsList();   // new scene starts with no dimensions
+};
+
+// ---- file inputs / drag-drop ----------------------------------------------
+$('openbtn').onclick = () => $('file').click();
+$('open2').onclick = e => { e.preventDefault(); $('file').click(); };
+$('file').onchange = () => loadFile($('file').files[0]);
+['dragenter','dragover'].forEach(ev => stage.addEventListener(ev, e => { e.preventDefault(); if (!dropEl.classList.contains('hidden')) dropEl.classList.add('dragover'); }));
+['dragleave','drop'].forEach(ev => stage.addEventListener(ev, e => { e.preventDefault(); dropEl.classList.remove('dragover'); }));
+stage.addEventListener('drop', e => { if (e.dataTransfer.files.length) loadFile(e.dataTransfer.files[0]); });
+
+// ---- modes & hint ----------------------------------------------------------
+function updateHint() {
+  $('hint').textContent = commentMode ? 'Drag to orbit · tap to drop a comment'
+    : awaitJog ? 'Choose direction → Vertical or Horizontal'
+    : (dimMode === 'continuous' || dimMode === 'baseline') ? `${DIM_LABEL[dimMode]} · tap points · double-click last point (or Finish / Esc) to end`
+    : dimMode === 'angular' ? 'Angular · tap the vertex, then the two ends'
+    : `${DIM_LABEL[dimMode]} · tap two points (snaps to corners/edges)`;
+}
+let chainOrient = 'horizontal';
+const dimtypesEl = $('dimtypes');
+DIM_TYPES.forEach(t => {
+  const a = dimtypesEl.querySelector(`[data-dim="${t}"]`);
+  a.innerHTML = ICONS[t] + '<span>' + DIM_LABEL[t] + '</span>';
+  a.onclick = e => { e.preventDefault(); if (!dimtypesEl.classList.contains('disabled')) setDimType(t); };
+});
+function setDimType(m) {
+  cancelDim(); dimMode = m;
+  dimtypesEl.querySelectorAll('[data-dim]').forEach(a => a.classList.toggle('active', a.dataset.dim === m));
+  const multi = (m === 'continuous' || m === 'baseline');
+  $('finish').style.display = $('stepback').style.display = multi ? 'inline-block' : 'none';
+  if (multi) showDir(true); else showDir(false);   // chain orientation chooser
+  updateHint();
+}
+function showDir(on) {
+  $('jogv').style.display = $('jogh').style.display = on ? 'inline-block' : 'none';
+  if (on) { $('jogv').classList.remove('jogbtn'); $('jogh').classList.remove('jogbtn'); $('jogv').textContent = 'Vertical'; $('jogh').textContent = 'Horizontal'; updateDirActive(); }
+}
+function updateDirActive() { $('jogv').classList.toggle('active', chainOrient === 'vertical'); $('jogh').classList.toggle('active', chainOrient === 'horizontal'); }
+function openPanel(on) { $('side').classList.toggle('open', on); $('list').classList.toggle('active', on); }
+function setComment(on) { if (on) cancelDim(); commentMode = on; $('comment').classList.toggle('active', on); if (on) openPanel(true); updateHint(); }
+$('comment').onclick = e => { e.preventDefault(); if (!$('comment').classList.contains('disabled')) setComment(!commentMode); };
+$('list').onclick = e => { e.preventDefault(); if (!$('list').classList.contains('disabled')) openPanel(!$('side').classList.contains('open')); };
+function undoLastPick() {   // step back one point in a Continuous/Baseline chain (no full restart)
+  if (!picks.length) return;
+  const m = pickMarkers.pop(); if (m) scene.remove(m);
+  picks.pop();
+  if (!picks.length) { cancelDim(); meta('Chain cleared — tap to start again'); updateHint(); return; }
+  rebuildMultiPreview();
+  meta(`${DIM_LABEL[dimMode]}: ${picks.length} point(s) — double-click last / Finish / Esc to end`);
+}
+$('stepback').onclick = e => { e.preventDefault(); undoLastPick(); };
+window.addEventListener('keydown', e => {
+  if (/^(input|textarea|select)$/i.test((e.target && e.target.tagName) || '')) return;   // don't hijack typing in fields
+  if (e.key === 'Escape') { if ((dimMode === 'continuous' || dimMode === 'baseline') && picks.length) finishMulti(); else cancelDim(); return; }
+  if ((e.key === 'Backspace' || e.key === 'Delete')) {
+    if ((dimMode === 'continuous' || dimMode === 'baseline') && picks.length) { e.preventDefault(); undoLastPick(); }   // chain: step back one point
+    else if (selectedDims.size) { e.preventDefault(); deleteSelectedDims(); }                                          // otherwise: delete selected dimensions
+  }
+});
+
+// ---- settings (sizes) ------------------------------------------------------
+$('sizes').onclick = e => { e.preventDefault(); if (!$('sizes').classList.contains('disabled')) $('settings').hidden = !$('settings').hidden; };
+$('s_close').onclick = () => $('settings').hidden = true;
+function bindSize(inputId, set) { $(inputId).addEventListener('input', () => { const v = parseFloat($(inputId).value); if (v > 0) { set(v); rebuildAll(); } }); }
+bindSize('s_text', v => textMm = v); bindSize('s_arrow', v => arrowMm = v); bindSize('s_jog', v => jogMm = v);
+['s_gap', 's_past'].forEach((id, i) => $(id).addEventListener('input', () => { const v = parseFloat($(id).value); if (v >= 0) { if (i === 0) extGapMm = v; else extPastMm = v; rebuildAll(); } }));
+$('s_extlen').addEventListener('input', () => { const v = parseFloat($('s_extlen').value); if (v >= 0) { extFixedMm = v; rebuildAll(); } });
+function rebuildAll() { dimensions.forEach(buildGeom); if (pendingDef) buildGeom(pendingDef); previewDefs.forEach(buildGeom); renderDimsList(); persistSizes(); }
+function setUnits(u) { units = u; $('u_mm').classList.toggle('active', u === 'mm'); $('u_in').classList.toggle('active', u === 'in'); $('u_both').classList.toggle('active', u === 'both'); rebuildAll(); }
+$('u_mm').onclick = () => setUnits('mm'); $('u_in').onclick = () => setUnits('in'); $('u_both').onclick = () => setUnits('both');
+$('s_font').onchange = () => { fontFamily = $('s_font').value; rebuildAll(); };
+function setArrowStyle(s) { arrowStyle = s; ['arrow', 'tick', 'dot'].forEach(x => $('ar_' + x).classList.toggle('active', x === s)); rebuildAll(); }
+$('ar_arrow').onclick = () => setArrowStyle('arrow'); $('ar_tick').onclick = () => setArrowStyle('tick'); $('ar_dot').onclick = () => setArrowStyle('dot');
+
+// ---- sizes persistence (global preference + carried in the annotation bundle) ----
+function sizesObj() { return { textMm, arrowMm, jogMm, extGapMm, extPastMm, extFixedMm, units, fontFamily, arrowStyle }; }
+function persistSizes() { try { localStorage.setItem('tlsglb-sizes', JSON.stringify(sizesObj())); } catch (e) {} }
+function applySizes(o, rebuild) {
+  if (!o) return;
+  if (o.textMm > 0) textMm = o.textMm; if (o.arrowMm > 0) arrowMm = o.arrowMm; if (o.jogMm > 0) jogMm = o.jogMm;
+  if (o.extGapMm >= 0) extGapMm = o.extGapMm; if (o.extPastMm >= 0) extPastMm = o.extPastMm; if (o.extFixedMm >= 0) extFixedMm = o.extFixedMm;
+  if (o.units) units = o.units; if (o.fontFamily) fontFamily = o.fontFamily; if (o.arrowStyle) arrowStyle = o.arrowStyle;
+  $('s_text').value = textMm; $('s_arrow').value = arrowMm; $('s_jog').value = jogMm;
+  $('s_gap').value = extGapMm; $('s_past').value = extPastMm; $('s_extlen').value = extFixedMm; $('s_font').value = fontFamily;
+  ['mm', 'in', 'both'].forEach(u => $('u_' + u).classList.toggle('active', u === units));
+  ['arrow', 'tick', 'dot'].forEach(x => $('ar_' + x).classList.toggle('active', x === arrowStyle));
+  if (rebuild) rebuildAll();
+}
+function loadPersistedSizes() { let raw; try { raw = localStorage.getItem('tlsglb-sizes'); } catch (e) {} if (raw) { try { applySizes(JSON.parse(raw), false); } catch (e) {} } }
+
+// ---- dimensions list + delete ----------------------------------------------
+function dimDisplay(d) { return d.type === 'angular' ? (d.value || 0).toFixed(1) + '°' : fmt(d.value || 0); }
+// offset = signed perpendicular distance from the picked points to the dimension line (the witness-line length)
+function dimSupportsOffset(d) { return d && d.jog != null && (d.offAxis || d.jogDir); }
+function dimOffsetMm(d) { return dimSupportsOffset(d) ? d.jog * 1000 : null; }
+function setDimOffsetMm(d, mm) { if (dimSupportsOffset(d) && !isNaN(mm)) { d.jog = mm / 1000; buildGeom(d); persistDims(); } }
+function flipDimOffset(d) { if (d && d.jog != null) { d.jog = -d.jog; buildGeom(d); persistDims(); } }
+function dimExtMm(d) { return d && d.extFixed != null ? d.extFixed : extFixedMm; }   // fixed ext-line length from the dim line
+function setDimExtMm(d, mm) { if (d && !isNaN(mm)) { d.extFixed = Math.max(0, mm); buildGeom(d); persistDims(); } }
+function deleteSelectedDims() { [...selectedDims].forEach(deleteDimension); selectedDims.clear(); $('dimEdit').hidden = true; renderDimsList(); }
+function renderDimsList() {
+  const list = $('dimsList'); if (!list) return;
+  const mine = dimensions.filter(d => d.sceneId === activeSceneId);   // only this scene's dimensions
+  selectedDims.forEach(d => { if (!mine.includes(d)) selectedDims.delete(d); });   // drop selections not in this scene
+  if (!mine.length) { list.innerHTML = '<div class="empty">No dimensions in this scene. Tap points to add one; right-click a dimension to edit it.</div>'; return; }
+  list.innerHTML = '';
+  mine.forEach((d, i) => {
+    const el = document.createElement('div'); el.className = 'sceneitem' + (selectedDims.has(d) ? ' sel' : '');
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = selectedDims.has(d); cb.title = 'Select';
+    cb.onclick = ev => { ev.stopPropagation(); if (cb.checked) selectedDims.add(d); else selectedDims.delete(d); renderDimsList(); };
+    const nm = document.createElement('span'); nm.className = 'snm'; nm.textContent = (i + 1) + '. ' + DIM_LABEL[d.type === 'chain' ? 'continuous' : d.type] + ' — ' + dimDisplay(d); nm.title = 'Focus'; nm.onclick = () => focusDim(d);
+    const del = document.createElement('button'); del.textContent = '✕'; del.title = 'Delete'; del.onclick = () => { selectedDims.delete(d); deleteDimension(d); };
+    el.append(cb, nm, del); list.appendChild(el);
+  });
+  if (selectedDims.size) {                                  // bulk edit bar for the current selection
+    const sel = [...selectedDims].filter(dimSupportsOffset);
+    const bar = document.createElement('div'); bar.className = 'editbar';
+    const cnt = document.createElement('span'); cnt.style.fontSize = '11px'; cnt.style.color = '#555'; cnt.textContent = selectedDims.size + ' selected';
+    bar.append(cnt);
+    if (sel.length) {
+      const lab = document.createElement('span'); lab.textContent = 'Offset'; lab.style.fontSize = '11px';
+      const inp = document.createElement('input'); inp.type = 'number'; inp.step = '10'; const o = dimOffsetMm(sel[0]); inp.value = (o != null) ? Math.round(o) : '';
+      inp.oninput = () => { const mm = parseFloat(inp.value); if (!isNaN(mm)) sel.forEach(d => setDimOffsetMm(d, mm)); };
+      const flip = document.createElement('button'); flip.textContent = 'Flip'; flip.onclick = () => { sel.forEach(flipDimOffset); const v = dimOffsetMm(sel[0]); if (v != null) inp.value = Math.round(v); };
+      bar.append(lab, inp, document.createTextNode('mm'), flip);
+    }
+    const delsel = document.createElement('button'); delsel.textContent = 'Delete'; delsel.onclick = deleteSelectedDims; bar.append(delsel);
+    list.appendChild(bar);
+  }
+  refreshDimHighlights();
+}
+function focusDim(d) { const p = d.label ? d.label.position.clone() : (d.a ? d.a.clone() : new THREE.Vector3()); controls.target.copy(p); const dir = activeCam.position.clone().sub(p).normalize(); activeCam.position.copy(p.clone().add(dir.multiplyScalar(modelScale * 0.5))); controls.update(); }
+function deleteDimension(d) { removeDef(d); dimensions = dimensions.filter(x => x !== d); selectedDims.delete(d); renderDimsList(); persistDims(); if (!dimensions.length && !previewDefs.length && !pendingDef) $('clear').classList.add('disabled'); }
+$('dims').onclick = e => { e.preventDefault(); if (!$('dims').classList.contains('disabled')) { renderDimsList(); $('dimsPop').hidden = !$('dimsPop').hidden; } };
+
+// per-dimension editor (Offset / Flip / Delete) — select dimensions by tapping them in 3D
+const SEL_COLOR = 0xffb703;   // amber highlight for selected dimensions
+function setGroupColor(group, hex) { if (group) group.traverse(o => { if (o.material && o.material.color) o.material.color.setHex(hex); }); }
+function refreshDimHighlights() { dimensions.forEach(d => setGroupColor(d.group, selectedDims.has(d) ? SEL_COLOR : RED)); }
+function pickDimension(clientX, clientY) {   // select ONLY by tapping the value text — so a tap on geometry still starts a new dimension
+  setNDC(clientX, clientY); raycaster.setFromCamera(ndc, activeCam);
+  const labels = dimensions.filter(d => d.sceneId === activeSceneId && d.label).map(d => d.label);
+  if (!labels.length) return null;
+  const hits = raycaster.intersectObjects(labels, false);
+  return hits.length ? (dimensions.find(d => d.label === hits[0].object) || null) : null;
+}
+function showDimEditPopover(clientX, clientY) {
+  const arr = [...selectedDims]; const pop = $('dimEdit');
+  if (!arr.length) { pop.hidden = true; return; }
+  pop.hidden = false;
+  const offDims = arr.filter(dimSupportsOffset);
+  $('dimEditTitle').textContent = (arr.length === 1) ? (DIM_LABEL[arr[0].type === 'chain' ? 'continuous' : arr[0].type] + ' — ' + dimDisplay(arr[0])) : (arr.length + ' dimensions selected');
+  const off = offDims.length ? dimOffsetMm(offDims[0]) : null; $('dimOff').value = (off != null) ? Math.round(off) : ''; $('dimOff').disabled = !offDims.length;
+  $('dimExt').value = Math.round(dimExtMm(arr[0]));
+  const sr = stage.getBoundingClientRect();
+  pop.style.left = Math.max(8, Math.min(clientX - sr.left + 8, stage.clientWidth - 200)) + 'px';
+  pop.style.top = Math.max(8, Math.min(clientY - sr.top, stage.clientHeight - 130)) + 'px';
+}
+function openDimEdit(d, clientX, clientY) { selectedDims = new Set([d]); showDimEditPopover(clientX, clientY); renderDimsList(); refreshDimHighlights(); }
+$('dimOff').addEventListener('input', () => { const mm = parseFloat($('dimOff').value); selectedDims.forEach(d => setDimOffsetMm(d, mm)); refreshDimHighlights(); });
+$('dimExt').addEventListener('input', () => { const mm = parseFloat($('dimExt').value); selectedDims.forEach(d => setDimExtMm(d, mm)); refreshDimHighlights(); });
+$('dimFlip').onclick = () => { selectedDims.forEach(flipDimOffset); const d = [...selectedDims].filter(dimSupportsOffset)[0]; const o = d ? dimOffsetMm(d) : null; if (o != null) $('dimOff').value = Math.round(o); refreshDimHighlights(); };
+$('dimDel').onclick = () => { [...selectedDims].forEach(deleteDimension); selectedDims.clear(); $('dimEdit').hidden = true; renderDimsList(); };
+$('dimEditClose').onclick = () => { $('dimEdit').hidden = true; selectedDims.clear(); renderDimsList(); refreshDimHighlights(); };
+// right-click a dimension's value to edit it (tap = measure, so editing/deleting uses right-click)
+renderer.domElement.addEventListener('contextmenu', e => {
+  if (!dimensions.length) return;
+  if (Math.hypot(e.clientX - downX, e.clientY - downY) > 6) return; // was a right-drag pan
+  setNDC(e.clientX, e.clientY);
+  raycaster.setFromCamera(ndc, activeCam);
+  const hits = raycaster.intersectObjects(dimensions.map(d => d.label).filter(Boolean), false);
+  if (hits.length) { e.preventDefault(); const d = dimensions.find(x => x.label === hits[0].object); if (d) openDimEdit(d, e.clientX, e.clientY); }
+});
+
+// ---- picking + snapping ----------------------------------------------------
+function setNDC(clientX, clientY) {
+  const r = renderer.domElement.getBoundingClientRect();
+  ndc.x = ((clientX - r.left) / r.width) * 2 - 1;
+  ndc.y = -((clientY - r.top) / r.height) * 2 + 1;
+  return r;
+}
+function project(p, r) { const v = p.clone().project(activeCam); return { x: (v.x*.5+.5)*r.width, y: (-v.y*.5+.5)*r.height }; }
+// the raycaster ignores section clipping (clipping is GPU-only), so a top-view click would hit the
+// hidden geometry above the cut. Reject points the active section has clipped away → snap the visible plan.
+function visibleUnderClip(p) {
+  if (!sectionOn || !clipPlanes.length) return true;
+  for (const pl of clipPlanes) if (pl.distanceToPoint(p) < -1e-4) return false;
+  return true;
+}
+function pick(clientX, clientY) {
+  if (!meshes.length) return null;
+  const r = setNDC(clientX, clientY);
+  raycaster.setFromCamera(ndc, activeCam);
+  const hits = raycaster.intersectObjects(meshes, true);
+  let hit = null;
+  for (const h of hits) { if (visibleUnderClip(h.point)) { hit = h; break; } }   // first hit that isn't sectioned off
+  if (!hit) return null;
+  const biasPlane = (measurePlane && picks.length >= 1) ? measurePlane : null;   // only bias once we have a base point
+  const copTol = modelScale * 0.012;
+  let freePoint = hit.point.clone();
+  if (biasPlane) { const ip = new THREE.Vector3(); if (raycaster.ray.intersectPlane(biasPlane, ip)) freePoint = ip; }   // keep free picks on the base plane
+  let result = { point: freePoint, type: 'free', normal: null };
+  const f = hit.face, g = hit.object.geometry;
+  if (f && g.attributes.position) {
+    const m = hit.object.matrixWorld, pos = g.attributes.position;
+    const vw = i => new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(m);
+    const A = vw(f.a), B = vw(f.b), C = vw(f.c);
+    result.normal = new THREE.Triangle(A, B, C).getNormal(new THREE.Vector3());
+    const cands = [
+      { type: 'vertex', p: A }, { type: 'vertex', p: B }, { type: 'vertex', p: C },
+      { type: 'midpoint', p: A.clone().add(B).multiplyScalar(.5) },
+      { type: 'midpoint', p: B.clone().add(C).multiplyScalar(.5) },
+      { type: 'midpoint', p: C.clone().add(A).multiplyScalar(.5) },
+    ];
+    const cx = clientX - r.left, cy = clientY - r.top;
+    let best = null, bestD = SNAP_PX;
+    for (const c of cands) {
+      if (!visibleUnderClip(c.p)) continue;   // don't snap to corners the section has cut away
+      const s = project(c.p, r); let d = Math.hypot(s.x - cx, s.y - cy) - (c.type === 'vertex' ? 10 : 0);   // vertices win hard
+      if (biasPlane && Math.abs(biasPlane.distanceToPoint(c.p)) < copTol) d -= SNAP_PX * 1.1;   // strongly favour points coplanar with the base
+      if (d < bestD) { bestD = d; best = c; }
+    }
+    if (best) result = { point: best.p.clone(), type: best.type, normal: result.normal };
+  }
+  lastPickNormal = result.normal;
+  return result;
+}
+function showSnap(s) {
+  if (!s) { snapMarker.visible = false; return; }
+  snapMarker.position.copy(s.point);
+  snapMarker.scale.setScalar(s.type === 'free' ? 0.6 : 1.2);
+  snapMarker.material.color.set(s.type === 'vertex' ? 0x32cd32 : s.type === 'midpoint' ? 0x00bcd4 : 0xffffff);
+  snapMarker.material.opacity = s.type === 'free' ? 0.5 : 1.0;
+  snapMarker.visible = true;
+}
+renderer.domElement.addEventListener('pointermove', e => {
+  if (!modelRoot) { snapMarker.visible = false; return; }
+  if (jogPhase) {
+    jogCandidate = snapJog(computeJog(e.clientX, e.clientY, chainJogDir));
+    if (jogForPending && pendingDef) { pendingDef.offAxis = chainJogDir.clone(); pendingDef.jog = jogCandidate; buildGeom(pendingDef); }
+    updateJogPreview(); snapMarker.visible = false; return;
+  }
+  if (!awaitJog) showSnap(pick(e.clientX, e.clientY)); else snapMarker.visible = false;
+});
+renderer.domElement.addEventListener('pointerleave', () => { snapMarker.visible = false; });
+
+let downX = 0, downY = 0;
+renderer.domElement.addEventListener('pointerdown', e => { downX = e.clientX; downY = e.clientY; });
+renderer.domElement.addEventListener('pointerup', e => {
+  if (!modelRoot) return;
+  if (Math.hypot(e.clientX - downX, e.clientY - downY) > 6) return; // dragged → orbit
+  // jog placement: click ANYWHERE (incl. empty space, away from geometry) to lock the dimension-line level
+  if (jogPhase && jogForPending && pendingDef) {     // aligned/linear: lock the dimension-line location
+    jogCandidate = snapJog(computeJog(e.clientX, e.clientY, chainJogDir));
+    pendingDef.offAxis = chainJogDir.clone(); pendingDef.jog = jogCandidate; pendingDef.sceneId = activeSceneId; buildGeom(pendingDef);
+    dimensions.push(pendingDef); renderDimsList(); updateDimVisibility(); persistDims();
+    const v = pendingDef.value || 0; pendingDef = null; jogPhase = false; jogForPending = false; clearJogPreview(); clearPickMarkers(); picks = []; measurePlane = null;
+    $('clear').classList.remove('disabled'); meta(`${DIM_LABEL[dimMode]} dimension added: ${fmt(v)} — ${dimensions.length} total`);
+    return;
+  }
+  if (jogPhase && (dimMode === 'continuous' || dimMode === 'baseline')) {
+    chainJog = (jogCandidate != null ? jogCandidate : computeJog(e.clientX, e.clientY, chainJogDir));
+    jogPhase = false; clearJogPreview();
+    meta('Dimension line set — now tap the points to dimension (double-click last / Finish / Esc to end)');
+    return;
+  }
+  // idle tap on a dimension → select it (Shift/Ctrl-click to add more); a tap on the model still measures
+  if (!commentMode && !picks.length && !awaitJog) {
+    const dsel = pickDimension(e.clientX, e.clientY);
+    if (dsel) {
+      const add = e.shiftKey || e.ctrlKey || e.metaKey;
+      if (add) { if (selectedDims.has(dsel)) selectedDims.delete(dsel); else selectedDims.add(dsel); }
+      else selectedDims = new Set([dsel]);
+      showDimEditPopover(e.clientX, e.clientY); renderDimsList();
+      return;
+    }
+  }
+  const s = pick(e.clientX, e.clientY);
+  if (!s) return;
+  if (commentMode) createComment(s.point); else handleDimPick(s.point);
+});
+// double-click ends a Continuous / Baseline chain (drops the 2nd click's duplicate point)
+renderer.domElement.addEventListener('dblclick', () => {
+  if (commentMode || !(dimMode === 'continuous' || dimMode === 'baseline') || !picks.length) return;
+  picks.pop(); rebuildMultiPreview(); finishMulti();
+});
+
+// ---- dimension input dispatch ----------------------------------------------
+function addPickMarker(p) { const m = makeSphere(RED, p, 1); scene.add(m); pickMarkers.push(m); }
+function clearPickMarkers() { pickMarkers.forEach(m => scene.remove(m)); pickMarkers = []; }
+function showJog(on) {
+  $('jogv').style.display = $('jogh').style.display = on ? 'inline-block' : 'none';
+  if (on) { $('jogv').classList.add('jogbtn'); $('jogh').classList.add('jogbtn'); $('jogv').classList.remove('active'); $('jogh').classList.remove('active'); $('jogv').textContent = 'Vertical'; $('jogh').textContent = 'Horizontal'; }
+}
+function cancelDim() {
+  clearPickMarkers(); picks = []; measurePlane = null;
+  previewDefs.forEach(removeDef); previewDefs = [];
+  if (pendingDef) { removeDef(pendingDef); pendingDef = null; }
+  awaitJog = false; showJog(false); $('finish').classList.remove('jogbtn');
+  jogPhase = false; jogForPending = false; chainJog = null; jogCandidate = null; clearJogPreview();
+  $('dimEdit').hidden = true;
+}
+// interactive jog: green dashed guide follows the mouse along chainJogDir (Y for horizontal, sideways for vertical)
+function camRightHoriz() { const r = new THREE.Vector3(1, 0, 0).applyQuaternion(activeCam.quaternion); r.y = 0; if (r.lengthSq() < 1e-9) r.set(1, 0, 0); return r.normalize(); }
+function camUpWorld() { return new THREE.Vector3(0, 1, 0).applyQuaternion(activeCam.quaternion).normalize(); }   // screen-up in world (Y in front view, ±Z in plan)
+function snapJog(cand) {   // snap the dimension-line offset so it lines up with an existing dimension line
+  const off = chainJogDir, P0 = picks[0]; if (!P0) return cand;
+  const target = P0.dot(off) + cand, thr = modelScale * 0.02; let best = null, bd = thr;
+  dimensions.forEach(d => { if (!d.dimMid || d.sceneId !== activeSceneId) return; const c = d.dimMid.dot(off), e = Math.abs(c - target); if (e < bd) { bd = e; best = c; } });
+  return best != null ? best - P0.dot(off) : cand;
+}
+function computeJog(clientX, clientY, offAxis) {
+  const P0 = picks[0]; if (!P0) return 0;
+  setNDC(clientX, clientY); raycaster.setFromCamera(ndc, activeCam);
+  const camDir = new THREE.Vector3(); activeCam.getWorldDirection(camDir);
+  let n = camDir.clone().sub(offAxis.clone().multiplyScalar(camDir.dot(offAxis)));   // plane contains offAxis, faces camera
+  if (n.lengthSq() < 1e-9) n.set(0, 0, 1);
+  n.normalize();
+  const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(n, P0);
+  const hit = new THREE.Vector3();
+  if (raycaster.ray.intersectPlane(plane, hit)) return hit.clone().sub(P0).dot(offAxis);
+  return chainJog != null ? chainJog : 0;
+}
+function updateJogPreview() {
+  const P0 = picks[0]; if (!P0) return;
+  const half = modelScale * 0.6;
+  const anchor = P0.clone().add(chainJogDir.clone().multiplyScalar(jogCandidate || 0));
+  const fwd = new THREE.Vector3(); activeCam.getWorldDirection(fwd);
+  let lineDir = new THREE.Vector3().crossVectors(chainJogDir, fwd);   // perpendicular to offset, in the screen plane
+  if (lineDir.lengthSq() < 1e-9) lineDir = camRightHoriz(); else lineDir.normalize();
+  const a = anchor.clone().add(lineDir.clone().multiplyScalar(-half)), b = anchor.clone().add(lineDir.clone().multiplyScalar(half));
+  if (!jogPreview) {
+    jogPreview = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]),
+      new THREE.LineDashedMaterial({ color: 0x1faa1f, dashSize: modelScale * 0.02, gapSize: modelScale * 0.012, depthTest: false }));
+    jogPreview.renderOrder = 1002; scene.add(jogPreview);
+  } else { jogPreview.geometry.setFromPoints([a, b]); }
+  jogPreview.computeLineDistances();
+}
+function clearJogPreview() { if (jogPreview) { scene.remove(jogPreview); jogPreview.geometry.dispose(); jogPreview.material.dispose(); jogPreview = null; } }
+function makeDef(type, a, b, opts) { return Object.assign({ type, a: a.clone(), b: b ? b.clone() : null, group: null, label: null }, opts || {}); }
+
+function handleDimPick(p) {
+  $('clear').classList.remove('disabled');
+  if (!picks.length) {   // first pick of a new measurement: set the base plane, drop any prior selection
+    measurePlane = (lastPickNormal && lastPickNormal.lengthSq() > 1e-9) ? new THREE.Plane().setFromNormalAndCoplanarPoint(lastPickNormal.clone(), p) : null;
+    if (selectedDims.size) { selectedDims.clear(); renderDimsList(); } $('dimEdit').hidden = true;
+  }
+  if (dimMode === 'aligned' || dimMode === 'linear') {
+    if (jogPhase) return;   // jog lock handled in pointerup
+    picks.push(p.clone()); addPickMarker(p);
+    if (picks.length === 2) {
+      const dir = picks[1].clone().sub(picks[0]).normalize();
+      const fwd = new THREE.Vector3(); activeCam.getWorldDirection(fwd);
+      let off = new THREE.Vector3().crossVectors(dir, fwd); if (off.lengthSq() < 1e-9) off = camUpWorld(); off.normalize();
+      chainJogDir = off; jogPhase = true; jogForPending = true; jogCandidate = W(jogMm);
+      pendingDef = makeDef(dimMode, picks[0], picks[1], { offAxis: off.clone(), jog: jogCandidate });
+      buildGeom(pendingDef); updateJogPreview();
+      meta('Move the mouse to place the dimension line, then click (snaps to existing lines)');
+    } else meta('First point set — tap the second point');
+  } else if (dimMode === 'continuous' || dimMode === 'baseline') {
+    if (picks.length === 0) {
+      picks.push(p.clone()); addPickMarker(p);
+      chainJogDir = (chainOrient === 'vertical') ? camRightHoriz() : camUpWorld();   // offset along screen-up so it works in plan & elevation
+      jogPhase = true; chainJog = null; jogCandidate = (chainOrient === 'vertical') ? W(jogMm) : -W(jogMm); updateJogPreview();
+      meta(chainOrient === 'vertical' ? 'Move the mouse sideways to set the dimension-line position, then click anywhere' : 'Move the mouse up/down to set the dimension-line level, then click anywhere');
+      return;
+    }
+    if (jogPhase) { chainJog = (jogCandidate != null ? jogCandidate : -W(jogMm)); jogPhase = false; clearJogPreview(); meta('Dimension line set — tap points (double-click last / Finish / Esc to end)'); return; }
+    picks.push(p.clone()); addPickMarker(p); rebuildMultiPreview();
+    meta(`${DIM_LABEL[dimMode]}: ${picks.length} points — double-click last point (or Finish / Esc) to end`);
+  } else if (dimMode === 'angular') {
+    picks.push(p.clone()); addPickMarker(p);
+    if (picks.length === 1) meta('Angular: vertex set — tap the first end');
+    else if (picks.length === 2) meta('Angular: tap the second end');
+    else {
+      const d = makeDef('angular', picks[0], picks[1], { v: picks[0].clone(), b2: picks[2].clone() });
+      d.a = picks[1].clone(); d.b = picks[2].clone(); d.v = picks[0].clone();
+      d.sceneId = activeSceneId; buildGeom(d); dimensions.push(d); renderDimsList(); updateDimVisibility(); persistDims(); clearPickMarkers(); picks = []; meta('Angle added');
+    }
+  }
+}
+function commitJog(dir) {
+  if (!awaitJog || !pendingDef) return;
+  if (dimMode === 'aligned') { jogDirDefault = dir; pendingDef.jogDir = dir; }
+  else { linearOrient = dir; pendingDef.orient = dir; }
+  pendingDef.sceneId = activeSceneId; buildGeom(pendingDef); dimensions.push(pendingDef); renderDimsList(); updateDimVisibility(); persistDims();
+  const val = pendingDef.value || 0;
+  pendingDef = null; awaitJog = false; showJog(false); clearPickMarkers(); picks = [];
+  meta(`${DIM_LABEL[dimMode]} dimension added: ${fmt(val)}  —  ${dimensions.length} total`); updateHint();
+}
+function onDirBtn(dir) {
+  if (awaitJog) commitJog(dir);                                  // aligned/linear: commit
+  else if (dimMode === 'continuous' || dimMode === 'baseline') { chainOrient = dir; updateDirActive(); rebuildMultiPreview(); }
+}
+$('jogv').onclick = e => { e.preventDefault(); onDirBtn('vertical'); };
+$('jogh').onclick = e => { e.preventDefault(); onDirBtn('horizontal'); };
+
+// Continuous / Baseline → emit INDIVIDUAL dimensions (one per segment)
+function rebuildMultiPreview() {
+  previewDefs.forEach(removeDef); previewDefs = [];
+  const all = picks.map(p => p.clone());
+  const jd = chainJogDir.clone();
+  if (dimMode === 'continuous') {
+    for (let i = 0; i < picks.length - 1; i++) { const d = makeDef('chain', picks[i], picks[i + 1], { orient: chainOrient, allPts: all, stackIndex: 1, jog: chainJog, jogDir: jd }); buildGeom(d); previewDefs.push(d); }
+  } else if (dimMode === 'baseline') {
+    for (let i = 1; i < picks.length; i++) { const d = makeDef('chain', picks[0], picks[i], { orient: chainOrient, allPts: all, baseline: true, jog: chainJog, jogDir: jd }); buildGeom(d); previewDefs.push(d); }
+  }
+  $('finish').classList.toggle('jogbtn', picks.length >= 2);
+}
+function finishMulti() {
+  if (picks.length >= 2) { previewDefs.forEach(d => { d.sceneId = activeSceneId; dimensions.push(d); }); meta(`${DIM_LABEL[dimMode]}: ${picks.length} points → ${previewDefs.length} dimensions added`); previewDefs = []; }
+  else { previewDefs.forEach(removeDef); previewDefs = []; }
+  clearPickMarkers(); picks = []; measurePlane = null; jogPhase = false; chainJog = null; clearJogPreview(); $('finish').classList.remove('jogbtn'); renderDimsList(); updateDimVisibility(); persistDims(); updateHint();
+}
+$('finish').onclick = e => { e.preventDefault(); finishMulti(); };
+
+// ---- dimension geometry builders -------------------------------------------
+function removeDef(def) { if (def.group) scene.remove(def.group); if (def.label) scene.remove(def.label); def.group = null; def.label = null; }
+function buildGeom(def) { removeDef(def); if (def.type === 'linear') buildLinear(def); else if (def.type === 'angular') buildAngular(def); else if (def.type === 'chain') buildChainSeg(def); else buildAligned(def); }
+function computeOff(jogDir, dir) {
+  const up = new THREE.Vector3(0, 1, 0); let off;
+  if (jogDir === 'horizontal') { off = new THREE.Vector3().crossVectors(up, dir); if (off.lengthSq() < 1e-9) off = new THREE.Vector3(1, 0, 0); }
+  else { off = up.clone().sub(dir.clone().multiplyScalar(dir.dot(up))); if (off.lengthSq() < 1e-9) off = new THREE.Vector3(1, 0, 0); }
+  return off.normalize();
+}
+// screen-space angle of the world segment p→q, kept upright (±90°) — to rotate dim text along its line
+function screenAngleOf(p, q) {
+  const r = renderer.domElement.getBoundingClientRect();
+  const ps = project(p, r), qs = project(q, r);
+  let ang = Math.atan2(-(qs.y - ps.y), qs.x - ps.x);
+  if (ang > Math.PI / 2) ang -= Math.PI; else if (ang < -Math.PI / 2) ang += Math.PI;
+  return ang;
+}
+function buildAligned(def) {
+  const group = new THREE.Group();
+  const lineMat = new THREE.LineBasicMaterial({ color: RED, depthTest: false });
+  const solidMat = new THREE.MeshBasicMaterial({ color: RED, depthTest: false });
+  const a = def.a, b = def.b, dir = b.clone().sub(a), len = dir.length();
+  if (len < 1e-9) { def.group = group; scene.add(group); def.value = 0; return; }
+  dir.normalize();
+  const ah = W(arrowMm);
+  const off = def.offAxis ? def.offAxis.clone().normalize() : computeOff(def.jogDir, dir);   // interactive offset axis if set
+  const jog = (def.offAxis && def.jog != null) ? def.jog : W(jogMm) * (def.jogMult || 1);
+  const od = off.clone().multiplyScalar(jog < 0 ? -1 : 1);   // unit dir from the picked points toward (and past) the dim line — extensions/label always go OUTWARD
+  const ao = a.clone().add(off.clone().multiplyScalar(jog)), bo = b.clone().add(off.clone().multiplyScalar(jog));
+  const past = od.clone().multiplyScalar(W(extPastMm)), F = dimExtMm(def);   // F>0 = fixed ext length from the dim line; else reach the picked point + gap
+  const inA = F > 0 ? ao.clone().sub(od.clone().multiplyScalar(W(F))) : a.clone().add(od.clone().multiplyScalar(W(extGapMm)));
+  const inB = F > 0 ? bo.clone().sub(od.clone().multiplyScalar(W(F))) : b.clone().add(od.clone().multiplyScalar(W(extGapMm)));
+  group.add(lineSeg(inA, ao.clone().add(past), lineMat)); group.add(lineSeg(inB, bo.clone().add(past), lineMat)); group.add(lineSeg(ao, bo, lineMat));
+  group.add(makeArrow(ao, dir.clone().negate(), ah, ah * 0.35, solidMat)); group.add(makeArrow(bo, dir, ah, ah * 0.35, solidMat));
+  scene.add(group);
+  def.value = len * 1000; def.dimMid = ao.clone().add(bo).multiplyScalar(0.5);
+  const label = makeTextSprite(fmt(def.value), W(textMm));
+  label.position.copy(def.dimMid.clone().add(od.clone().multiplyScalar(ah * 0.7 + W(textMm) * 0.6)));
+  label.material.rotation = screenAngleOf(a, b);   // run the text along the dimension line
+  scene.add(label); def.group = group; def.label = label;
+}
+function buildLinear(def) {
+  if (def.offAxis) return buildAligned(def);   // interactively-placed linear uses the parallel-offset dimension
+  const group = new THREE.Group();
+  const lineMat = new THREE.LineBasicMaterial({ color: RED, depthTest: false });
+  const solidMat = new THREE.MeshBasicMaterial({ color: RED, depthTest: false });
+  const a = def.a, b = def.b, up = new THREE.Vector3(0, 1, 0);
+  const jog = W(jogMm) * (def.jogMult || 1), ah = W(arrowMm);
+  let fa, fb, value, labelOff;
+  if (def.orient === 'vertical') {
+    const h = new THREE.Vector3(b.x - a.x, 0, b.z - a.z);
+    const offH = h.lengthSq() < 1e-9 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3().crossVectors(up, h).normalize();
+    const sx = (a.x + b.x) / 2 + offH.x * jog, sz = (a.z + b.z) / 2 + offH.z * jog;
+    fa = new THREE.Vector3(sx, a.y, sz); fb = new THREE.Vector3(sx, b.y, sz);
+    value = Math.abs(a.y - b.y) * 1000; labelOff = offH.clone().multiplyScalar(ah * 0.8 + W(textMm) * 0.6);
+  } else {
+    const dimY = Math.min(a.y, b.y) - jog;
+    fa = new THREE.Vector3(a.x, dimY, a.z); fb = new THREE.Vector3(b.x, dimY, b.z);
+    value = Math.hypot(a.x - b.x, a.z - b.z) * 1000; labelOff = new THREE.Vector3(0, -(ah * 0.8 + W(textMm) * 0.6), 0);
+  }
+  const eA = fa.clone().sub(a), uA = eA.length() > 1e-9 ? eA.normalize() : new THREE.Vector3();
+  const eB = fb.clone().sub(b), uB = eB.length() > 1e-9 ? eB.normalize() : new THREE.Vector3();
+  const F = dimExtMm(def);   // F>0 = fixed ext length from the dim line (arrowhead); else reach the picked point + gap
+  const inA = F > 0 ? fa.clone().sub(uA.clone().multiplyScalar(W(F))) : a.clone().add(uA.clone().multiplyScalar(W(extGapMm)));
+  const inB = F > 0 ? fb.clone().sub(uB.clone().multiplyScalar(W(F))) : b.clone().add(uB.clone().multiplyScalar(W(extGapMm)));
+  group.add(lineSeg(inA, fa.clone().add(uA.clone().multiplyScalar(W(extPastMm))), lineMat));
+  group.add(lineSeg(inB, fb.clone().add(uB.clone().multiplyScalar(W(extPastMm))), lineMat));
+  group.add(lineSeg(fa, fb, lineMat));
+  const dd = fb.clone().sub(fa);
+  if (dd.length() > 1e-9) { const dn = dd.normalize(); group.add(makeArrow(fa, dn.clone().negate(), ah, ah * 0.35, solidMat)); group.add(makeArrow(fb, dn, ah, ah * 0.35, solidMat)); }
+  scene.add(group);
+  def.value = value; def.dimMid = fa.clone().add(fb).multiplyScalar(0.5);
+  const label = makeTextSprite(fmt(value), W(textMm));
+  label.position.copy(fa.clone().add(fb).multiplyScalar(0.5).add(labelOff)); scene.add(label);
+  def.group = group; def.label = label;
+}
+function buildAngular(def) {
+  const group = new THREE.Group();
+  const lineMat = new THREE.LineBasicMaterial({ color: RED, depthTest: false });
+  const v = def.v, a = def.a, b = def.b;
+  const u1 = a.clone().sub(v), u2 = b.clone().sub(v), l1 = u1.length(), l2 = u2.length();
+  if (l1 < 1e-9 || l2 < 1e-9) { def.group = group; scene.add(group); def.value = 0; return; }
+  u1.normalize(); u2.normalize();
+  const ang = Math.acos(THREE.MathUtils.clamp(u1.dot(u2), -1, 1)), deg = ang * 180 / Math.PI;
+  group.add(lineSeg(v, a, lineMat)); group.add(lineSeg(v, b, lineMat));
+  const r = Math.min(l1, l2) * 0.45;
+  let normal = new THREE.Vector3().crossVectors(u1, u2);
+  let mid = u1.clone();
+  if (normal.lengthSq() > 1e-9) {
+    normal.normalize();
+    const pts = []; const steps = 28;
+    for (let i = 0; i <= steps; i++) { const q = new THREE.Quaternion().setFromAxisAngle(normal, ang * i / steps); pts.push(v.clone().add(u1.clone().applyQuaternion(q).multiplyScalar(r))); }
+    group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), lineMat));
+    mid = u1.clone().applyQuaternion(new THREE.Quaternion().setFromAxisAngle(normal, ang / 2));
+  }
+  scene.add(group);
+  def.value = deg;
+  const label = makeTextSprite(deg.toFixed(1) + '°', W(textMm));
+  label.position.copy(v.clone().add(mid.multiplyScalar(r * 1.25))); scene.add(label);
+  def.group = group; def.label = label;
+}
+
+// Continuous / Baseline segment — orthogonal (projected) at a shared baseline, witness lines at 90°
+function buildChainSeg(def) {
+  const group = new THREE.Group();
+  const lineMat = new THREE.LineBasicMaterial({ color: RED, depthTest: false });
+  const solidMat = new THREE.MeshBasicMaterial({ color: RED, depthTest: false });
+  const a = def.a, b = def.b, pts = (def.allPts && def.allPts.length) ? def.allPts : [a, b], up = new THREE.Vector3(0, 1, 0);
+  const ah = W(arrowMm), stack = W(jogMm) * (def.baseline ? 1 : (def.stackIndex || 1));
+  const jogVec = (def.jog != null && def.jogDir) ? def.jogDir.clone().multiplyScalar(def.jog) : null;
+  let fa, fb, value, labelOff;
+  // BOTH orientations use the same view-relative projection. jogDir already encodes the offset axis
+  // (screen-up for Horizontal, screen-right for Vertical), so the measured run is the perpendicular
+  // screen axis: Vertical = screen up/down in ANY view (height in elevation, depth/Z in plan), not world height.
+  {
+    const off = (def.jogDir && def.jogDir.lengthSq() > 1e-6) ? def.jogDir.clone().normalize() : new THREE.Vector3(0, 1, 0);
+    const c0 = pts[0].dot(off) + (def.jog != null ? def.jog : -stack);   // shared offset-coordinate of the dim line
+    const footOf = p => p.clone().add(off.clone().multiplyScalar(c0 - p.dot(off)));
+    fa = footOf(a); fb = footOf(b);
+    value = fa.distanceTo(fb) * 1000; labelOff = off.clone().multiplyScalar(-(ah * 0.8 + W(textMm) * 0.6));
+  }
+  const eA = fa.clone().sub(a), uA = eA.length() > 1e-9 ? eA.normalize() : new THREE.Vector3();
+  const eB = fb.clone().sub(b), uB = eB.length() > 1e-9 ? eB.normalize() : new THREE.Vector3();
+  const F = dimExtMm(def);   // F>0 = fixed ext length from the dim line (arrowhead); else reach the picked point + gap
+  const inA = F > 0 ? fa.clone().sub(uA.clone().multiplyScalar(W(F))) : a.clone().add(uA.clone().multiplyScalar(W(extGapMm)));
+  const inB = F > 0 ? fb.clone().sub(uB.clone().multiplyScalar(W(F))) : b.clone().add(uB.clone().multiplyScalar(W(extGapMm)));
+  group.add(lineSeg(inA, fa.clone().add(uA.clone().multiplyScalar(W(extPastMm))), lineMat));
+  group.add(lineSeg(inB, fb.clone().add(uB.clone().multiplyScalar(W(extPastMm))), lineMat));
+  group.add(lineSeg(fa, fb, lineMat));
+  const dd = fb.clone().sub(fa);
+  if (dd.length() > 1e-9) { const dn = dd.normalize(); group.add(makeArrow(fa, dn.clone().negate(), ah, ah * 0.35, solidMat)); group.add(makeArrow(fb, dn, ah, ah * 0.35, solidMat)); }
+  scene.add(group);
+  def.value = value; def.dimMid = fa.clone().add(fb).multiplyScalar(0.5);
+  const label = makeTextSprite(fmt(value), W(textMm));
+  const away = (jogVec ? jogVec.clone() : labelOff.clone()).normalize();   // beyond the jog line, away from the base point
+  if (def.baseline) {
+    if (def.orient !== 'vertical') {                // horizontal baseline: text rotated 90°, clear of the arrowhead
+      label.material.rotation = Math.PI / 2;
+      label.position.copy(fb.clone().add(away.clone().multiplyScalar(label.scale.x / 2 + W(arrowMm) + W(textMm) * 0.4)));
+    } else {                                         // vertical baseline: readable (un-rotated), beyond the end
+      label.position.copy(fb.clone().add(away.clone().multiplyScalar(W(arrowMm) + W(textMm) * 0.7)));
+    }
+  } else {                                           // continuous: at segment midpoint, beyond the dim line (away side)
+    const mid = fa.clone().add(fb).multiplyScalar(0.5);
+    if (def.orient === 'vertical') label.material.rotation = Math.PI / 2;   // align text with the vertical dim line
+    label.position.copy(mid.add(away.clone().multiplyScalar(W(arrowMm) * 0.6 + W(textMm) * 0.6)));
+  }
+  scene.add(label);
+  def.group = group; def.label = label;
+}
+
+function clearDimensions() {   // clears the ACTIVE scene's dimensions (each scene has its own)
+  dimensions.filter(d => d.sceneId === activeSceneId).forEach(removeDef);
+  dimensions = dimensions.filter(d => d.sceneId !== activeSceneId);
+  cancelDim(); renderDimsList(); updateDimVisibility(); persistDims();
+  if (!dimensions.some(d => d.sceneId === activeSceneId)) $('clear').classList.add('disabled');
+}
+function clearAllDimensions() { dimensions.forEach(removeDef); dimensions = []; selectedDims.clear(); cancelDim(); }
+$('clear').onclick = e => { e.preventDefault(); clearDimensions(); };
+
+// ---- comments --------------------------------------------------------------
+function createComment(p, text, id, replies) {
+  const t = (text !== undefined) ? text : (prompt('Comment:') || '').trim();
+  if (text === undefined && !t) return;
+  const c = { id: id || ('c' + Date.now() + Math.random().toString(36).slice(2, 6)), pos: p.clone(), text: t, replies: replies || [] };
+  c.anchor = makeSphere(AMBER, p, 0.8); scene.add(c.anchor);
+  const div = document.createElement('div'); div.className = 'pin';
+  div.innerHTML = '<span class="n"></span><span class="txt"></span>';
+  div.onclick = ev => { ev.stopPropagation(); openCommentPopup(c); };
+  c.obj = new CSS2DObject(div); c.obj.center.set(0, 0.5); c.obj.position.copy(p); scene.add(c.obj);
+  comments.push(c); renumber(); renderCommentList(); persistComments();
+  return c;
+}
+function renumber() {
+  comments.forEach((c, i) => {
+    c.n = i + 1; c.obj.element.querySelector('.n').textContent = c.n;
+    const rc = (c.replies && c.replies.length) ? `  💬${c.replies.length}` : '';
+    const txt = c.obj.element.querySelector('.txt'); txt.textContent = (c.text || '') + rc; txt.style.display = (c.text || rc) ? '' : 'none';
+  });
+}
+function renderCommentList() {
+  const list = $('cmtlist');
+  if (!comments.length) { list.innerHTML = '<div class="empty">No comments yet. Turn on Comment mode and tap the model.</div>'; return; }
+  list.innerHTML = '';
+  comments.forEach(c => {
+    const el = document.createElement('div'); el.className = 'cmt'; c.row = el;
+    el.innerHTML = '<div class="head"><span class="badge">' + c.n + '</span></div><div class="body"></div><div class="replies"></div>'
+      + '<div class="acts"><button data-a="reply">Reply</button><button data-a="focus">Focus</button><button data-a="edit">Edit</button><button data-a="del">Delete</button></div>';
+    el.querySelector('.body').textContent = c.text || '(empty)';
+    const rwrap = el.querySelector('.replies');
+    (c.replies || []).forEach(r => {
+      const rd = document.createElement('div'); rd.className = 'reply';
+      const ra = document.createElement('span'); ra.className = 'ra'; ra.textContent = (r.author || 'Designer') + ': ';
+      const rt = document.createElement('span'); rt.textContent = r.text;
+      rd.appendChild(ra); rd.appendChild(rt); rwrap.appendChild(rd);
+    });
+    el.querySelector('[data-a=reply]').onclick = () => replyComment(c);
+    el.querySelector('[data-a=focus]').onclick = () => focusComment(c);
+    el.querySelector('[data-a=edit]').onclick = () => editComment(c);
+    el.querySelector('[data-a=del]').onclick = () => deleteComment(c);
+    list.appendChild(el);
+  });
+}
+function focusComment(c) { controls.target.copy(c.pos); const d = activeCam.position.clone().sub(c.pos).normalize(); activeCam.position.copy(c.pos.clone().add(d.multiplyScalar(modelScale * 0.6))); controls.update(); }
+function editComment(c) { const t = prompt('Edit comment:', c.text); if (t === null) return; c.text = t.trim(); renumber(); renderCommentList(); persistComments(); if (popupComment === c) popupRender(c); }
+function deleteComment(c) { scene.remove(c.obj); if (c.anchor) scene.remove(c.anchor); comments = comments.filter(x => x !== c); renumber(); renderCommentList(); persistComments(); if (popupComment === c) $('popup').hidden = true; }
+function replyComment(c) {
+  const t = prompt('Reply (as designer):'); if (t === null) return;
+  const tt = t.trim(); if (!tt) return;
+  (c.replies = c.replies || []).push({ author: 'Designer', text: tt });
+  renumber(); renderCommentList(); persistComments(); if (popupComment === c) popupRender(c);
+}
+
+let popupComment = null;
+function popupRender(c) {
+  const box = $('popup_text'); box.innerHTML = '';
+  const main = document.createElement('div'); main.textContent = c.text || '(empty)'; box.appendChild(main);
+  (c.replies || []).forEach(r => { const rd = document.createElement('div'); rd.className = 'reply'; rd.textContent = '↳ ' + (r.author || 'Designer') + ': ' + r.text; box.appendChild(rd); });
+}
+function openCommentPopup(c) {
+  popupComment = c; popupRender(c);
+  const pr = c.obj.element.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+  const pop = $('popup'); pop.hidden = false;
+  pop.style.left = Math.max(8, Math.min(pr.right - sr.left + 8, stage.clientWidth - 270)) + 'px';
+  pop.style.top = Math.max(8, Math.min(pr.top - sr.top, stage.clientHeight - 120)) + 'px';
+  if (c.row) { comments.forEach(x => x.row && x.row.classList.remove('hl')); c.row.classList.add('hl'); }
+}
+$('popup').querySelector('[data-a=reply]').onclick = () => { if (popupComment) replyComment(popupComment); };
+$('popup').querySelector('[data-a=focus]').onclick = () => { if (popupComment) focusComment(popupComment); };
+$('popup').querySelector('[data-a=edit]').onclick = () => { if (popupComment) editComment(popupComment); };
+$('popup').querySelector('[data-a=del]').onclick = () => { if (popupComment) deleteComment(popupComment); };
+$('popup').querySelector('[data-a=close]').onclick = () => { $('popup').hidden = true; };
+
+// ---- comment persistence ---------------------------------------------------
+function storeKey() { return 'tlsglb-comments::' + fileName; }
+function serializeComments() { return comments.map(c => ({ id: c.id, text: c.text, x: c.pos.x, y: c.pos.y, z: c.pos.z, replies: c.replies || [] })); }
+function persistComments() { try { localStorage.setItem(storeKey(), JSON.stringify(serializeComments())); } catch (e) {} }
+function loadPersistedComments() {
+  let raw; try { raw = localStorage.getItem(storeKey()); } catch (e) {}
+  if (raw) { try { JSON.parse(raw).forEach(d => createComment(new THREE.Vector3(d.x, d.y, d.z), d.text || '', d.id, d.replies || [])); } catch (e) {} }
+  renderCommentList();
+}
+
+// ---- dimension persistence (per file; each dim keeps its sceneId) -----------
+function dimsKey() { return 'tlsglb-dims::' + fileName; }
+const v3a = v => v ? [v.x, v.y, v.z] : null;
+const a3v = a => a ? new THREE.Vector3(a[0], a[1], a[2]) : null;
+function serializeDims() {
+  return dimensions.map(d => ({
+    type: d.type, sceneId: d.sceneId || '__default__', a: v3a(d.a), b: v3a(d.b), v: v3a(d.v), b2: v3a(d.b2),
+    offAxis: v3a(d.offAxis), jog: (d.jog != null ? d.jog : null), jogDir: v3a(d.jogDir),
+    orient: d.orient || null, baseline: !!d.baseline, stackIndex: d.stackIndex || null, jogMult: d.jogMult || null,
+    allPts: d.allPts ? d.allPts.map(v3a) : null, extFixed: (d.extFixed != null ? d.extFixed : null),
+  }));
+}
+function persistDims() { try { localStorage.setItem(dimsKey(), JSON.stringify(serializeDims())); } catch (e) {} }
+function addDimFromObj(o) {
+  const d = { type: o.type, a: a3v(o.a), b: a3v(o.b), group: null, label: null, sceneId: o.sceneId || '__default__' };
+  if (o.v) d.v = a3v(o.v); if (o.b2) d.b2 = a3v(o.b2);
+  if (o.offAxis) d.offAxis = a3v(o.offAxis); if (o.jog != null) d.jog = o.jog; if (o.jogDir) d.jogDir = a3v(o.jogDir);
+  if (o.orient) d.orient = o.orient; if (o.baseline) d.baseline = true; if (o.stackIndex) d.stackIndex = o.stackIndex; if (o.jogMult) d.jogMult = o.jogMult;
+  if (o.allPts) d.allPts = o.allPts.map(a3v); if (o.extFixed != null) d.extFixed = o.extFixed;
+  if (d.a) { buildGeom(d); dimensions.push(d); }
+}
+function loadPersistedDims() {
+  let raw; try { raw = localStorage.getItem(dimsKey()); } catch (e) {}
+  if (!raw) return;
+  let arr; try { arr = JSON.parse(raw) || []; } catch (e) { return; }
+  arr.forEach(addDimFromObj);
+  if (dimensions.length) $('clear').classList.remove('disabled');
+  updateDimVisibility(); renderDimsList();
+}
+$('export').onclick = e => {   // portable sidecar: comments + dimensions + scenes travel with the model
+  e.preventDefault(); if ($('export').classList.contains('disabled')) return;
+  const bundle = { file: fileName, version: 2, sizes: sizesObj(), comments: serializeComments(), dimensions: serializeDims(), scenes: scenes.filter(s => !s.locked) };
+  const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = fileName.replace(/\.(glb|gltf)$/i, '') + '.annot.json'; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+function importAnnotationBundle(o) {   // shared by file-Import and the auto-fetched sidecar
+  if (!o) return;
+  if (o.sizes) applySizes(o.sizes, false);   // apply drawing sizes BEFORE building dims so they match the author's
+  (o.comments || []).forEach(d => createComment(new THREE.Vector3(d.x, d.y, d.z), d.text || '', d.id, d.replies || []));
+  if (Array.isArray(o.scenes)) { o.scenes.forEach(s => { if (s && !s.locked && !scenes.some(x => x.id === s.id)) scenes.push(s); }); renderScenes(); persistScenes(); }
+  (o.dimensions || []).forEach(addDimFromObj);
+  if (dimensions.length) $('clear').classList.remove('disabled');
+  updateDimVisibility(); renderDimsList(); persistDims(); renderCommentList();
+}
+function hasLocalAnnotations() { try { return !!(localStorage.getItem(storeKey()) || localStorage.getItem(sceneKey()) || localStorage.getItem(dimsKey())); } catch (e) { return false; } }
+function sidecarUrl(url) { return url.replace(/\?.*$/, '').replace(/\.(glb|gltf)$/i, '') + '.annot.json'; }
+function tryLoadSidecar() {   // link-shared models carry annotations in <model>.annot.json next to the .glb
+  if (!modelUrl) return;
+  fetch(sidecarUrl(modelUrl)).then(r => r.ok ? r.json() : null).then(o => { if (o) { importAnnotationBundle(o); meta(metaEl.textContent + '  ·  annotations loaded'); } }).catch(() => {});
+}
+$('import').onclick = e => { e.preventDefault(); $('impfile').click(); };
+$('impfile').onchange = () => {
+  const f = $('impfile').files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => { let o; try { o = JSON.parse(rd.result); } catch (err2) { return err('Could not read that annotations file.'); } importAnnotationBundle(o); openPanel(true); };
+  rd.readAsText(f);
+};
+
+// ---- sheet (drawing) view --------------------------------------------------
+// A sheet = the A3 template + VIEWPORTS. Each viewport is a WINDOW onto a scene: its paper
+// size (mm) and scale (1:N) decide how much model is visible (window_mm/1000 * N = metres shown).
+// Dragging the window edge shows more/less; scale zooms. Rendered orthographic + transparent + hi-res.
+let sheetSvgText = null, sheetVPs = [], sheetSelId = null, sheetReturnSceneId = null, scaleDeb = null;
+let sheets = [], sheetCurId = null;   // all saved sheets for this model; sheetCurId = the one open in the overlay
+const SHEET_AREA = { x: 14, y: 12, w: 392, h: 212 };   // mm drawing area above the title block
+const NICE_SCALES = [5, 10, 20, 25, 50, 75, 100, 150, 200, 250, 500, 1000, 1250, 2500];
+const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
+function niceScale(n) { let best = NICE_SCALES[0]; for (const s of NICE_SCALES) if (Math.abs(s - n) < Math.abs(best - n)) best = s; return best; }
+function sceneById(id) { return scenes.find(s => s.id === id); }
+function restoreReturnScene() { if (sheetReturnSceneId) { const rs = sceneById(sheetReturnSceneId); if (rs) restoreScene(rs); } }
+// render a scene as an ORTHOGRAPHIC window of worldW×worldH metres centred on its target → transparent hi-res PNG
+function renderViewportImage(vp) {
+  const sc = sceneById(vp.sceneId); if (!sc) return vp.url || '';
+  restoreScene(sc);
+  const tgt = controls.target.clone();
+  const worldW = (vp.wMm / 1000) * vp.scaleN, worldH = (vp.hMm / 1000) * vp.scaleN, px = vp.panX || 0, py = vp.panY || 0;
+  ocam.up.set(sc.cam.ux, sc.cam.uy, sc.cam.uz); ocam.lookAt(tgt);
+  ocam.left = px - worldW / 2; ocam.right = px + worldW / 2; ocam.top = py + worldH / 2; ocam.bottom = py - worldH / 2;   // pan offsets which part of the model the window shows
+  const dist = ocam.position.distanceTo(tgt); ocam.near = -modelScale * 4; ocam.far = dist + modelScale * 4;
+  ocam.zoom = 1; ocam.updateProjectionMatrix(); ocam.updateMatrixWorld();
+  // resolution ~450 DPI of the on-paper window, capped — REALLY sharp print
+  const longMm = Math.max(vp.wMm, vp.hMm), pxLong = Math.round(clampN(longMm / 25.4 * 450, 1500, 6000));
+  const aspect = vp.wMm / vp.hMm; let pw, ph; if (aspect >= 1) { pw = pxLong; ph = Math.round(pxLong / aspect); } else { ph = pxLong; pw = Math.round(pxLong * aspect); }
+  return renderRegionPNG(ocam, pw, ph);
+}
+function renderRegionPNG(cam, pw, ph) {
+  const dom = renderer.domElement, cw = stage.clientWidth, ch = stage.clientHeight;
+  const prevBg = scene.background, prevAlpha = renderer.getClearAlpha(), snapVis = snapMarker.visible, phv = planeHelper && planeHelper.visible, bhv = boxHelper && boxHelper.visible;
+  snapMarker.visible = false; if (planeHelper) planeHelper.visible = false; if (boxHelper) boxHelper.visible = false;
+  scene.background = null; renderer.setClearAlpha(0);
+  renderer.setPixelRatio(1); renderer.setSize(pw, ph, false);
+  let url = '';
+  try { renderer.render(scene, cam); url = dom.toDataURL('image/png'); } catch (e) { console.warn('viewport render failed', e); }
+  renderer.setClearAlpha(prevAlpha); scene.background = prevBg;
+  snapMarker.visible = snapVis; if (planeHelper) planeHelper.visible = phv; if (boxHelper) boxHelper.visible = bhv;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); renderer.setSize(cw, ch); labelRenderer.setSize(cw, ch);
+  camera.aspect = (cw / ch) || 1; camera.updateProjectionMatrix(); setOrthoFrustum(orthoHalfH);
+  return url;
+}
+function defaultWindow(sceneId, scaleN) {   // window mm that frames the scene at scaleN, clamped to the drawing area
+  const sc = sceneById(sceneId); restoreScene(sc); const halfH = orthoHalfH, aspect = (renderer.domElement.width / renderer.domElement.height) || 1.4;
+  let hMm = 2 * halfH * 1000 / scaleN, wMm = hMm * aspect;
+  if (wMm > SHEET_AREA.w) { const k = SHEET_AREA.w / wMm; wMm *= k; hMm *= k; }
+  if (hMm > SHEET_AREA.h) { const k = SHEET_AREA.h / hMm; wMm *= k; hMm *= k; }
+  return { wMm, hMm, halfH };
+}
+function setSheetField(svg, name, value) {
+  svg.querySelectorAll('text').forEach(t => { if (t.getAttribute('freecad:editable') === name || t.getAttribute('data-field') === name) (t.querySelector('tspan') || t).textContent = value; });
+}
+function fillSheetFields() {
+  const svg = $('sheetPaper').querySelector('svg'); if (!svg) return;
+  setSheetField(svg, 'TITLE', $('f_title').value); setSheetField(svg, 'NUMBER', $('f_number').value);
+  setSheetField(svg, 'SHEET', $('f_sheet').value); setSheetField(svg, 'AUTHOR NAME', $('f_author').value);
+  const scales = sheetVPs.map(v => v.scaleN), uniq = [...new Set(scales)];
+  setSheetField(svg, 'SCALE', uniq.length === 1 ? ('1:' + uniq[0]) : (scales.length ? 'As shown' : 'NTS'));
+  const d = new Date(), p2 = n => String(n).padStart(2, '0'); setSheetField(svg, 'CREATION DATE', `${p2(d.getDate())}/${p2(d.getMonth() + 1)}/${d.getFullYear()}`);
+}
+function fitSheetPaper() {
+  const scroll = $('sheetScroll'), pad = 40, ar = 420 / 297;
+  let w = scroll.clientWidth - pad, h = w / ar; if (h > scroll.clientHeight - pad) { h = scroll.clientHeight - pad; w = h * ar; }
+  $('sheetPaper').style.width = Math.max(240, w) + 'px'; $('sheetPaper').style.height = Math.max(170, w / ar) + 'px';
+}
+function styleVPEl(el, vp) { el.style.left = (vp.x / 420 * 100) + '%'; el.style.top = (vp.y / 297 * 100) + '%'; el.style.width = (vp.wMm / 420 * 100) + '%'; el.style.height = (vp.hMm / 297 * 100) + '%'; }
+function renderSheet() {
+  const paper = $('sheetPaper'); if (!paper.querySelector('svg')) return;
+  paper.querySelectorAll('.svp').forEach(e => e.remove());
+  sheetVPs.forEach(vp => {
+    const el = document.createElement('div'); el.className = 'svp' + (vp.id === sheetSelId ? ' sel' : ''); el.dataset.id = vp.id; styleVPEl(el, vp);
+    const img = document.createElement('img'); img.src = vp.url; img.draggable = false; el.appendChild(img);
+    Object.keys(VP_HANDLES).forEach(dir => { const h = document.createElement('div'); h.className = 'hd ' + dir; el.appendChild(h); attachVPResize(h, el, vp, VP_HANDLES[dir]); });
+    paper.appendChild(el); attachVPDrag(el, vp);
+  });
+  fillSheetFields();
+}
+function selectVP(id) {
+  sheetSelId = id;
+  $('sheetPaper').querySelectorAll('.svp').forEach(e => e.classList.toggle('sel', e.dataset.id === id));
+  const vp = sheetVPs.find(v => v.id === id);
+  $('vpCtl').hidden = !vp; if (vp) $('vpScale').value = vp.scaleN || '';
+}
+function attachVPDrag(el, vp) {
+  el.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || e.target.classList.contains('svp-rz')) return; e.preventDefault(); selectVP(vp.id);
+    const rect = $('sheetPaper').getBoundingClientRect(), mx = 420 / rect.width, my = 297 / rect.height;
+    const sx = e.clientX, sy = e.clientY, ox = vp.x, oy = vp.y;
+    const move = ev => { vp.x = clampN(ox + (ev.clientX - sx) * mx, 0, 420 - vp.wMm); vp.y = clampN(oy + (ev.clientY - sy) * my, 0, 297 - vp.hMm); el.style.left = (vp.x / 420 * 100) + '%'; el.style.top = (vp.y / 297 * 100) + '%'; };
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); persistSheet(); };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+  });
+}
+const VP_HANDLES = { e: { r: 1 }, w: { l: 1 }, s: { b: 1 }, n: { t: 1 }, ne: { t: 1, r: 1 }, nw: { t: 1, l: 1 }, se: { b: 1, r: 1 }, sw: { b: 1, l: 1 } };
+function attachVPResize(handle, el, vp, spec) {   // drag any edge/corner → reshape the window; the opposite edge stays put (crop)
+  handle.addEventListener('pointerdown', e => {
+    e.preventDefault(); e.stopPropagation(); selectVP(vp.id);
+    const rect = $('sheetPaper').getBoundingClientRect(), mx = 420 / rect.width, my = 297 / rect.height;
+    const sx = e.clientX, sy = e.clientY, o = { x: vp.x, y: vp.y, w: vp.wMm, h: vp.hMm };
+    const move = ev => {
+      const dx = (ev.clientX - sx) * mx, dy = (ev.clientY - sy) * my;
+      let x = o.x, y = o.y, w = o.w, h = o.h;
+      if (spec.r) w = o.w + dx; if (spec.l) { x = o.x + dx; w = o.w - dx; }
+      if (spec.b) h = o.h + dy; if (spec.t) { y = o.y + dy; h = o.h - dy; }
+      w = Math.max(20, w); h = Math.max(20, h); x = clampN(x, 0, 400); y = clampN(y, 0, 277);
+      w = Math.min(w, 420 - x); h = Math.min(h, 297 - y);
+      vp.x = x; vp.y = y; vp.wMm = w; vp.hMm = h; styleVPEl(el, vp);
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
+      const wu = vp.scaleN / 1000;   // keep the opposite (non-moving) edge fixed in world space
+      if (spec.r) vp.panX = (vp.panX || 0) + (vp.wMm - o.w) * wu / 2;
+      if (spec.l) vp.panX = (vp.panX || 0) - (vp.wMm - o.w) * wu / 2;
+      if (spec.b) vp.panY = (vp.panY || 0) - (vp.hMm - o.h) * wu / 2;
+      if (spec.t) vp.panY = (vp.panY || 0) + (vp.hMm - o.h) * wu / 2;
+      vp.url = renderViewportImage(vp); restoreReturnScene(); const img = el.querySelector('img'); if (img) img.src = vp.url; persistSheet();
+    };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+  });
+}
+function addViewport(sceneId) {
+  const scaleN = niceScale(2 * defaultWindow(sceneId, 100).halfH * 1000 / 150);   // pick a scale ~150mm tall
+  const w = defaultWindow(sceneId, scaleN), n = sheetVPs.length;
+  const vp = { id: 'vp' + Date.now() + Math.random().toString(36).slice(2, 5), sceneId, scaleN, x: SHEET_AREA.x + n * 8, y: SHEET_AREA.y + n * 8, wMm: w.wMm, hMm: w.hMm };
+  vp.url = renderViewportImage(vp); restoreReturnScene();
+  sheetVPs.push(vp); renderSheet(); selectVP(vp.id); persistSheet();
+}
+function sheetsKey() { return 'tlsglb-sheets::' + fileName; }
+function vpSpec(v) { return { sceneId: v.sceneId, scaleN: v.scaleN, x: v.x, y: v.y, wMm: v.wMm, hMm: v.hMm, panX: v.panX || 0, panY: v.panY || 0 }; }
+function currentSheet() { return sheets.find(s => s.id === sheetCurId); }
+function persistSheets() { try { localStorage.setItem(sheetsKey(), JSON.stringify(sheets)); } catch (e) {} }
+function persistSheet() {   // sync the OPEN sheet's working state back into the sheets list, then save
+  const sh = currentSheet(); if (!sh) return;
+  sh.vps = sheetVPs.map(vpSpec);
+  sh.fields = { title: $('f_title').value, number: $('f_number').value, sheet: $('f_sheet').value, author: $('f_author').value };
+  if ($('f_sheetname').value) sh.name = $('f_sheetname').value;
+  persistSheets(); renderSheetTabs();
+}
+function renderSheetTabs() {
+  const bar = $('sheetTabs'); if (!bar) return; bar.innerHTML = '';
+  sheets.forEach(sh => {
+    const t = document.createElement('div'); t.className = 'stab' + (sh.id === sheetCurId ? ' active' : ''); t.title = 'Open / edit ' + (sh.name || 'sheet');
+    const nm = document.createElement('span'); nm.textContent = sh.name || 'Sheet'; t.appendChild(nm);
+    const x = document.createElement('span'); x.className = 'x'; x.textContent = '✕'; x.title = 'Delete sheet';
+    x.onclick = ev => { ev.stopPropagation(); if (!confirm('Delete sheet "' + (sh.name || '') + '"?')) return; sheets = sheets.filter(s => s !== sh); if (sheetCurId === sh.id) { sheetCurId = null; $('sheetOverlay').classList.remove('open'); } persistSheets(); renderSheetTabs(); };
+    t.appendChild(x); t.onclick = ev => { if (ev.target !== x) openSheetById(sh.id); };
+    bar.appendChild(t);
+  });
+}
+function populateSheetScenes() { const sel = $('sheetAddSel'); sel.innerHTML = ''; scenes.forEach(s => { const o = document.createElement('option'); o.value = s.id; o.textContent = s.name + (s.locked ? ' (home)' : ''); sel.appendChild(o); }); }
+function buildSheetPaper() {
+  $('sheetPaper').innerHTML = sheetSvgText;
+  const svg = $('sheetPaper').querySelector('svg'); if (svg) { svg.setAttribute('viewBox', '0 0 420 297'); svg.setAttribute('width', '100%'); svg.setAttribute('height', '100%'); svg.removeAttribute('id'); }
+}
+function loadSheetVPs(sh) {   // capture each viewport's image for the sheet being opened
+  sheetVPs = []; sheetSelId = null;
+  (sh.vps || []).forEach((s, i) => {
+    if (!sceneById(s.sceneId)) return;
+    const scaleN = s.scaleN || niceScale(2 * defaultWindow(s.sceneId, 100).halfH * 1000 / 150);
+    let wMm = s.wMm, hMm = s.hMm; if (wMm == null || hMm == null) { const w = defaultWindow(s.sceneId, scaleN); wMm = w.wMm; hMm = w.hMm; }
+    const vp = { id: 'vp' + Date.now() + i + Math.random().toString(36).slice(2, 4), sceneId: s.sceneId, scaleN, x: (s.x != null ? s.x : SHEET_AREA.x + i * 8), y: (s.y != null ? s.y : SHEET_AREA.y + i * 8), wMm, hMm, panX: s.panX || 0, panY: s.panY || 0 };
+    vp.url = renderViewportImage(vp); sheetVPs.push(vp);
+  });
+  restoreReturnScene();
+}
+function openSheetById(id) {
+  const sh = sheets.find(s => s.id === id); if (!sh || !modelRoot) return;
+  sheetReturnSceneId = activeSceneId; sheetCurId = id;
+  $('sheetOverlay').classList.add('open'); populateSheetScenes(); renderSheetTabs();
+  const run = () => {
+    buildSheetPaper();
+    const f = sh.fields || {}; $('f_sheetname').value = sh.name || ''; $('f_title').value = f.title || ''; $('f_number').value = f.number || ''; $('f_sheet').value = f.sheet || ''; $('f_author').value = f.author || '';
+    loadSheetVPs(sh); fitSheetPaper(); renderSheet();
+    if (sheetVPs.length) selectVP(sheetVPs[0].id); else $('vpCtl').hidden = true;
+    persistSheet();   // store computed defaults for a fresh sheet
+  };
+  if (sheetSvgText) run();
+  else fetch('sheet_a3.svg').then(r => r.text()).then(t => { sheetSvgText = t; run(); }).catch(() => err('Could not load sheet template (sheet_a3.svg).'));
+}
+function newSheet() {
+  if (!modelRoot) return;
+  const sh = { id: 'sh' + Date.now() + Math.random().toString(36).slice(2, 5), name: 'Sheet ' + (sheets.length + 1), vps: activeSceneId ? [{ sceneId: activeSceneId }] : [], fields: {} };
+  sheets.push(sh); persistSheets(); renderSheetTabs(); openSheetById(sh.id);
+}
+function loadSheets() { sheets = []; sheetCurId = null; try { const raw = localStorage.getItem(sheetsKey()); if (raw) sheets = JSON.parse(raw) || []; } catch (e) {} renderSheetTabs(); }
+$('sheet').onclick = e => { e.preventDefault(); if (!$('sheet').classList.contains('disabled')) newSheet(); };
+$('sheetAddTab').onclick = () => { if (modelRoot) newSheet(); };
+$('sheetClose').onclick = () => $('sheetOverlay').classList.remove('open');
+$('sheetPrint').onclick = () => window.print();
+$('sheetAdd').onclick = () => { const id = $('sheetAddSel').value; if (id) addViewport(id); };
+$('f_sheetname').addEventListener('input', () => { const sh = currentSheet(); if (sh) { sh.name = $('f_sheetname').value || sh.name; persistSheets(); renderSheetTabs(); } });
+$('vpScale').addEventListener('input', () => {
+  const vp = sheetVPs.find(v => v.id === sheetSelId); if (!vp) return;
+  const n = parseFloat($('vpScale').value); if (!(n > 0)) return;
+  vp.scaleN = n; fillSheetFields(); persistSheet();
+  clearTimeout(scaleDeb); scaleDeb = setTimeout(() => {   // re-render extent after typing settles
+    vp.url = renderViewportImage(vp); restoreReturnScene(); const el = $('sheetPaper').querySelector('.svp[data-id="' + vp.id + '"] img'); if (el) el.src = vp.url;
+  }, 350);
+});
+$('vpDelete').onclick = () => { sheetVPs = sheetVPs.filter(v => v.id !== sheetSelId); sheetSelId = null; $('vpCtl').hidden = true; renderSheet(); persistSheet(); };
+['f_title', 'f_number', 'f_sheet', 'f_author'].forEach(id => $(id).addEventListener('input', () => { fillSheetFields(); persistSheet(); }));
+window.addEventListener('resize', () => { if ($('sheetOverlay').classList.contains('open')) fitSheetPaper(); });
+
+// ---- init ------------------------------------------------------------------
+setDimType('aligned');
+loadPersistedSizes();   // restore saved Sizes before any model/dimensions load
+const qp = new URLSearchParams(location.search).get('model');
+if (qp) { meta(qp.split('/').pop() + ' — loading…'); loadFromURL(qp, qp.split('/').pop()); }
+else { const u = 'sample.glb?t=' + Date.now(); fetch(u, { method: 'HEAD' }).then(r => { if (r.ok) loadFromURL(u, 'sample.glb'); }).catch(() => {}); }  // dev convenience: auto-open sample (cache-busted)
+</script>
+</body>
+</html>
