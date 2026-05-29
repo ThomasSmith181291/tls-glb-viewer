@@ -308,12 +308,14 @@
     <a id="views" class="disabled">📐 Views</a>
     <a id="parallel" class="disabled">◉ Perspective</a>
     <a id="uniform" class="disabled">💡 Flat</a>
+    <a id="edges" class="disabled">◫ Edges</a>
     <a id="section" class="disabled">✂ Section</a>
     <a id="scenes" class="disabled">🎬 Scenes</a>
     <a id="sheet" class="disabled">🗂 Sheet</a>
     <a id="lock2d" class="disabled">🔓 Lock 2D</a>
     <span class="sep"></span>
     <a id="open2">Open…</a>
+    <a id="exportglb" class="disabled">⤓ Optimise GLB</a>
     <a id="export" class="disabled">💾 Save annotations</a>
     <a id="import">📂 Load annotations</a>
     <input type="file" id="impfile" accept=".json,application/json" style="display:none">
@@ -352,7 +354,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';   // so meshopt-compressed exports re-load here
 
 const SNAP_PX = 24;
 const RED = 0x000000, AMBER = 0xffb703;   // dimension geometry (lines/arrows/dots/pick markers) is black
@@ -410,6 +413,7 @@ const draco = new DRACOLoader();
 draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
 const loader = new GLTFLoader();
 loader.setDRACOLoader(draco);
+loader.setMeshoptDecoder(MeshoptDecoder);   // load meshopt-compressed GLBs (incl. our Optimise GLB output)
 
 const raycaster = new THREE.Raycaster();
 const ndc = new THREE.Vector2();
@@ -417,6 +421,7 @@ const ndc = new THREE.Vector2();
 let modelRoot = null, meshes = [], modelScale = 1, markerR = 0.02, fileName = '', modelUrl = '';
 let commentMode = false;
 let flatShade = true, blockMatStore = [];   // flat/unlit removes two-tone from BCDS's inconsistent baked normals
+let edgesOn = true;                          // show edge lines (baked-in or auto-generated on load)
 
 let dimensions = [];                 // committed defs: {type, a, b, [v], jogDir|orient, jogMult, group, label}
 let picks = [], pickMarkers = [], previewDefs = [], pendingDef = null, awaitJog = false;
@@ -525,6 +530,7 @@ function onLoaded(gltf, name) {
   clearBanner(); clearModel();
   fileName = name || 'model';
   modelRoot = gltf.scene; scene.add(modelRoot); modelRoot.updateMatrixWorld(true);
+  stripMaterials();   // drop stack joints / envelope (by material name) before counting + merging
   modelRoot.traverse(o => {
     if (o.isMesh && o.geometry && o.geometry.attributes.position) {
       meshes.push(o);
@@ -543,7 +549,7 @@ function onLoaded(gltf, name) {
   fitCamera(center, size);
 
   dropEl.classList.add('hidden');
-  ['dimtypes', 'comment', 'list', 'dims', 'reset', 'export', 'sizes', 'views', 'parallel', 'uniform', 'section', 'scenes', 'sheet', 'lock2d'].forEach(id => $(id).classList.remove('disabled'));
+  ['dimtypes', 'comment', 'list', 'dims', 'reset', 'export', 'exportglb', 'sizes', 'views', 'parallel', 'uniform', 'edges', 'section', 'scenes', 'sheet', 'lock2d'].forEach(id => $(id).classList.remove('disabled'));
   meta(`${fileName}  —  ${Math.round(size.x*1000)} × ${Math.round(size.y*1000)} × ${Math.round(size.z*1000)} mm (bbox)  ·  ${meshes.length} meshes`);
   const hadLocal = hasLocalAnnotations();
   loadPersistedComments(); loadPersistedScenes(); loadPersistedDims();   // dims after scenes so each dim re-binds to its scene
@@ -699,28 +705,60 @@ function ensureCaps() {
 }
 $('secCap').onchange = () => { cappingOn = $('secCap').checked; applyClipToModel(sectionOn); ensureCaps(); };
 
+// ---- strip unwanted geometry by material name (envelope, stack joints, …) --
+// Runs on load BEFORE the merge, so flagged meshes never enter the model. Match is case-insensitive.
+const STRIP_MATERIALS = ['ICF_Stack_Joint', 'Web', 'WEB_BAKED', 'LevelPlane', 'Black'];   // prefix-matched (case-insensitive) — Black catches PDF-imported text/lines
+const STRIP_NODE_NAMES = ['level label'];   // node-name substring match (case-insensitive)
+const STRIP_NO_MATERIAL = true;             // drop meshes with no material assigned (SketchUp 3D text comes through unmaterialed)
+function stripMaterials() {
+  if (!modelRoot) return 0;
+  const want = STRIP_MATERIALS.map(s => s.toLowerCase()), nodes = STRIP_NODE_NAMES.map(s => s.toLowerCase()), kill = [];
+  modelRoot.traverse(o => {
+    if (!(o.isMesh || o.isLine)) return;
+    const nm = (o.name || '').toLowerCase();
+    if (nodes.some(s => nm.includes(s))) { kill.push(o); return; }
+    if (!o.material) { if (STRIP_NO_MATERIAL) kill.push(o); return; }
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    if (STRIP_NO_MATERIAL && mats.some(m => !m || !m.name)) { kill.push(o); return; }
+    if (mats.some(m => m && m.name && want.some(w => m.name.toLowerCase().startsWith(w)))) kill.push(o);
+  });
+  kill.forEach(o => { if (o.parent) o.parent.remove(o); if (o.geometry) o.geometry.dispose(); });
+  return kill.length;
+}
+
 // ---- perf: merge by material (8124 meshes → ~1 draw call each) -------------
 // The model is hundreds of meshes = hundreds of draw calls/frame = orbit judder.
 // Merge geometry per material into one mesh each (baking world transforms), so the
 // GPU draws a handful of batches. Picking/snapping still work (hit.face → vertices).
 function optimizeModel() {
   try {
-    const meshGeo = new Map(), lineGeo = new Map();           // material → [world-baked geometries]
+    const meshGeo = new Map(), lineGeo = new Map(), allTri = [];   // material → [world-baked geometries]
     modelRoot.updateMatrixWorld(true);
-    const grab = (o, map) => {
+    const grab = (o, map, keep) => {
       const m = o.material; if (!m || Array.isArray(m) || !o.geometry) return;
       const g = o.geometry.clone(); g.applyMatrix4(o.matrixWorld);
       if (!map.has(m)) map.set(m, []); map.get(m).push(g);
+      if (keep) allTri.push(g);
     };
-    modelRoot.traverse(o => { if (o.isMesh) grab(o, meshGeo); else if (o.isLine) grab(o, lineGeo); });
-    const root = new THREE.Group(), newMeshes = [];
-    meshGeo.forEach((geos, mat) => { const g = mergeGeometries(geos, false); geos.forEach(x => x.dispose()); if (g) { const mesh = new THREE.Mesh(g, mat); root.add(mesh); newMeshes.push(mesh); } });
-    lineGeo.forEach((geos, mat) => { const g = mergeGeometries(geos, false); geos.forEach(x => x.dispose()); if (g) root.add(new THREE.LineSegments(g, mat)); });
-    if (!newMeshes.length) return;                            // merge produced nothing → keep original
+    modelRoot.traverse(o => { if (o.isMesh) grab(o, meshGeo, true); else if (o.isLine) grab(o, lineGeo, false); });
+    const root = new THREE.Group(), newMeshes = [], mergedTri = [];
+    meshGeo.forEach((geos, mat) => { const g = mergeGeometries(geos, false); if (g) { const mesh = new THREE.Mesh(g, mat); root.add(mesh); newMeshes.push(mesh); mergedTri.push(g); } });
+    if (!newMeshes.length) { allTri.forEach(g => g.dispose()); return; }   // merge produced nothing → keep original
+    allTri.forEach(g => g.dispose());
+    if (lineGeo.size) {                                       // model already carries edge lines → keep them
+      lineGeo.forEach((geos, mat) => { const g = mergeGeometries(geos, false); geos.forEach(x => x.dispose()); if (g) root.add(new THREE.LineSegments(g, mat)); });
+    } else {                                                  // no edges → weld + bake boundary + 30° crease edges per merged group
+      const eg = [];
+      mergedTri.forEach(g => {
+        try { const w = mergeVertices(g, 1e-4); const e = new THREE.EdgesGeometry(w, 30); w.dispose();
+              if (e.attributes.position && e.attributes.position.count) eg.push(e); else e.dispose(); } catch (err) { console.warn('edges skipped one group', err); }
+      });
+      if (eg.length) { const me = mergeGeometries(eg, false); eg.forEach(e => e.dispose()); if (me) { const ls = new THREE.LineSegments(me, new THREE.LineBasicMaterial({ color: 0x10172a })); ls.userData.bakedEdges = true; root.add(ls); } }
+    }
     scene.remove(modelRoot); modelRoot.traverse(o => { if (o.geometry) o.geometry.dispose(); });
     modelRoot = root; scene.add(modelRoot); modelRoot.updateMatrixWorld(true);
-    meshes = newMeshes;
-  } catch (e) { console.warn('mesh merge skipped:', e); }      // fall back to the unmerged model
+    meshes = newMeshes; setEdges(edgesOn);
+  } catch (e) { console.warn('optimize skipped:', e); }       // fall back to the unmerged model
 }
 
 // ---- flat (unlit) shading --------------------------------------------------
@@ -746,6 +784,41 @@ function applyFlatShade() {
   if (sectionOn) applyClipToModel(true);   // re-sync section clipping onto whichever materials are active
 }
 $('uniform').onclick = e => { e.preventDefault(); if ($('uniform').classList.contains('disabled')) return; flatShade = !flatShade; applyFlatShade(); };
+
+// ---- edges (baked-in, or auto-generated on load) ---------------------------
+function setEdges(on) { edgesOn = on; if (modelRoot) modelRoot.traverse(o => { if (o.isLine) o.visible = on; }); $('edges').classList.toggle('active', on); }
+$('edges').onclick = e => { e.preventDefault(); if (!$('edges').classList.contains('disabled')) setEdges(!edgesOn); };
+
+// ---- export optimised (meshopt-compressed) GLB -----------------------------
+// Takes the already-merged + edge-baked model, exports a GLB, then compresses it with meshopt
+// (EXT_meshopt_compression) in-browser — Draco's encoder needs Node's fs, meshopt's is browser-native.
+// Produces a small file to re-host so the link loads fast. Deps loaded on demand.
+let exporting = false;
+async function exportOptimisedGLB() {
+  if (!modelRoot || exporting) return; exporting = true;
+  const lbl = $('exportglb'), prevTxt = lbl.textContent; lbl.textContent = '⏳ Optimising…'; lbl.classList.add('disabled');
+  try {
+    const { GLTFExporter } = await import('three/addons/exporters/GLTFExporter.js');
+    const glb = await new GLTFExporter().parseAsync(modelRoot, { binary: true, onlyVisible: true });
+    const core = await import('https://esm.sh/@gltf-transform/core@4');
+    const ext = await import('https://esm.sh/@gltf-transform/extensions@4');
+    const fns = await import('https://esm.sh/@gltf-transform/functions@4');
+    const { MeshoptEncoder } = await import('https://esm.sh/meshoptimizer@0.20');
+    await MeshoptEncoder.ready;
+    const io = new core.WebIO().registerExtensions(ext.ALL_EXTENSIONS).registerDependencies({ 'meshopt.encoder': MeshoptEncoder, 'meshopt.decoder': MeshoptDecoder });
+    const doc = await io.readBinary(new Uint8Array(glb));
+    await doc.transform(fns.weld(), fns.dedup(), fns.reorder({ encoder: MeshoptEncoder }), fns.quantize({ quantizePosition: 16, quantizeNormal: 10 }));
+    doc.createExtension(ext.EXTMeshoptCompression).setRequired(true).setEncoderOptions({ method: ext.EXTMeshoptCompression.EncoderMethod.QUANTIZE });
+    const out = await io.writeBinary(doc);
+    const blob = new Blob([out], { type: 'model/gltf-binary' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = (fileName.replace(/\.(glb|gltf)$/i, '') || 'model') + '.opt.glb'; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+    meta(`Optimised GLB saved: ${a.download} — ${(out.byteLength / 1048576).toFixed(2)} MB`);
+  } catch (e) { console.error(e); err('Optimise GLB failed: ' + (e.message || e)); }
+  exporting = false; lbl.textContent = prevTxt; lbl.classList.remove('disabled');
+}
+$('exportglb').onclick = e => { e.preventDefault(); if (!$('exportglb').classList.contains('disabled')) exportOptimisedGLB(); };
 
 // ---- scenes (saved views: camera + projection + section) -------------------
 let scenes = [], activeSceneId = null, restoringScene = false, sceneUpdT = null;
