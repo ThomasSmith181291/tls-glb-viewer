@@ -1136,7 +1136,12 @@ function pick(clientX, clientY) {
 function showSnap(s) {
   if (!s) { snapMarker.visible = false; return; }
   snapMarker.position.copy(s.point);
-  snapMarker.scale.setScalar(s.type === 'free' ? 0.6 : 1.2);
+  // hold a constant pixel size regardless of zoom (so it never blows up on large models)
+  const targetPx = s.type === 'free' ? 4 : 6.4, h = stage.clientHeight || 1;
+  let worldR;
+  if (parallel) worldR = targetPx * 2 * orthoHalfH / (h * (ocam.zoom || 1));
+  else { const d = camera.position.distanceTo(s.point); const fpx = h / (2 * Math.tan(camera.fov * Math.PI / 360)); worldR = targetPx * d / fpx; }
+  snapMarker.scale.setScalar(worldR / markerR);
   snapMarker.material.color.set(s.type === 'vertex' ? 0x32cd32 : s.type === 'midpoint' ? 0x00bcd4 : 0xffffff);
   snapMarker.material.opacity = s.type === 'free' ? 0.5 : 1.0;
   snapMarker.visible = true;
