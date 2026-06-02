@@ -7,10 +7,10 @@
 <meta name="description" content="Open any 3D model in your browser and dimension it with snap-aware measurement, scenes, section cuts, comments, and live multi-viewport A3 drawing sheets — no install, runs entirely client-side.">
 <meta name="author" content="Thomas Smith">
 <meta property="og:type" content="article">
-<meta property="og:title" content="TLS GLB Model Viewer">
+<meta property="og:title" content="BuildEase Drawing Environment">
 <meta property="og:description" content="Open any 3D model in your browser and dimension it with snap-aware measurement, scenes, section cuts, comments, and live multi-viewport A3 drawing sheets — no install, runs entirely client-side.">
 <meta property="og:url" content="https://thomassmith181291.github.io/tls-glb-viewer/">
-<meta property="og:site_name" content="TLS GLB Model Viewer">
+<meta property="og:site_name" content="BuildEase Drawing Environment">
 <meta property="article:author" content="Thomas Smith">
 <meta property="article:published_time" content="2026-05-29T00:00:00Z">
 <meta property="og:image" content="https://thomassmith181291.github.io/tls-glb-viewer/og.png">
@@ -1959,7 +1959,7 @@ function openSheetById(id) {
     persistSheet();   // store computed defaults for a fresh sheet
   };
   if (sheetSvgText) run();
-  else fetch('sheet_a3.svg').then(r => r.text()).then(t => { sheetSvgText = t; run(); }).catch(() => err('Could not load sheet template (sheet_a3.svg).'));
+  else fetch('sheet_a3.svg', { cache: 'no-cache' }).then(r => r.text()).then(t => { sheetSvgText = t; run(); }).catch(() => err('Could not load sheet template (sheet_a3.svg).'));
 }
 function newSheet() {
   if (!modelRoot) return;
