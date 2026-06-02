@@ -138,6 +138,24 @@
   .toolbar .sep { width: 1px; align-self: stretch; background: #e3e3e3; margin: 0 2px; }
   .toolbar .hint { color: #888; font-size: 12px; margin-left: auto; }
 
+  /* ---- share modal ---- */
+  #shareModal { position: fixed; inset: 0; z-index: 80; background: rgba(20,28,38,.55); display: none; align-items: center; justify-content: center; }
+  #shareModal.open { display: flex; }
+  #shareCard { background: #fff; border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.45); width: 440px; max-width: 92vw; max-height: 88vh; overflow: auto; padding: 18px 20px; font-size: 13px; color: #1d3557; }
+  #shareCard h3 { margin: 0 0 8px; font-size: 15px; }
+  #shareCard p { margin: 6px 0; color: #444; line-height: 1.45; }
+  #shareCard a.lnk { color: #1d6fb8; }
+  #shareCard input[type=text], #shareCard input[type=password] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px; margin: 4px 0; }
+  #shareCard .row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; justify-content: flex-end; }
+  #shareCard button { font-size: 13px; padding: 7px 14px; border: 1px solid #1d3557; background: #1d3557; color: #fff; border-radius: 5px; cursor: pointer; }
+  #shareCard button.sec { background: #fafafa; color: #1d3557; border-color: #ccc; }
+  #shareCard button:disabled { opacity: .55; cursor: default; }
+  #shareCard .ol { background: #f4f7fb; border: 1px solid #e0e8f0; border-radius: 6px; padding: 8px 10px; margin: 8px 0; }
+  #shareCard ol { margin: 4px 0 0; padding-left: 20px; } #shareCard ol li { margin: 4px 0; }
+  #shareCard .linkbox { display: flex; gap: 6px; margin-top: 8px; }
+  #shareCard .linkbox input { flex: 1 1 auto; }
+  #shareCard .note { font-size: 12px; color: #777; margin-top: 8px; }
+  #shareCard .errline { color: #c1121f; font-size: 12px; margin-top: 8px; white-space: pre-wrap; }
   /* ---- sheet (drawing) view ---- */
   #sheetOverlay { position: absolute; inset: 0; z-index: 45; background: #5b5f63; display: none; flex-direction: column; }
   #sheetOverlay.open { display: flex; }
@@ -332,6 +350,7 @@
     <a id="exportglb" class="disabled">⤓ Optimise GLB</a>
     <a id="export" class="disabled">💾 Save annotations</a>
     <a id="import">📂 Load annotations</a>
+    <a id="share" class="disabled">🔗 Share link</a>
     <input type="file" id="impfile" accept=".json,application/json" style="display:none">
     <span class="hint" id="hint">Drag to orbit · tap two points to dimension (snaps to corners/edges)</span>
   </div>
@@ -352,6 +371,8 @@
   </div>
   <div id="sheetScroll"><div id="sheetPaper"></div></div>
 </div>
+
+<div id="shareModal"><div id="shareCard"></div></div>
 
 <script>
   (function () {
@@ -432,7 +453,7 @@ loader.setMeshoptDecoder(MeshoptDecoder);   // load meshopt-compressed GLBs (inc
 const raycaster = new THREE.Raycaster();
 const ndc = new THREE.Vector2();
 
-let modelRoot = null, meshes = [], modelScale = 1, markerR = 0.02, fileName = '', modelUrl = '';
+let modelRoot = null, meshes = [], modelScale = 1, markerR = 0.02, fileName = '', modelUrl = '', modelFile = null;
 let commentMode = false;
 let flatShade = true, blockMatStore = [];   // flat/unlit removes two-tone from BCDS's inconsistent baked normals
 let edgesOn = true;                          // show edge lines (baked-in or auto-generated on load)
@@ -529,12 +550,14 @@ function clearModel() {
 }
 function loadFromURL(url, name) {
   modelUrl = url;   // remember the source so we can auto-fetch the sidecar annotations next to it
+  modelFile = null; // came from a URL → already hosted, Share reuses the URL (no re-upload)
   loader.load(url, g => onLoaded(g, name), undefined, e => { console.error(e); err('Could not load model: ' + (e.message || e)); });
 }
 function loadFile(file) {
   if (!file) return;
   if (!/\.(glb|gltf)$/i.test(file.name)) { err('Not a .glb / .gltf file'); return; }
   modelUrl = '';   // dropped/opened local file has no shareable URL → no sidecar fetch
+  modelFile = file; // keep ORIGINAL bytes (geometry is mutated on load) so Share can publish them
   meta(`${file.name} — loading…`); clearBanner();
   const url = URL.createObjectURL(file);
   loader.load(url, g => { URL.revokeObjectURL(url); onLoaded(g, file.name); }, undefined,
@@ -563,7 +586,7 @@ function onLoaded(gltf, name) {
   fitCamera(center, size);
 
   dropEl.classList.add('hidden');
-  ['dimtypes', 'comment', 'list', 'dims', 'reset', 'export', 'exportglb', 'sizes', 'views', 'parallel', 'uniform', 'edges', 'section', 'scenes', 'sheet', 'lock2d'].forEach(id => $(id).classList.remove('disabled'));
+  ['dimtypes', 'comment', 'list', 'dims', 'reset', 'export', 'exportglb', 'share', 'sizes', 'views', 'parallel', 'uniform', 'edges', 'section', 'scenes', 'sheet', 'lock2d'].forEach(id => $(id).classList.remove('disabled'));
   meta(`${fileName}  —  ${Math.round(size.x*1000)} × ${Math.round(size.y*1000)} × ${Math.round(size.z*1000)} mm (bbox)  ·  ${meshes.length} meshes`);
   const hadLocal = hasLocalAnnotations();
   loadPersistedComments(); loadPersistedScenes(); loadPersistedDims();   // dims after scenes so each dim re-binds to its scene
@@ -1620,6 +1643,119 @@ $('export').onclick = e => {   // portable sidecar: comments + dimensions + scen
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = fileName.replace(/\.(glb|gltf)$/i, '') + '.annot.json'; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+
+// ---- Share link (publish model + annotations to GitHub Pages) ---------------
+const GH_OWNER = 'ThomasSmith181291', GH_REPO = 'tls-glb-viewer', GH_BRANCH = 'main';
+const PAGES_BASE = 'https://thomassmith181291.github.io/tls-glb-viewer/';
+const GH_TOKEN_KEY = 'tlsglb-gh-token';
+const shareModal = $('shareModal'), shareCard = $('shareCard');
+function closeShare() { shareModal.classList.remove('open'); }
+shareModal.addEventListener('click', e => { if (e.target === shareModal) closeShare(); });
+
+function annotationBundle() {
+  return { file: fileName, version: 3, sizes: sizesObj(), comments: serializeComments(), dimensions: serializeDims(), scenes: scenes.filter(s => !s.locked), sheets };
+}
+function bufToB64(buf) {   // chunked → avoids call-stack blowups on big binaries
+  const bytes = new Uint8Array(buf); let bin = ''; const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  return btoa(bin);
+}
+function strToB64(s) { return btoa(unescape(encodeURIComponent(s))); }
+function ghToken() { try { return localStorage.getItem(GH_TOKEN_KEY) || ''; } catch (e) { return ''; } }
+async function ghGetSha(path, token) {
+  const r = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}?ref=${GH_BRANCH}`,
+    { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' } });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error('GitHub read failed (' + r.status + ')');
+  return (await r.json()).sha || null;
+}
+async function ghPut(path, b64, message, token) {
+  const sha = await ghGetSha(path, token);
+  const body = { message, content: b64, branch: GH_BRANCH }; if (sha) body.sha = sha;
+  const r = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`,
+    { method: 'PUT', headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }, body: JSON.stringify(body) });
+  if (!r.ok) { let m = ''; try { m = (await r.json()).message; } catch (e) {} throw new Error('Upload failed (' + r.status + ')' + (m ? ': ' + m : '')); }
+}
+function safeName(n) { return (n || 'model').replace(/\.(glb|gltf)$/i, '').replace(/[^\w.\-]+/g, '_'); }
+
+function shareResultView(link) {
+  shareCard.innerHTML = `<h3>✅ Share link ready</h3>
+    <p>Send this to your customer — it opens the model with your dimensions, scenes and sheets:</p>
+    <div class="linkbox"><input type="text" id="shareLink" readonly value="${link}"><button id="shareCopy">Copy</button></div>
+    <p class="note">GitHub Pages can take ~30–60 s to publish a freshly uploaded model, so give it a minute before the link loads first time.</p>
+    <div class="row"><button id="shareDone">Done</button></div>`;
+  const inp = $('shareLink');
+  inp.focus(); inp.select();
+  $('shareCopy').onclick = () => { inp.select(); navigator.clipboard ? navigator.clipboard.writeText(link).then(() => { $('shareCopy').textContent = 'Copied ✓'; }, () => document.execCommand('copy')) : document.execCommand('copy'); };
+  $('shareDone').onclick = closeShare;
+  try { if (navigator.clipboard) navigator.clipboard.writeText(link); } catch (e) {}
+}
+function shareTokenView(msg) {
+  shareCard.innerHTML = `<h3>🔗 Share via GitHub — one-time setup</h3>
+    <p>To publish models, the viewer needs a GitHub token with write access to <strong>${GH_REPO}</strong>. It is stored only in <em>this</em> browser and never travels in the shared link.</p>
+    <div class="ol"><ol>
+      <li>Open <a class="lnk" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a></li>
+      <li>Resource owner: <strong>${GH_OWNER}</strong> · Repository access → <strong>Only select repositories</strong> → <strong>${GH_REPO}</strong></li>
+      <li>Permissions → Repository permissions → <strong>Contents: Read and write</strong></li>
+      <li>Generate, copy the <code>github_pat_…</code> token, paste it below.</li>
+    </ol></div>
+    <input type="password" id="shareTok" placeholder="github_pat_…" autocomplete="off">
+    ${msg ? `<div class="errline">${msg}</div>` : ''}
+    <div class="row"><button class="sec" id="shareCancel">Cancel</button><button id="shareSaveTok">Save &amp; share</button></div>`;
+  $('shareCancel').onclick = closeShare;
+  $('shareSaveTok').onclick = () => {
+    const t = $('shareTok').value.trim();
+    if (!t) { $('shareTok').focus(); return; }
+    try { localStorage.setItem(GH_TOKEN_KEY, t); } catch (e) {}
+    runShareUpload();
+  };
+  setTimeout(() => $('shareTok') && $('shareTok').focus(), 30);
+}
+function shareBusyView(text) {
+  shareCard.innerHTML = `<h3>🔗 Sharing…</h3><p>${text}</p><p class="note">Large models take a moment — keep this tab open.</p>`;
+}
+async function runShareUpload() {
+  const token = ghToken();
+  if (!token) { shareTokenView(''); return; }
+  const base = safeName(fileName);
+  const glbPath = 'models/' + base + '.glb';
+  const annPath = 'models/' + base + '.annot.json';
+  const link = PAGES_BASE + '?model=models/' + encodeURIComponent(base + '.glb');
+  shareBusyView('Reading model…');
+  try {
+    const buf = await modelFile.arrayBuffer();
+    shareBusyView('Uploading model (' + (buf.byteLength / 1048576).toFixed(1) + ' MB) to GitHub…');
+    await ghPut(glbPath, bufToB64(buf), 'Share: ' + base + '.glb', token);
+    shareBusyView('Uploading annotations…');
+    await ghPut(annPath, strToB64(JSON.stringify(annotationBundle())), 'Share: ' + base + ' annotations', token);
+    shareResultView(link);
+  } catch (e) {
+    const m = (e && e.message) || String(e);
+    if (/40[13]/.test(m)) { try { localStorage.removeItem(GH_TOKEN_KEY); } catch (x) {} shareTokenView('That token was rejected (' + m + '). Please paste a valid one.'); }
+    else { shareCard.innerHTML = `<h3>⚠ Share failed</h3><div class="errline">${m}</div><div class="row"><button id="shareDone">Close</button></div>`; $('shareDone').onclick = closeShare; }
+  }
+}
+$('share').onclick = e => {
+  e.preventDefault(); if ($('share').classList.contains('disabled')) return;
+  shareModal.classList.add('open');
+  // Model came from a URL (already hosted) → just hand back a link, no upload.
+  if (!modelFile && modelUrl && /^https?:/i.test(modelUrl)) {
+    const rel = modelUrl.replace(/^https?:\/\/[^/]+\/tls-glb-viewer\//i, '');   // keep repo-relative if it's on our Pages site
+    shareResultView(PAGES_BASE + '?model=' + encodeURIComponent(rel));
+    return;
+  }
+  if (!modelFile) {
+    shareCard.innerHTML = `<h3>🔗 Share</h3><p>This model was opened from a link already. Re-open the original file with <strong>Open…</strong> first so it can be published, then Share.</p><div class="row"><button id="shareDone">Close</button></div>`;
+    $('shareDone').onclick = closeShare; return;
+  }
+  const mb = modelFile.size / 1048576;
+  if (mb > 95) {
+    shareCard.innerHTML = `<h3>🔗 Model too large for GitHub</h3><p>This file is <strong>${mb.toFixed(0)} MB</strong>. GitHub caps uploads near 100 MB and would bloat the repo. Lighten it first (⤓ Optimise GLB, or strip webs) or host it on object storage.</p><div class="row"><button id="shareDone">Close</button></div>`;
+    $('shareDone').onclick = closeShare; return;
+  }
+  if (mb > 40 && !ghToken()) shareTokenView('Heads-up: this model is ' + mb.toFixed(0) + ' MB — upload may be slow.');
+  else runShareUpload();
 };
 function importAnnotationBundle(o) {   // shared by file-Import and the auto-fetched sidecar
   if (!o) return;
