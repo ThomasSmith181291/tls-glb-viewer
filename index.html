@@ -1852,7 +1852,7 @@ setDimType('aligned');
 loadPersistedSizes();   // restore saved Sizes before any model/dimensions load
 const qp = new URLSearchParams(location.search).get('model');
 if (qp) { meta(qp.split('/').pop() + ' — loading…'); loadFromURL(qp, qp.split('/').pop()); }
-else { const u = 'sample.glb?t=' + Date.now(); fetch(u, { method: 'HEAD' }).then(r => { if (r.ok) loadFromURL(u, 'sample.glb'); }).catch(() => {}); }  // dev convenience: auto-open sample (cache-busted)
+// Otherwise open empty — no model is auto-loaded. Drag-drop a .glb, use Open, or pass ?model=URL.
 </script>
 </body>
 </html>
