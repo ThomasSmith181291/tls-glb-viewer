@@ -7,3 +7,13 @@ _check.mjs
 *.tmp
 
 clinton.glb
+
+# planning docs (kept local, removed upstream)
+.claude/
+
+# scratch assets / experiments
+spike/
+metadata_test.glb
+_g_iso.png
+_g_top.png
+_poche_top.png

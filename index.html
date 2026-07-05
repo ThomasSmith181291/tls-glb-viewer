@@ -84,6 +84,32 @@
   .popover { position: absolute; z-index: 30; background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 10px 12px;
              box-shadow: 0 4px 16px rgba(0,0,0,.22); font-size: 13px; }
   .popover[hidden] { display: none; }
+  #partInfo { right: 12px; top: 12px; min-width: 210px; max-width: 290px; }
+  #partInfo .pi-title { font-weight: 600; margin: 0 18px 6px 0; word-break: break-word; }
+  #partInfo table { border-collapse: collapse; width: 100%; }
+  #partInfo td { padding: 2px 6px; vertical-align: top; }
+  #partInfo td:first-child { color: #667; white-space: nowrap; }
+  #partInfo .pi-close { position: absolute; top: 6px; right: 9px; cursor: pointer; color: #889; font-size: 12px; }
+  #partInfo .pi-sub { font-weight: 600; color: #445; margin: 8px 0 2px; border-top: 1px solid #eee; padding-top: 6px; }
+  #partInfo { max-height: 70vh; overflow: auto; }
+  #revReview { right: 12px; top: 12px; width: 290px; max-height: 80vh; overflow: auto; }
+  #revReview .rev-head { font-weight: 700; color: #b45309; margin: 0 18px 6px 0; }
+  #revReview .rev-note { font-size: 11px; color: #667; margin-bottom: 7px; }
+  #revReview .rev-grp { font-weight: 600; color: #334; font-size: 12px; margin: 7px 0 2px; }
+  #revReview .rev-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; border-bottom: 1px solid #f2f2f2; font-size: 12px; }
+  #revReview .rev-row .rl { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1d3557; }
+  #revReview .rev-row a { cursor: pointer; color: #1d6fb8; text-decoration: none; }
+  #revReview .rev-ok { color: #2e7d32; font-weight: 600; padding: 6px 2px; }
+  #outlinerPanel { left: 12px; top: 12px; width: 232px; max-height: 80vh; overflow: auto; padding-top: 26px; }
+  #outlinerPanel .ol-head { position: absolute; top: 6px; left: 12px; font-weight: 600; }
+  #outlinerPanel .ol-showall { font-size: 11px; margin-left: 8px; cursor: pointer; background: #eef; border: 1px solid #ccd; border-radius: 4px; padding: 1px 6px; }
+  #outlinerPanel .ol-group { margin-bottom: 5px; }
+  #outlinerPanel summary { cursor: pointer; font-weight: 600; color: #334; padding: 2px 0; }
+  #outlinerPanel .ol-row { display: flex; align-items: center; gap: 6px; padding: 1px 0 1px 14px; font-size: 12px; }
+  #outlinerPanel .ol-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #outlinerPanel .ol-n { color: #99a; font-size: 11px; }
+  #outlinerPanel .ol-folder > summary { cursor: pointer; color: #556; font-size: 12px; padding: 1px 0; list-style: none; }
+  #outlinerPanel .ol-folder > summary::-webkit-details-marker { display: none; }
   .popover label { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 5px 0; color: #1d3557; }
   .popover input { width: 72px; padding: 3px 6px; border: 1px solid #ccc; border-radius: 4px; }
   .popover .acts { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
@@ -108,6 +134,36 @@
   #sectionPop .seccyc.active { background: #1d3557; color: #fff; border-color: #1d3557; }
   #sectionPop .bx { width: 60px; vertical-align: middle; }
   #sectionPop label span { display: inline-flex; gap: 4px; align-items: center; }
+  /* scene-binding chips (shared by section + level lists, and the sheet annotations panel) */
+  .secitem { border-bottom: 1px solid #f0f0f0; padding-bottom: 4px; margin-bottom: 4px; }
+  .secitem:last-child { border-bottom: 0; margin-bottom: 0; }
+  .srow { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+  .srow label { flex: 1 1 auto; margin: 0; justify-content: flex-start; gap: 6px; color: #1d3557; }
+  .srow a { cursor: pointer; color: #1d3557; text-decoration: none; padding: 0 2px; font-size: 12px; }
+  .srow a:hover { color: #e63946; }
+  .scenechips { display: flex; flex-wrap: wrap; gap: 3px; margin: 1px 0 2px 22px; }
+  .scenechip { font-size: 10px; line-height: 1.5; padding: 0 7px; border: 1px solid #cdd3df; background: #f4f6fa;
+               border-radius: 9px; cursor: pointer; color: #51607a; white-space: nowrap; user-select: none; }
+  .scenechip.on { background: #1d3557; border-color: #1d3557; color: #fff; }
+  .scenechip.cur { box-shadow: 0 0 0 2px #ffd66b; }
+  #levelsPop { bottom: 8px; left: 50%; transform: translateX(-50%); min-width: 248px; }
+  #levelsPop .scenelist { margin-top: 6px; max-height: 244px; overflow-y: auto; }
+  #levelsPop .empty { color: #999; font-size: 12px; padding: 6px 2px; }
+  #levelsPop .seccyc { font-size: 12px; padding: 2px 12px; border: 1px solid #d0d0d0; background: #fafafa; border-radius: 4px; cursor: pointer; color: #1d3557; font-weight: 700; }
+  #levelsPop .seccyc.active { background: #1d3557; color: #fff; border-color: #1d3557; }
+  #compPop { bottom: 8px; left: 50%; transform: translateX(-50%); width: 268px; }
+  #compPop input[type=range] { width: 130px; vertical-align: middle; }
+  #icfPop { bottom: 8px; left: 50%; transform: translateX(-50%); width: 280px; }
+  #icfPop input[type=range] { width: 150px; vertical-align: middle; }
+  #icfPop .seccyc { font-size: 12px; padding: 2px 12px; border: 1px solid #d0d0d0; background: #fafafa; border-radius: 4px; cursor: pointer; color: #1d3557; font-weight: 700; }
+  #icfPop .seccyc.active { background: #e63946; color: #fff; border-color: #e63946; }
+  #icfPop label { display: flex; align-items: center; gap: 6px; justify-content: flex-start; }
+  #sheetAnnotPanel { position: absolute; z-index: 60; top: 46px; left: 12px; background: #fff; border: 1px solid #ccc;
+                     border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.25); padding: 8px 11px; width: 264px; max-height: 64vh; overflow: auto; }
+  #sheetAnnotPanel[hidden] { display: none; }
+  #sheetAnnotPanel .ah { font-weight: 700; color: #1d3557; font-size: 12px; margin: 7px 0 3px; }
+  #sheetAnnotPanel .ah:first-child { margin-top: 0; }
+  #sheetAnnotPanel .srow b { color: #1d3557; font-size: 12px; }
   #scenesPop { bottom: 8px; left: 50%; transform: translateX(-50%); min-width: 220px; }
   #scenesPop .scenelist { margin-top: 8px; max-height: 200px; overflow-y: auto; }
   #scenesPop .empty { color: #999; font-size: 12px; padding: 6px 2px; }
@@ -138,6 +194,8 @@
   .toolbar .dimtypes a.active { background: #1d3557; color: #fff; }
   .toolbar .dimtypes a svg { display: block; }
   .toolbar .sep { width: 1px; align-self: stretch; background: #e3e3e3; margin: 0 2px; }
+  .toolbar .tgroup { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 7px; background: #f6f8fb; border: 1px solid #eaeef3; }
+  .toolbar .tglabel { font-size: 9px; text-transform: uppercase; letter-spacing: .6px; color: #98a2b3; font-weight: 800; margin-right: 1px; }
   .toolbar .hint { color: #888; font-size: 12px; margin-left: auto; }
 
   /* ---- share modal ---- */
@@ -185,16 +243,49 @@
   #sheetPaper .svp .hd.s { bottom: -5px; left: 50%; transform: translateX(-50%); width: 18px; height: 9px; cursor: ns-resize; }
   #sheetPaper .svp .hd.w { left: -5px; top: 50%; transform: translateY(-50%); width: 9px; height: 18px; cursor: ew-resize; }
   #sheetPaper .svp .hd.e { right: -5px; top: 50%; transform: translateY(-50%); width: 9px; height: 18px; cursor: ew-resize; }
+  /* dynamic sheet frame + annotation overlay (drawn in mm, viewBox = page) */
+  #sheetGrid { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+  #sheetSvg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+  #sheetSvg #annotLayer .ann, #sheetSvg #annotLayer .ann * { pointer-events: auto; cursor: move; }
+  #sheetSvg .annHandle { fill: #ffb703; stroke: #1d3557; stroke-width: .4; pointer-events: auto; cursor: pointer; }
+  #sheetSvg .annSel { outline: none; }
+  #sheetPaper .svp { z-index: 2; }
+  #sheetPaper .svp.sel { z-index: 3; }
+  /* sheet bar: size / orientation / fields / annotation tools */
+  #sheetBar select.sb { font-size: 12px; padding: 2px 4px; }
+  #sheetBar .atool { font-weight: 700; min-width: 30px; text-align: center; }
+  #sheetBar .atool.active { background: #ffb703; color: #1d3557; border-color: #1d3557; }
+  #sheetFieldsPanel, #annotProps { position: absolute; z-index: 60; background: #fff; border: 1px solid #ccc; border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.25); padding: 10px 12px; color: #1d3557; font-size: 12px; }
+  #sheetFieldsPanel[hidden], #annotProps[hidden] { display: none; }
+  #sheetFieldsPanel { top: 46px; left: 50%; transform: translateX(-50%); width: 460px; display: grid; grid-template-columns: 1fr 1fr; gap: 7px 12px; }
+  #sheetFieldsPanel .fwide { grid-column: 1 / 3; }
+  #sheetFieldsPanel label { display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: #667; }
+  #sheetFieldsPanel input, #sheetFieldsPanel select { font-size: 12px; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; color: #1d3557; }
+  #annotProps { top: 46px; right: 12px; width: 210px; display: flex; flex-direction: column; gap: 6px; }
+  #annotProps .row { display: flex; align-items: center; gap: 6px; justify-content: space-between; }
+  #annotProps input[type=text] { flex: 1 1 auto; min-width: 0; font-size: 12px; padding: 3px 5px; border: 1px solid #ccc; border-radius: 4px; }
+  #annotProps input[type=number] { width: 56px; font-size: 12px; padding: 3px 5px; border: 1px solid #ccc; border-radius: 4px; }
+  #annotProps button { font-size: 12px; padding: 4px 9px; border: 1px solid #d0d0d0; background: #fafafa; border-radius: 4px; cursor: pointer; color: #1d3557; }
+  #annotProps .del { color: #c1121f; border-color: #f0bcc0; }
+  #sheetRevPanel { position: absolute; z-index: 60; top: 46px; left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.25); padding: 10px 12px; width: 480px; color: #1d3557; }
+  #sheetRevPanel[hidden] { display: none; }
+  #sheetRevPanel .rrow { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
+  #sheetRevPanel .rrow input { font-size: 12px; padding: 3px 5px; border: 1px solid #ccc; border-radius: 4px; }
+  #sheetRevPanel .rrow .c-rev { width: 40px; } #sheetRevPanel .rrow .c-date { width: 78px; } #sheetRevPanel .rrow .c-desc { flex: 1 1 auto; min-width: 0; } #sheetRevPanel .rrow .c-by { width: 46px; }
+  #sheetRevPanel .rrow .rdel { color: #c1121f; cursor: pointer; border: 1px solid #f0bcc0; border-radius: 4px; background: #fff; padding: 2px 6px; font-size: 12px; }
+  #sheetRevPanel .rhead { display: flex; gap: 6px; font-size: 10px; color: #8893a6; font-weight: 700; }
+  #sheetRevPanel button { font-size: 12px; padding: 4px 9px; border: 1px solid #d0d0d0; background: #fafafa; border-radius: 4px; cursor: pointer; color: #1d3557; }
 
   @media print {
     body > *:not(#sheetOverlay) { display: none !important; }
     #sheetOverlay { position: static; display: block; background: #fff; }
-    #sheetBar { display: none; }
+    #sheetBar, #sheetFieldsPanel, #annotProps, #sheetAnnotPanel { display: none !important; }
     #sheetScroll { overflow: visible; padding: 0; display: block; }
-    #sheetPaper { width: 420mm !important; height: 297mm !important; box-shadow: none; }
+    #sheetPaper { box-shadow: none; }
     #sheetPaper .svp { outline: none !important; }
-    #sheetPaper .svp .hd { display: none !important; }
-    @page { size: A3 landscape; margin: 0; }
+    #sheetPaper .svp .hd, #sheetSvg .annHandle { display: none !important; }
+    @page { margin: 0; }
   }
 </style>
 <script type="importmap">
@@ -273,7 +364,40 @@
           <label>Y <span><input class="bx" id="by0" type="range" min="0" max="100" value="0"><input class="bx" id="by1" type="range" min="0" max="100" value="100"></span></label>
           <label>Z <span><input class="bx" id="bz0" type="range" min="0" max="100" value="0"><input class="bx" id="bz1" type="range" min="0" max="100" value="100"></span></label>
         </div>
+        <div class="acts" style="margin-top:6px;border-top:1px solid #eee;padding-top:6px"><button id="secName">📌 Name section</button></div>
+        <div id="secNamedList" class="scenelist"></div>
         <div class="acts"><button id="secoff">Off</button></div>
+      </div>
+
+      <div class="popover" id="levelsPop" hidden>
+        <div class="acts" style="margin-top:0;align-items:center">
+          <button id="levelPick" class="seccyc">＋ Pick levels</button>
+          <span id="levelDatumLbl" style="font-size:11px;color:#667;margin-left:6px">Datum: not set</span>
+        </div>
+        <div style="font-size:11px;color:#889;margin:5px 0 0">Click a point to set the <b>0.000</b> datum, then click points to add level lines. Each level draws a dotted datum line + an elevation marker (e.g. +2.400). Toggle which scenes each level appears in below.</div>
+        <div id="levelList" class="scenelist"></div>
+        <div class="acts"><button id="levelResetDatum">Reset datum</button><button id="levelsOff">Done</button></div>
+      </div>
+
+      <div class="popover" id="icfPop" hidden>
+        <div style="font-weight:700;color:#1d3557;margin:0 0 6px">🧱 ICF tools</div>
+        <div class="acts" style="margin-top:0"><button id="icfCutHL" class="seccyc">🟥 Highlight cut blocks</button><span id="icfCutStat" style="font-size:11px;color:#667;margin-left:6px"></span></div>
+        <label style="margin-top:8px">Build sequence <input id="icfSeq" type="range" min="0" max="20" value="20"></label>
+        <div id="icfSeqStat" style="font-size:11px;color:#445;margin:2px 0 0">All courses shown</div>
+        <div class="acts" style="border-top:1px solid #eee;margin-top:8px;padding-top:8px"><button id="icfAutoElev">📐 Auto wall elevations</button></div>
+        <div style="font-size:11px;color:#889;margin-top:4px">One <b>inside</b> elevation per wall, spanning all its levels, framed with the bookend corners.</div>
+        <label style="margin-top:4px"><input type="checkbox" id="icfElevLabel" checked> also label ICF blocks</label>
+        <label><input type="checkbox" id="icfElevSheets"> also create a sheet for each</label>
+        <div id="icfElevStat" style="font-size:11px;color:#445;margin-top:4px"></div>
+        <div class="acts"><button id="icfOff">Done</button></div>
+      </div>
+
+      <div class="popover" id="compPop" hidden>
+        <div style="font-size:11px;color:#889;margin:0 0 6px">Orient the view to an <b>internal ICF elevation</b>, then generate. Each visible ICF component is labelled with its name on its inside face. Labels bind to this view and print on its sheets (timber is skipped).</div>
+        <div class="acts" style="margin-top:0"><button id="compGen">🏷 Label ICF in this view</button></div>
+        <label style="margin-top:6px">Label size <input id="compSize" type="range" min="40" max="220" value="100"></label>
+        <div id="compStat" style="font-size:11px;color:#445;margin:4px 0"></div>
+        <div class="acts"><button id="compClear">Clear this view</button><button id="compClearAll">Clear all</button><button id="compOff">Done</button></div>
       </div>
 
       <div class="popover" id="dimsPop" hidden>
@@ -296,6 +420,24 @@
         </div>
       </div>
 
+      <div class="popover" id="partInfo" hidden>
+        <span class="pi-close" id="partInfoClose">✕</span>
+        <div id="partInfoBody"></div>
+      </div>
+
+      <div class="popover" id="outlinerPanel" hidden>
+        <span class="pi-close" id="outlinerClose">✕</span>
+        <div class="ol-head">Tag Manager <button id="olShowAll" class="ol-showall">Show all</button></div>
+        <div id="outlinerBody"></div>
+      </div>
+
+      <div class="popover" id="revReview" hidden>
+        <span class="pi-close" id="revReviewClose">✕</span>
+        <div class="rev-head">⚠ Model revised</div>
+        <div id="revReviewBody"></div>
+        <div class="acts"><button id="revClearFlags">Clear flags</button></div>
+      </div>
+
       <div class="popover" id="dimEdit" hidden>
         <div id="dimEditTitle"></div>
         <label>Offset <span><input id="dimOff" type="number" step="10"> mm</span></label>
@@ -311,7 +453,7 @@
         <div class="big">Drop a 3D model here</div>
         <div class="sub">.glb or .gltf (Draco supported) — stays on your device</div>
         <button class="btn" id="openbtn">Open file…</button>
-        <input type="file" id="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" style="display:none">
+        <input type="file" id="file" accept=".glb,.gltf,.tlsv,.tlsproj,model/gltf-binary,model/gltf+json" style="display:none">
       </div>
     </div>
     <aside class="side" id="side">
@@ -320,40 +462,62 @@
     </aside>
   </div>
   <div class="toolbar">
-    <span id="dimtypes" class="dimtypes disabled">
-      <a data-dim="aligned" title="Aligned — true point-to-point distance"></a>
-      <a data-dim="linear" title="Linear — horizontal / vertical (projected)"></a>
-      <a data-dim="continuous" title="Continuous — running string at a shared baseline"></a>
-      <a data-dim="baseline" title="Baseline — all from one origin, stacked"></a>
-      <a data-dim="angular" title="Angular — angle between two ends"></a>
+    <span class="tgroup">
+      <span class="tglabel">File</span>
+      <a id="open2">Open…</a>
+      <a id="saveproj" class="disabled">📦 Save project</a>
+      <a id="import">📂 Open project</a>
+      <a id="export" class="disabled">💾 Annotations</a>
+      <a id="share" class="disabled">🔗 Share</a>
+      <a id="revise" class="disabled">🔄 Revise model</a>
+      <a id="exportglb" class="disabled">⤓ Optimise GLB</a>
     </span>
-    <a id="finish" style="display:none">Finish</a>
-    <a id="stepback" style="display:none">↩ Back</a>
-    <a id="jogv" class="jogbtn" style="display:none">Vertical</a>
-    <a id="jogh" class="jogbtn" style="display:none">Horizontal</a>
-    <span class="sep"></span>
-    <a id="comment" class="disabled">💬 Comment mode</a>
-    <a id="list" class="disabled">🗂 Comments</a>
-    <span class="sep"></span>
-    <a id="dims" class="disabled">📏 Dims</a>
-    <a id="clear" class="disabled">Clear dimensions</a>
-    <a id="sizes" class="disabled">⚙ Sizes</a>
-    <a id="reset" class="disabled">Reset view</a>
-    <a id="views" class="disabled">📐 Views</a>
-    <a id="parallel" class="disabled">◉ Perspective</a>
-    <a id="uniform" class="disabled">💡 Flat</a>
-    <a id="edges" class="disabled">◫ Edges</a>
-    <a id="section" class="disabled">✂ Section</a>
-    <a id="scenes" class="disabled">🎬 Scenes</a>
-    <a id="sheet" class="disabled">🗂 Sheet</a>
-    <a id="lock2d" class="disabled">🔓 Lock 2D</a>
-    <span class="sep"></span>
-    <a id="open2">Open…</a>
-    <a id="exportglb" class="disabled">⤓ Optimise GLB</a>
-    <a id="export" class="disabled">💾 Save annotations</a>
-    <a id="import">📂 Load annotations</a>
-    <a id="share" class="disabled">🔗 Share link</a>
-    <input type="file" id="impfile" accept=".json,application/json" style="display:none">
+    <span class="tgroup">
+      <span class="tglabel">View</span>
+      <a id="reset" class="disabled">Reset</a>
+      <a id="views" class="disabled">📐 Views</a>
+      <a id="parallel" class="disabled">◉ Perspective</a>
+      <a id="uniform" class="disabled">💡 Flat</a>
+      <a id="edges" class="disabled">◫ Edges</a>
+      <a id="lock2d" class="disabled">🔓 Lock 2D</a>
+    </span>
+    <span class="tgroup">
+      <span class="tglabel">Annotate</span>
+      <a id="dims" class="disabled">📏 Dims</a>
+      <span id="dimtypes" class="dimtypes disabled">
+        <a data-dim="aligned" title="Aligned — true point-to-point distance"></a>
+        <a data-dim="linear" title="Linear — horizontal / vertical (projected)"></a>
+        <a data-dim="continuous" title="Continuous — running string at a shared baseline"></a>
+        <a data-dim="baseline" title="Baseline — all from one origin, stacked"></a>
+        <a data-dim="angular" title="Angular — angle between two ends"></a>
+      </span>
+      <a id="finish" style="display:none">Finish</a>
+      <a id="stepback" style="display:none">↩ Back</a>
+      <a id="jogv" class="jogbtn" style="display:none">Vertical</a>
+      <a id="jogh" class="jogbtn" style="display:none">Horizontal</a>
+      <a id="clear" class="disabled">Clear dims</a>
+      <a id="sizes" class="disabled">⚙ Sizes</a>
+      <a id="comment" class="disabled">💬 Comment</a>
+      <a id="list" class="disabled">🗂 Comments</a>
+      <a id="undo" class="disabled" title="Undo (Ctrl+Z)">↶ Undo</a>
+      <a id="redo" class="disabled" title="Redo (Ctrl+Y)">↷ Redo</a>
+    </span>
+    <span class="tgroup">
+      <span class="tglabel">Drawing</span>
+      <a id="section" class="disabled">✂ Section</a>
+      <a id="levels" class="disabled">▽ Levels</a>
+      <a id="complabel" class="disabled">🏷 Label ICF</a>
+      <a id="icfbtn" class="disabled">🧱 ICF</a>
+      <a id="inspect" class="disabled">🔍 Inspect</a>
+      <a id="outliner" class="disabled">🗂 Tag Manager</a>
+    </span>
+    <span class="tgroup">
+      <span class="tglabel">Layout</span>
+      <a id="scenes" class="disabled">🎬 Scenes</a>
+      <a id="sheet" class="disabled">🗂 Sheet</a>
+    </span>
+    <input type="file" id="impfile" accept=".json,.tlsv,.tlsproj,application/json" style="display:none">
+    <input type="file" id="revfile" accept=".glb,.gltf,model/gltf-binary" style="display:none">
     <span class="hint" id="hint">Drag to orbit · tap two points to dimension (snaps to corners/edges)</span>
   </div>
 </main>
@@ -361,16 +525,51 @@
 <div id="sheetOverlay">
   <div id="sheetBar">
     <strong>🗂</strong>
-    <label>Name <input id="f_sheetname" size="10"></label>
+    <label>Name <input id="f_sheetname" size="9"></label>
+    <span class="seg">
+      <label>Size <select id="sheetSize" class="sb"><option>A0</option><option>A1</option><option>A2</option><option selected>A3</option><option>A4</option></select></label>
+      <label>Orient <select id="sheetOrient" class="sb"><option value="landscape">Landscape</option><option value="portrait">Portrait</option></select></label>
+    </span>
     <span class="seg"><label>Add view <select id="sheetAddSel"></select></label><button id="sheetAdd">＋ Add</button></span>
-    <span class="seg" id="vpCtl" hidden><label>Scale 1:<input id="vpScale" size="5"></label><button id="vpDelete">Delete view</button></span>
-    <label>Title <input id="f_title" size="12"></label>
-    <label>No. <input id="f_number" size="6"></label>
-    <label>Rev <input id="f_sheet" size="3"></label>
-    <label>Author <input id="f_author" size="8"></label>
-    <button id="sheetPrint" class="sp">🖨 Print / PDF</button>
+    <span class="seg" id="vpCtl" hidden><label>Scale 1:<input id="vpScale" size="5"></label><label>Title <input id="vpTitle" size="10" placeholder="(scene name)"></label><button id="vpDelete">Delete view</button></span>
+    <span class="seg"><label><input type="checkbox" id="vpTitlesChk" checked> Titles</label><label><input type="checkbox" id="vpSnapChk"> Grid/snap</label></span>
+    <span class="seg" id="annotTools">
+      <button class="atool active" data-tool="select" title="Select / move">▤</button>
+      <button class="atool" data-tool="text" title="Text">T</button>
+      <button class="atool" data-tool="leader" title="Leader callout">↘T</button>
+      <button class="atool" data-tool="line" title="Line">／</button>
+      <button class="atool" data-tool="arrow" title="Arrow">→</button>
+      <button class="atool" data-tool="rect" title="Rectangle">▭</button>
+      <button class="atool" data-tool="ellipse" title="Ellipse">◯</button>
+      <button class="atool" data-tool="cloud" title="Revision cloud">☁</button>
+      <button class="atool" data-tool="north" title="North arrow">N↑</button>
+      <button class="atool" data-tool="scalebar" title="Scale bar">▮▯</button>
+      <button class="atool" data-tool="detail" title="Detail bubble">◉</button>
+      <button class="atool" data-tool="section" title="Section / detail tag">A↗</button>
+      <button class="atool" data-tool="rev" title="Revision triangle">▵</button>
+    </span>
+    <span class="seg"><label>Schedule <select id="schedKind" class="sb"><option value="member">Member</option><option value="block">Block</option><option value="material">Material</option><option value="cut">Cut blocks</option><option value="concrete">Concrete take-off</option><option value="level">By level</option><option value="sheetindex">Drawing index</option><option value="legend">Section legend</option></select></label><button id="schedAdd">▦ Table</button></span>
+    <button id="sheetFieldsBtn" title="Edit title-block fields">📋 Title block ▾</button>
+    <button id="sheetRevBtn" title="Revision history">⟳ Revisions ▾</button>
+    <button id="sheetAnnotBtn" title="Toggle which sections / levels show on each view">§ Lines ▾</button>
+    <button id="sheetPrint" class="sp">🖨 Print</button>
+    <button id="sheetPdfAll" title="Export every sheet to one PDF">⤓ PDF (all)</button>
     <button id="sheetClose">✕ Close</button>
   </div>
+  <div id="sheetFieldsPanel" hidden>
+    <label class="fwide">Drawing title <input id="f_title" type="text"></label>
+    <label>Project <input id="f_project" type="text"></label>
+    <label>Client <input id="f_client" type="text"></label>
+    <label>Drawing No. <input id="f_number" type="text"></label>
+    <label>Revision <input id="f_sheet" type="text"></label>
+    <label>Drawn by <input id="f_author" type="text"></label>
+    <label>Checked by <input id="f_checked" type="text"></label>
+    <label>Date <input id="f_date" type="text" placeholder="auto (today)"></label>
+    <label>Status <input id="f_status" type="text" placeholder="e.g. For Construction"></label>
+  </div>
+  <div id="annotProps" hidden></div>
+  <div id="sheetRevPanel" hidden><div id="sheetRevList"></div><div class="acts" style="margin-top:6px"><button id="revAdd">＋ Add revision</button></div></div>
+  <div id="sheetAnnotPanel" hidden><div id="sheetAnnotList"></div></div>
   <div id="sheetScroll"><div id="sheetPaper"></div></div>
 </div>
 
@@ -459,6 +658,13 @@ let modelRoot = null, meshes = [], modelScale = 1, markerR = 0.02, fileName = ''
 let commentMode = false;
 let flatShade = true, blockMatStore = [];   // flat/unlit removes two-tone from BCDS's inconsistent baked normals
 let edgesOn = true;                          // show edge lines (baked-in or auto-generated on load)
+// ---- part metadata (extras.tls) -------------------------------------------
+let partRegistry = new Map();   // partIndex -> {id,name,type,size,level,panel,material,...}
+let partIdByMesh = new Map();   // pre-merge source mesh/line.uuid -> partIndex (consumed by optimizeModel)
+let inspectMode = false, selectedPart = -1, partHL = null;   // click-to-inspect highlight overlay
+let partGeoms = [];             // merged mesh/line objects carrying _partId (+ userData.origPos)
+let hiddenParts = new Set();    // partIndexes currently hidden via the outliner
+let partFacets = null;          // {facet -> Map(value -> Set(partIndex))} for the toggle tree
 
 let dimensions = [];                 // committed defs: {type, a, b, [v], jogDir|orient, jogMult, group, label}
 let picks = [], pickMarkers = [], previewDefs = [], pendingDef = null, awaitJog = false;
@@ -538,17 +744,27 @@ function makeTextSprite(text, worldHeight) {
 function clearModel() {
   if (modelRoot) { scene.remove(modelRoot); modelRoot.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
   modelRoot = null; meshes = [];
+  clearPartHighlight(); partRegistry = new Map(); partIdByMesh = new Map(); selectedPart = -1;
+  partGeoms = []; hiddenParts = new Set(); hiddenFacets = new Set(); partFacets = null;
+  inspectMode = false; $('inspect').classList.remove('active'); $('inspect').classList.add('disabled'); $('partInfo').hidden = true;
+  $('outliner').classList.remove('active'); $('outliner').classList.add('disabled'); $('outlinerPanel').hidden = true;
   clearAllDimensions();
   if (planeHelper) { scene.remove(planeHelper); planeHelper = null; }
   if (boxHelper) { scene.remove(boxHelper); boxHelper = null; }
   sectionOn = false; secBox = null; boxFrac = { x: [0, 1], y: [0, 1], z: [0, 1] };
-  clearCaps(); cappingOn = false; $('secCap').checked = false;
+  clearCaps(); clearSymbols(); clearSectionLines(); namedSections = []; if ($('secNamedList')) $('secNamedList').innerHTML = '';
+  clearLevelLines(); levels = []; levelDatumY = null; levelMode = false; if ($('levelPick')) $('levelPick').classList.remove('active'); if ($('levelsPop')) $('levelsPop').hidden = true; if ($('levelList')) $('levelList').innerHTML = ''; updateLevelDatumLbl();
+  clearCompLabels(); compLabels = []; if ($('compPop')) $('compPop').hidden = true; if ($('compStat')) $('compStat').textContent = '';
+  clearCutHL(); cutHLOn = false; seqHiddenParts = new Set(); if ($('icfPop')) $('icfPop').hidden = true; if ($('icfCutHL')) $('icfCutHL').classList.remove('active'); $('icfbtn') && $('icfbtn').classList.add('disabled');
+  partBBox = new Map(); sectionOpenings = []; cappingOn = false; $('secCap').checked = false;
   $('section').classList.remove('active'); $('sectionPop').hidden = true;
   scenes = []; activeSceneId = null; $('scenesPop').hidden = true; renderScenes();
   $('dimsPop').hidden = true;
   comments.forEach(c => { scene.remove(c.obj); if (c.anchor) scene.remove(c.anchor); });
   comments = []; renderCommentList(); $('popup').hidden = true;
-  sheets = []; sheetCurId = null; sheetVPs = []; $('sheetOverlay').classList.remove('open'); if ($('sheetTabs')) $('sheetTabs').innerHTML = '';
+  sheets = []; sheetCurId = null; sheetVPs = []; sheetAnnots = []; annotSel = null; annotTool = 'select';
+  $('sheetOverlay').classList.remove('open'); if ($('sheetTabs')) $('sheetTabs').innerHTML = ''; if ($('annotProps')) $('annotProps').hidden = true; if ($('sheetFieldsPanel')) $('sheetFieldsPanel').hidden = true;
+  clearStaleVisuals(); staleList = []; if ($('revReview')) $('revReview').hidden = true;
 }
 function loadFromURL(url, name) {
   modelUrl = url;   // remember the source so we can auto-fetch the sidecar annotations next to it
@@ -557,7 +773,12 @@ function loadFromURL(url, name) {
 }
 function loadFile(file) {
   if (!file) return;
-  if (!/\.(glb|gltf)$/i.test(file.name)) { err('Not a .glb / .gltf file'); return; }
+  if (/\.(tlsv|tlsproj)$/i.test(file.name)) {   // a saved project bundle (model + annotations in one file)
+    const rd = new FileReader();
+    rd.onload = () => { let o; try { o = JSON.parse(rd.result); } catch (e) { return err('Could not read that project file.'); } if (o && o.kind === 'tls-viewer-project') loadProject(o); else err('Not a TLS viewer project file.'); };
+    rd.readAsText(file); return;
+  }
+  if (!/\.(glb|gltf)$/i.test(file.name)) { err('Not a .glb / .gltf / .tlsv file'); return; }
   modelUrl = '';   // dropped/opened local file has no shareable URL → no sidecar fetch
   modelFile = file; // keep ORIGINAL bytes (geometry is mutated on load) so Share can publish them
   meta(`${file.name} — loading…`); clearBanner();
@@ -578,7 +799,9 @@ function onLoaded(gltf, name) {
     }
   });
   if (!meshes.length) warn('Model loaded but contains no measurable mesh geometry.');
+  buildPartRegistry();                           // read extras.tls per part BEFORE the merge collapses node identity
   optimizeModel();                               // merge by material → far fewer draw calls (smoother orbit)
+  buildPartBBoxes();                             // per-part AABBs for section-symbol placement
   indexBlockMaterials(); applyFlatShade();        // unlit render → blue faces one colour, orange cut-faces preserved
 
   const box = new THREE.Box3().setFromObject(modelRoot);
@@ -588,12 +811,30 @@ function onLoaded(gltf, name) {
   fitCamera(center, size);
 
   dropEl.classList.add('hidden');
-  ['dimtypes', 'comment', 'list', 'dims', 'reset', 'export', 'exportglb', 'share', 'sizes', 'views', 'parallel', 'uniform', 'edges', 'section', 'scenes', 'sheet', 'lock2d'].forEach(id => $(id).classList.remove('disabled'));
-  meta(`${fileName}  —  ${Math.round(size.x*1000)} × ${Math.round(size.y*1000)} × ${Math.round(size.z*1000)} mm (bbox)  ·  ${meshes.length} meshes`);
+  ['dimtypes', 'comment', 'list', 'dims', 'reset', 'export', 'exportglb', 'saveproj', 'revise', 'share', 'sizes', 'views', 'parallel', 'uniform', 'edges', 'section', 'levels', 'scenes', 'sheet', 'lock2d'].forEach(id => $(id).classList.remove('disabled'));
+  if (partRegistry.size) { $('inspect').classList.remove('disabled'); $('outliner').classList.remove('disabled'); $('complabel').classList.remove('disabled'); }   // metadata-aware features only when the GLB carries extras.tls
+  { let hasICF = false; partRegistry.forEach(p => { if (isICFBlock(p)) hasICF = true; }); if (hasICF) $('icfbtn').classList.remove('disabled'); }
+  const partNote = partRegistry.size ? `  ·  ${partRegistry.size} parts` : '';
+  meta(`${fileName}  —  ${Math.round(size.x*1000)} × ${Math.round(size.y*1000)} × ${Math.round(size.z*1000)} mm (bbox)  ·  ${meshes.length} meshes${partNote}`);
+  if (pendingProject) {   // opened a .tlsv project bundle → it is AUTHORITATIVE: wipe any stale local cache, apply the bundle fresh
+    [storeKey(), sceneKey(), dimsKey(), visKey(), secKey(), lvlKey(), sheetsKey()].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+    loadPersistedScenes();   // seed the Default scene before the bundle's scenes/dims attach
+    const pj = pendingProject; pendingProject = null;
+    importAnnotationBundle(pj);
+    if (pendingRevision) { pendingRevision = false; runRevisionReview(); meta(metaEl.textContent + '  ·  model revised'); }
+    else meta(metaEl.textContent + '  ·  project loaded');
+    initUndo();
+    return;
+  }
   const hadLocal = hasLocalAnnotations();
   loadPersistedComments(); loadPersistedScenes(); loadPersistedDims();   // dims after scenes so each dim re-binds to its scene
+  loadPersistedVisibility();   // re-apply the outliner's tag/level/panel/type/material hide state
+  loadPersistedSections();     // restore named sections + their on-view section-line markers
+  loadPersistedLevels();       // restore level annotations + datum
+  loadPersistedCompLabels();   // restore ICF component labels (sprites, scene-bound)
   loadSheets();   // sheets reference scene ids, so load after scenes
   if (!hadLocal) tryLoadSidecar();   // first-time / link-shared viewer: pull annotations published next to the model
+  initUndo();
 }
 function fitCamera(center, size) {
   const maxDim = Math.max(size.x, size.y, size.z) || 1;
@@ -677,7 +918,7 @@ function updateClip() {
       const nMax = new THREE.Vector3(); nMax[ax] = -1; const cMax = ctr.clone(); cMax[ax] = fracPos(ax, boxFrac[ax][1]); boxPlanes[bi].setFromNormalAndCoplanarPoint(nMax, cMax); clipPlanes.push(boxPlanes[bi++]);
     });
   }
-  updateSecHelper(); ensureCaps(); scheduleSceneUpdate();
+  updateSecHelper(); scheduleCaps(); buildSectionSymbols(); scheduleSceneUpdate();
 }
 function updateSecHelper() {
   if (planeHelper) { scene.remove(planeHelper); planeHelper = null; }
@@ -702,11 +943,11 @@ function setSectionMode(m) {
   $('secModePlane').classList.toggle('active', m === 'plane');
   $('secModeBox').classList.toggle('active', m === 'box');
   $('secPlane').hidden = m !== 'plane'; $('secBoxCtl').hidden = m !== 'box';
-  if (sectionOn) updateClip();
+  if (sectionOn) { if (cappingOn) clearCaps(); updateClip(); }   // rebuild caps as the right type (stencil vs box-fill)
 }
 $('section').onclick = e => {
   e.preventDefault(); if ($('section').classList.contains('disabled')) return;
-  if ($('sectionPop').hidden) { if (!sectionOn) setSection(true); $('sectionPop').hidden = false; $('section').classList.add('active'); }
+  if ($('sectionPop').hidden) { if (!sectionOn) setSection(true); $('sectionPop').hidden = false; $('section').classList.add('active'); $('levelsPop').hidden = $('compPop').hidden = $('icfPop').hidden = true; }
   else { $('sectionPop').hidden = true; $('section').classList.toggle('active', sectionOn); } // collapse, keep the cut active
 };
 $('secModePlane').onclick = () => setSectionMode('plane');
@@ -722,27 +963,606 @@ $('secflip').onclick = () => { sectionFlip = !sectionFlip; updateClip(); };
 $('secoff').onclick = () => { setSection(false); $('sectionPop').hidden = true; $('section').classList.remove('active'); };
 setSectionMode('plane');
 
-// ---- section caps: cheap interior fill (back faces in a flat colour; works on any geometry) ----
-let cappingOn = false, capGroup = null;
-const capColor = 0x9aa0a6;
-function clearCaps() {
-  if (capGroup) { scene.remove(capGroup); if (capGroup.userData.fillMat) capGroup.userData.fillMat.dispose(); capGroup = null; }
+// ---- named section planes + UK section-line markers ------------------------
+let namedSections = [], sectionLineGroup = null;
+function escHtml(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+// A named section / level publishes to a set of scenes (s.scenes = [sceneId,…]).
+//   empty / missing  → GLOBAL: shows in every scene (back-compat default)
+//   non-empty        → only those scenes (+ always in the __default__ working view, so you can manage it)
+// The master checkbox (s.showLine) hides it everywhere regardless.
+function lineVisibleIn(s, sid) {
+  if (s.showLine === false) return false;
+  const scs = s.scenes || [];
+  if (!scs.length) return true;                      // not restricted → global
+  if (!sid || sid === '__default__') return true;    // working view always shows all
+  return scs.includes(sid);
 }
+// chips that let you bind a section/level to specific scenes (shared markup; handlers below)
+function sceneChipsHtml(s, kind, attr) {
+  const scs = s.scenes || [], named = scenes.filter(x => !x.locked);
+  let h = `<span class="scenechip${scs.length ? '' : ' on'}" ${attr}="${s.id}" data-all="1">All scenes</span>`;
+  h += named.map(sc => `<span class="scenechip${scs.includes(sc.id) ? ' on' : ''}${sc.id === activeSceneId ? ' cur' : ''}" ${attr}="${s.id}" data-scene="${sc.id}">${escHtml(sc.name)}</span>`).join('');
+  return h;
+}
+// toggle a scene id (or "All") on a section/level's binding; returns nothing, caller persists+redraws
+function toggleSceneBinding(s, target) {   // target = chip element's dataset
+  if (target.all) { s.scenes = []; return; }
+  const sc = target.scene, a = s.scenes || (s.scenes = []);
+  const i = a.indexOf(sc); if (i >= 0) a.splice(i, 1); else a.push(sc);
+}
+function secKey() { return 'tlsglb-sections::' + fileName; }
+function persistSections() { try { localStorage.setItem(secKey(), JSON.stringify(namedSections)); } catch (e) {} scheduleCommit(); }
+function loadPersistedSections() { try { const r = localStorage.getItem(secKey()); if (r) { namedSections = JSON.parse(r) || []; drawSectionLines(); renderSectionList(); } } catch (e) {} }
+function nextSecName() { const u = new Set(namedSections.map(s => s.name)); for (let i = 0; i < 26; i++) { const c = String.fromCharCode(65 + i); if (!u.has(c + '-' + c)) return c + '-' + c; } return 'S' + namedSections.length; }
+function saveNamedSection() {
+  if (!sectionOn || sectionMode !== 'plane') { meta('Turn on a Plane section first, then Name it'); return; }
+  const bind = (activeSceneId && activeSceneId !== '__default__') ? [activeSceneId] : [];   // born in a named scene → publish there; else global
+  namedSections.push({ id: 'sec' + Date.now(), name: nextSecName(), axis: sectionAxis, t: sectionT, flip: sectionFlip, showLine: true, scenes: bind });
+  persistSections(); renderSectionList(); drawSectionLines();
+}
+function clearSectionLines() { if (sectionLineGroup) { scene.remove(sectionLineGroup); sectionLineGroup.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material && o.material.dispose) o.material.dispose(); }); sectionLineGroup = null; } }
+function makeSecLabel(txt) {
+  const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d');
+  x.fillStyle = '#fff'; x.strokeStyle = '#1d3557'; x.lineWidth = 4; x.beginPath(); x.arc(32, 32, 26, 0, 7); x.fill(); x.stroke();
+  x.fillStyle = '#1d3557'; x.font = 'bold 30px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(txt, 32, 34);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false }));
+  const sc = modelScale * 0.045; sp.scale.set(sc, sc, 1); sp.renderOrder = 1000; return sp;
+}
+function drawSectionLines() {
+  clearSectionLines();
+  if (!modelRoot) return;
+  const box = secBox || new THREE.Box3().setFromObject(modelRoot);
+  sectionLineGroup = new THREE.Group(); scene.add(sectionLineGroup);
+  const mn = [box.min.x, box.min.y, box.min.z], mx = [box.max.x, box.max.y, box.max.z];
+  namedSections.forEach(s => {
+    if (!lineVisibleIn(s, activeSceneId)) return;
+    const AX = { x: 0, y: 1, z: 2 }, ax = AX[s.axis.toLowerCase()], inA = [[1, 2], [0, 2], [0, 1]][ax];
+    const cut = box.min[s.axis.toLowerCase()] + s.t * (box.max[s.axis.toLowerCase()] - box.min[s.axis.toLowerCase()]);
+    const sz = [mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]];
+    const a0 = inA[0], a1 = inA[1], longA = sz[a0] >= sz[a1] ? a0 : a1, shortA = longA === a0 ? a1 : a0;
+    const over = modelScale * 0.05, mid = (mn[shortA] + mx[shortA]) / 2;
+    const P = L => { const o = [0, 0, 0]; o[ax] = cut; o[longA] = L; o[shortA] = mid; return new THREE.Vector3(...o); };
+    const e0 = P(mn[longA] - over), e1 = P(mx[longA] + over);
+    const lg = new THREE.BufferGeometry().setFromPoints([e0, e1]);
+    const line = new THREE.Line(lg, new THREE.LineDashedMaterial({ color: 0x1d3557, dashSize: modelScale * 0.02, gapSize: modelScale * 0.008, depthTest: false }));
+    line.computeLineDistances(); line.renderOrder = 998; sectionLineGroup.add(line);
+    const letter = s.name.split('-')[0], lineCol = 0x1d3557;
+    const aSign = s.flip ? 1 : -1, aLen = modelScale * 0.06;            // arrows point along the view direction (section normal)
+    const dirV = new THREE.Vector3(); dirV.setComponent(ax, aSign);     // perpendicular to the line (which runs along longA)
+    const perpV = new THREE.Vector3(); perpV.setComponent(longA, 1);
+    const mkMat = () => new THREE.LineBasicMaterial({ color: lineCol, depthTest: false });
+    [e0, e1].forEach(pt => {
+      const tip = pt.clone().addScaledVector(dirV, aLen);
+      const shaft = new THREE.Line(new THREE.BufferGeometry().setFromPoints([pt, tip]), mkMat()); shaft.renderOrder = 998; sectionLineGroup.add(shaft);
+      const bh = tip.clone().addScaledVector(dirV, -aLen * 0.35);       // chevron arrowhead at the tip
+      const h1 = bh.clone().addScaledVector(perpV, aLen * 0.22), h2 = bh.clone().addScaledVector(perpV, -aLen * 0.22);
+      const head = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints([tip, h1, tip, h2]), mkMat()); head.renderOrder = 998; sectionLineGroup.add(head);
+      const sp = makeSecLabel(letter); sp.position.copy(tip.clone().addScaledVector(dirV, modelScale * 0.035)); sectionLineGroup.add(sp);   // letter sits on top of the arrow
+    });
+  });
+}
+function renderSectionList() {
+  const el = $('secNamedList'); if (!el) return;
+  el.innerHTML = namedSections.map(s => `<div class="secitem"><div class="srow"><label><input type="checkbox" class="secln" data-id="${s.id}"${s.showLine === false ? '' : ' checked'}> ${escHtml(s.name)}</label> <a data-go="${s.id}" title="go to this cut">↗</a> <a data-del="${s.id}" title="delete">✕</a></div><div class="scenechips">${sceneChipsHtml(s, 'sec', 'data-id')}</div></div>`).join('') || '<div style="color:#889;font-size:11px;padding:2px">No saved sections — set a Plane cut and click “Name section”.</div>';
+}
+$('secName') && ($('secName').onclick = e => { e.preventDefault(); saveNamedSection(); });
+$('secNamedList') && $('secNamedList').addEventListener('click', e => {
+  const t = e.target; const id = t.dataset.id || t.dataset.go || t.dataset.del; const s = namedSections.find(x => x.id === id); if (!s) return;
+  if (t.dataset.del !== undefined && t.hasAttribute('data-del')) { namedSections = namedSections.filter(x => x.id !== id); persistSections(); renderSectionList(); drawSectionLines(); }
+  else if (t.hasAttribute('data-go')) { sectionAxis = s.axis; sectionT = s.t; sectionFlip = s.flip; if (!sectionOn) setSection(true); $('secaxis').textContent = sectionAxis; $('secpos').value = Math.round(s.t * 100); updateClip(); }
+  else if (t.classList.contains('scenechip')) { toggleSceneBinding(s, t.dataset); persistSections(); renderSectionList(); drawSectionLines(); }
+  else if (t.classList.contains('secln')) { s.showLine = t.checked; persistSections(); drawSectionLines(); }
+});
+
+// ---- level annotations: architect datum lines (+2.400 etc.), scene-bindable like sections -----
+let levels = [], levelGroup = null, levelMode = false, levelDatumY = null;
+function lvlKey() { return 'tlsglb-levels::' + fileName; }
+function persistLevels() { try { localStorage.setItem(lvlKey(), JSON.stringify({ datumY: levelDatumY, levels })); } catch (e) {} scheduleCommit(); }
+function loadPersistedLevels() {
+  let raw; try { raw = localStorage.getItem(lvlKey()); } catch (e) {}
+  if (raw) { try { const o = JSON.parse(raw) || {}; levelDatumY = (o.datumY != null ? o.datumY : null); levels = o.levels || []; } catch (e) {} }
+  updateLevelDatumLbl(); drawLevelLines(); renderLevelList();
+}
+function fmtElev(y) {   // elevation relative to the 0.000 datum, in metres, architect style
+  const v = Math.round((y - (levelDatumY || 0)) * 1000) / 1000;
+  if (Math.abs(v) < 0.0005) return '±0.000';
+  return (v > 0 ? '+' : '−') + Math.abs(v).toFixed(3);
+}
+function clearLevelLines() { if (levelGroup) { scene.remove(levelGroup); levelGroup.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material && o.material.map) o.material.map.dispose(); if (o.material && o.material.dispose) o.material.dispose(); }); levelGroup = null; } }
+function makeLevelMarker(txt) {   // downward half-filled level triangle + elevation text, on a baseline (canvas sprite)
+  const fp = 120, pad = 16, tri = fp * 0.92;
+  const c = document.createElement('canvas'), x = c.getContext('2d');
+  x.font = `bold ${fp}px ${fontFamily}`; const tw = Math.ceil(x.measureText(txt).width);
+  c.width = tri + tw + pad * 3; c.height = fp + pad * 2;
+  const w = c.width, h = c.height, baseY = h - pad, cx = pad + tri / 2, triTop = baseY - tri;
+  x.strokeStyle = '#1d3557'; x.fillStyle = '#1d3557'; x.lineWidth = 6; x.lineJoin = 'round';
+  x.beginPath(); x.moveTo(cx - tri / 2, triTop); x.lineTo(cx + tri / 2, triTop); x.lineTo(cx, baseY); x.closePath(); x.stroke();
+  x.beginPath(); x.moveTo(cx - tri / 2, triTop); x.lineTo(cx, triTop); x.lineTo(cx, baseY); x.closePath(); x.fill();   // left half solid
+  x.beginPath(); x.moveTo(pad * 0.4, baseY); x.lineTo(w - pad * 0.4, baseY); x.stroke();                              // baseline
+  x.font = `bold ${fp}px ${fontFamily}`; x.fillStyle = '#1d3557'; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+  x.fillText(txt, pad * 2 + tri, baseY - 12);
+  const tex = new THREE.CanvasTexture(c); tex.anisotropy = 8; tex.minFilter = THREE.LinearFilter;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
+  sp.renderOrder = 1001; const wh = modelScale * 0.05; sp.scale.set(wh * (w / fp), wh * (h / fp), 1);
+  return sp;
+}
+function drawLevelLines() {
+  clearLevelLines();
+  if (!modelRoot) return;
+  levelGroup = new THREE.Group(); scene.add(levelGroup);
+  const box = new THREE.Box3().setFromObject(modelRoot);   // levels track the whole model (not the section box) so they don't jump when sectioning
+  const mn = [box.min.x, box.min.y, box.min.z], mx = [box.max.x, box.max.y, box.max.z];
+  const sz = [mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]];
+  const longA = sz[0] >= sz[2] ? 0 : 2, shortA = longA === 0 ? 2 : 0;   // run along the longer horizontal axis, on the near face
+  const over = modelScale * 0.06, faceS = mn[shortA] - modelScale * 0.02;
+  levels.forEach(s => {
+    if (!lineVisibleIn(s, activeSceneId)) return;
+    const P = L => { const o = [0, 0, 0]; o[1] = s.y; o[longA] = L; o[shortA] = faceS; return new THREE.Vector3(...o); };
+    const e0 = P(mn[longA] - over), e1 = P(mx[longA] + over);
+    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([e0, e1]),
+      new THREE.LineDashedMaterial({ color: 0x1d3557, dashSize: modelScale * 0.012, gapSize: modelScale * 0.008, depthTest: false }));
+    line.computeLineDistances(); line.renderOrder = 997; levelGroup.add(line);
+    const mk = makeLevelMarker(s.label || fmtElev(s.y));
+    mk.position.copy(e0); mk.position.y += mk.scale.y * 0.5;   // marker sits just above the left end of the line
+    levelGroup.add(mk);
+  });
+}
+function updateLevelDatumLbl() { const el = $('levelDatumLbl'); if (el) el.textContent = levelDatumY == null ? 'Datum: not set' : 'Datum: set ✓'; }
+function setLevelMode(on) {
+  levelMode = on;
+  if (on) { cancelDim(); setComment(false); if (inspectMode) setInspect(false); }
+  const b = $('levelPick'); if (b) b.classList.toggle('active', on);
+  if (on) meta(levelDatumY == null ? 'Level tool: click a point to set the 0.000 datum' : 'Level tool: click points to add level lines');
+}
+function addLevelAtY(y) {
+  if (levels.some(l => Math.abs(l.y - y) < modelScale * 0.0008)) { meta('A level already exists at that height'); return; }
+  const bind = (activeSceneId && activeSceneId !== '__default__') ? [activeSceneId] : [];
+  levels.push({ id: 'lvl' + Date.now() + Math.random().toString(36).slice(2, 5), y, scenes: bind, showLine: true });
+  levels.sort((a, b) => a.y - b.y);
+  persistLevels(); drawLevelLines(); renderLevelList(); meta('Level added: ' + fmtElev(y));
+}
+function handleLevelPick(p) {
+  if (levelDatumY == null) { levelDatumY = p.y; updateLevelDatumLbl(); meta('Datum set (±0.000)'); addLevelAtY(p.y); }
+  else addLevelAtY(p.y);
+}
+function renderLevelList() {
+  const el = $('levelList'); if (!el) return;
+  if (!levels.length) { el.innerHTML = '<div class="empty">No levels yet — click “＋ Pick levels”, set the datum, then click points.</div>'; return; }
+  el.innerHTML = levels.map(s => {
+    const custom = s.label && s.label !== fmtElev(s.y) ? '  <span style="color:#778;font-weight:400">' + escHtml(s.label) + '</span>' : '';
+    return `<div class="secitem"><div class="srow"><label><input type="checkbox" class="lvlck" data-lvl="${s.id}"${s.showLine === false ? '' : ' checked'}> <b>${fmtElev(s.y)}</b>${custom}</label> <a data-lvlren="${s.id}" title="rename / set custom label">✎</a> <a data-lvldel="${s.id}" title="delete">✕</a></div><div class="scenechips">${sceneChipsHtml(s, 'lvl', 'data-lvl')}</div></div>`;
+  }).join('');
+}
+$('levels') && ($('levels').onclick = e => { e.preventDefault(); if ($('levels').classList.contains('disabled')) return; const p = $('levelsPop'); p.hidden = !p.hidden; if (!p.hidden) { $('sectionPop').hidden = $('compPop').hidden = $('icfPop').hidden = true; renderLevelList(); updateLevelDatumLbl(); } else setLevelMode(false); });
+$('levelPick') && ($('levelPick').onclick = () => setLevelMode(!levelMode));
+$('levelResetDatum') && ($('levelResetDatum').onclick = () => { levelDatumY = null; updateLevelDatumLbl(); drawLevelLines(); renderLevelList(); persistLevels(); meta('Datum cleared — next click sets it'); });
+$('levelsOff') && ($('levelsOff').onclick = () => { setLevelMode(false); $('levelsPop').hidden = true; });
+$('levelList') && $('levelList').addEventListener('click', e => {
+  const t = e.target, id = t.dataset.lvl || t.dataset.lvlren || t.dataset.lvldel; const s = levels.find(x => x.id === id); if (!s) return;
+  if (t.dataset.lvldel !== undefined && t.hasAttribute('data-lvldel')) { levels = levels.filter(x => x !== s); persistLevels(); drawLevelLines(); renderLevelList(); }
+  else if (t.hasAttribute('data-lvlren')) { const n = prompt('Level label (leave blank to auto-show the elevation):', s.label || ''); if (n !== null) { s.label = n.trim() || null; persistLevels(); drawLevelLines(); renderLevelList(); } }
+  else if (t.classList.contains('scenechip')) { toggleSceneBinding(s, t.dataset); persistLevels(); drawLevelLines(); renderLevelList(); }
+  else if (t.classList.contains('lvlck')) { s.showLine = t.checked; persistLevels(); drawLevelLines(); }
+});
+
+// ---- ICF component labels: name each visible ICF form on its inside face (installation drawings) ----
+let compLabels = [], compLabelGroup = null, compLabelSize = 1.0, idRT = null, _idMat = null;
+// ONLY standard ICF block forms — exclude end caps / top caps / lintels / bucks / sills / webs.
+function isICFBlock(p) {
+  if (!p || p.type !== 'icf_block') return false;
+  if (/endcap|top_?cap/i.test(p.material || '')) return false;
+  if (/\bcap\b|lintel|buck|sill|web/i.test(p.name || '')) return false;
+  return !!(p.props && (p.props.block_id || p.props.block_type));   // a real placed block (not a wall-group node)
+}
+function blockKeyOf(p) { return (p.parent || (p.props && p.props.block_id) || p.id || p.name || ''); }   // A/B foam sides share one parent → one block
+function blockLabelOf(p) { return p.parent || (p.props && p.props.block_id) || p.name || 'ICF'; }
+function clKey() { return 'tlsglb-complabels::' + fileName; }
+function persistCompLabels() { try { localStorage.setItem(clKey(), JSON.stringify({ size: compLabelSize, labels: compLabels })); } catch (e) {} scheduleCommit(); }
+function loadPersistedCompLabels() { let raw; try { raw = localStorage.getItem(clKey()); } catch (e) {} if (raw) { try { const o = JSON.parse(raw) || {}; compLabelSize = o.size || 1.0; compLabels = o.labels || []; } catch (e) {} } if ($('compSize')) $('compSize').value = Math.round(compLabelSize * 100); drawCompLabels(); }
+function clVisibleIn(l, sid) { return !sid || sid === '__default__' || !l.sceneId || l.sceneId === sid; }   // bound to the view it was made in
+function clearCompLabels() { if (compLabelGroup) { scene.remove(compLabelGroup); compLabelGroup.traverse(o => { if (o.material && o.material.map) o.material.map.dispose(); if (o.material) o.material.dispose(); }); compLabelGroup = null; } }
+function makeCompLabel(text) {
+  const fp = 116, padX = 20, padY = 12, c = document.createElement('canvas'), x = c.getContext('2d');
+  x.font = `bold ${fp}px ${fontFamily}`; const tw = Math.ceil(x.measureText(text).width);
+  c.width = tw + padX * 2; c.height = fp + padY * 2; const w = c.width, h = c.height, r = 18;
+  x.fillStyle = 'rgba(255,255,255,0.92)'; x.strokeStyle = '#1d3557'; x.lineWidth = 5;
+  x.beginPath(); x.moveTo(r, 2); x.arcTo(w - 2, 2, w - 2, h - 2, r); x.arcTo(w - 2, h - 2, 2, h - 2, r); x.arcTo(2, h - 2, 2, 2, r); x.arcTo(2, 2, w - 2, 2, r); x.closePath(); x.fill(); x.stroke();
+  x.fillStyle = '#1d3557'; x.font = `bold ${fp}px ${fontFamily}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(text, w / 2, h / 2 + 2);
+  const tex = new THREE.CanvasTexture(c); tex.anisotropy = 8; tex.minFilter = THREE.LinearFilter;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true })); sp.renderOrder = 1002;
+  const wh = modelScale * 0.0065 * compLabelSize; sp.scale.set(wh * (w / fp), wh * (h / fp), 1); return sp;
+}
+function drawCompLabels() {
+  clearCompLabels(); if (!modelRoot || !compLabels.length) return;
+  compLabelGroup = new THREE.Group(); scene.add(compLabelGroup);
+  compLabels.forEach(l => { if (!clVisibleIn(l, activeSceneId)) return; const sp = makeCompLabel(l.name); sp.position.set(l.x, l.y, l.z); compLabelGroup.add(sp); });
+}
+function ensureIdMat() {
+  if (_idMat) return _idMat;
+  _idMat = new THREE.ShaderMaterial({
+    uniforms: { mask: { value: null }, texW: { value: 1 } },
+    vertexShader: 'attribute float _partId; varying float vId; void main(){ vId=_partId; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+    fragmentShader: 'precision highp float; varying float vId; uniform sampler2D mask; uniform float texW; void main(){ float m=texture2D(mask, vec2((vId+0.5)/texW,0.5)).r; if(m<0.5) discard; float id=vId; gl_FragColor=vec4(mod(id,256.0)/255.0, floor(id/256.0)/255.0, 0.0, 1.0); }',
+    side: THREE.DoubleSide,
+  });
+  return _idMat;
+}
+function buildIcfMask(restrict) {
+  let maxId = 1; partRegistry.forEach((p, pi) => { if (pi + 1 > maxId) maxId = pi + 1; });
+  const W = Math.max(2, Math.pow(2, Math.ceil(Math.log2(maxId)))), data = new Uint8Array(W * 4); let n = 0;
+  partRegistry.forEach((p, pi) => { if (isICFBlock(p) && (!restrict || restrict.has(pi))) { data[pi * 4] = 255; n++; } });
+  const tex = new THREE.DataTexture(data, W, 1, THREE.RGBAFormat); tex.needsUpdate = true; tex.minFilter = THREE.NearestFilter; tex.magFilter = THREE.NearestFilter;
+  return { tex, W, n };
+}
+function rayBoxAnchor(ray, bb) {
+  if (!bb) return null;
+  const box = new THREE.Box3(new THREE.Vector3(bb.min[0], bb.min[1], bb.min[2]), new THREE.Vector3(bb.max[0], bb.max[1], bb.max[2])), ip = new THREE.Vector3();
+  if (ray.intersectBox(box, ip)) return ip;        // entry point = the inside face seen by the camera
+  return box.getCenter(new THREE.Vector3());
+}
+function labelICFInView(restrict) {
+  if (!meshes.length || !partRegistry.size) return { placed: 0, icf: 0 };
+  const { tex, W, n } = buildIcfMask(restrict); if (!n) { tex.dispose(); return { placed: 0, icf: 0 }; }
+  const mat = ensureIdMat(); mat.uniforms.mask.value = tex; mat.uniforms.texW.value = W;
+  const sw = stage.clientWidth || 1000, sh = stage.clientHeight || 750, bw = Math.min(2600, Math.max(1600, sw * 1.6)), bh = Math.max(300, Math.round(bw * sh / sw));
+  if (idRT) idRT.dispose();
+  idRT = new THREE.WebGLRenderTarget(bw, bh, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: true });
+  const vis = []; scene.traverse(o => vis.push([o, o.visible])); scene.traverse(o => o.visible = false);
+  meshes.forEach(m => { let o = m; while (o) { o.visible = true; o = o.parent; } });
+  const prevOv = scene.overrideMaterial, prevTarget = renderer.getRenderTarget(), prevCol = new THREE.Color(); renderer.getClearColor(prevCol); const prevA = renderer.getClearAlpha();
+  scene.overrideMaterial = mat; renderer.setRenderTarget(idRT); renderer.setClearColor(0x000000, 0); renderer.clear();
+  renderer.render(scene, activeCam);
+  const buf = new Uint8Array(bw * bh * 4); renderer.readRenderTargetPixels(idRT, 0, 0, bw, bh, buf);
+  scene.overrideMaterial = prevOv; renderer.setRenderTarget(prevTarget); renderer.setClearColor(prevCol, prevA);
+  vis.forEach(([o, v]) => o.visible = v); tex.dispose();
+  const acc = new Map();
+  for (let i = 0; i < buf.length; i += 4) { if (buf[i + 3] === 0) continue; const id = buf[i] + buf[i + 1] * 256, px = (i / 4) % bw, py = Math.floor((i / 4) / bw); let e = acc.get(id); if (!e) { e = { sx: 0, sy: 0, c: 0 }; acc.set(id, e); } e.sx += px; e.sy += py; e.c++; }
+  // merge a block's visible A/B faces (shared parent) into ONE label
+  const blocks = new Map();
+  acc.forEach((e, id) => { const p = partRegistry.get(id); if (!p || !isICFBlock(p)) return;
+    const key = blockKeyOf(p); let bk = blocks.get(key); if (!bk) { bk = { sx: 0, sy: 0, c: 0, repId: id, repC: 0, label: (p.props && p.props.is_cut) ? blockLabelOf(p) : 'Full' }; blocks.set(key, bk); }   // cut → instance ref; full → "Full"
+    bk.sx += e.sx; bk.sy += e.sy; bk.c += e.c; if (e.c > bk.repC) { bk.repC = e.c; bk.repId = id; }
+  });
+  const sid = activeSceneId || '__default__';
+  compLabels = compLabels.filter(l => (l.sceneId || '__default__') !== sid);   // replace this view's labels
+  const minPx = Math.max(6, Math.round(bw * bh * 0.000018)); let placed = 0;
+  blocks.forEach(bk => {
+    if (bk.c < minPx) return;
+    const cx = bk.sx / bk.c, cy = bk.sy / bk.c, ndcX = (cx + 0.5) / bw * 2 - 1, ndcY = -((cy + 0.5) / bh * 2 - 1);
+    raycaster.setFromCamera({ x: ndcX, y: ndcY }, activeCam);
+    const pt = rayBoxAnchor(raycaster.ray, partBBox.get(bk.repId)); if (!pt) return;
+    compLabels.push({ id: 'cl' + bk.repId, sceneId: sid, name: bk.label, x: pt.x, y: pt.y, z: pt.z }); placed++;
+  });
+  persistCompLabels(); drawCompLabels(); return { placed, icf: n };
+}
+$('complabel') && ($('complabel').onclick = e => { e.preventDefault(); if ($('complabel').classList.contains('disabled')) return; const p = $('compPop'); p.hidden = !p.hidden; if (!p.hidden) { $('sectionPop').hidden = $('levelsPop').hidden = $('icfPop').hidden = true; } });
+$('compGen') && ($('compGen').onclick = () => {
+  $('compStat').textContent = 'Reading visible ICF…';
+  setTimeout(() => { const r = labelICFInView();
+    $('compStat').textContent = r.icf === 0 ? 'This model has no ICF components.' : r.placed ? `Labelled ${r.placed} ICF component${r.placed > 1 ? 's' : ''} visible in this view.` : 'No ICF faces visible — orient the view to face an ICF wall, then try again.';
+  }, 30);
+});
+$('compSize') && ($('compSize').addEventListener('input', () => { compLabelSize = (+$('compSize').value) / 100; persistCompLabels(); drawCompLabels(); }));
+$('compClear') && ($('compClear').onclick = () => { const sid = activeSceneId || '__default__'; compLabels = compLabels.filter(l => (l.sceneId || '__default__') !== sid); persistCompLabels(); drawCompLabels(); $('compStat').textContent = 'Cleared labels for this view.'; });
+$('compClearAll') && ($('compClearAll').onclick = () => { compLabels = []; persistCompLabels(); drawCompLabels(); $('compStat').textContent = 'Cleared all ICF labels.'; });
+$('compOff') && ($('compOff').onclick = () => $('compPop').hidden = true);
+
+// ---- ICF tools: cut-block highlight, build sequence, auto wall elevations ----
+let cutHLMesh = null, cutHLOn = false, seqHiddenParts = new Set(), seqMax = 0;
+function clearCutHL() { if (cutHLMesh) { scene.remove(cutHLMesh); cutHLMesh.geometry.dispose(); cutHLMesh.material.dispose(); cutHLMesh = null; } }
+function buildCutHL() {
+  clearCutHL();
+  const pids = new Set(); partRegistry.forEach((p, pi) => { if (isICFBlock(p) && p.props && p.props.is_cut) pids.add(pi); });
+  if (!pids.size) return 0;
+  const verts = [];
+  meshes.forEach(mesh => {
+    const g = mesh.geometry, pos = g.attributes.position, idA = g.getAttribute('_partId'); if (!idA || !pos) return;
+    const index = g.index ? g.index.array : null, n = index ? index.length : pos.count;
+    for (let i = 0; i + 2 < n; i += 3) { const a = index ? index[i] : i, b = index ? index[i + 1] : i + 1, c = index ? index[i + 2] : i + 2;
+      if (!pids.has(Math.round(idA.getX(a)))) continue;
+      verts.push(pos.getX(a), pos.getY(a), pos.getZ(a), pos.getX(b), pos.getY(b), pos.getZ(b), pos.getX(c), pos.getY(c), pos.getZ(c)); }
+  });
+  if (!verts.length) return pids.size;
+  const hg = new THREE.BufferGeometry(); hg.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  const hm = new THREE.MeshBasicMaterial({ color: 0xff2d2d, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+  hm.polygonOffset = true; hm.polygonOffsetFactor = -1; hm.polygonOffsetUnits = -1;
+  cutHLMesh = new THREE.Mesh(hg, hm); cutHLMesh.renderOrder = 5; scene.add(cutHLMesh); return pids.size;
+}
+function setCutHL(on) { cutHLOn = on; const b = $('icfCutHL'); if (b) b.classList.toggle('active', on); if (on) { const n = buildCutHL(); $('icfCutStat').textContent = n ? n + ' cut blocks' : 'none'; } else { clearCutHL(); $('icfCutStat').textContent = ''; } }
+function icfMaxCourse() { let m = 0; partRegistry.forEach(p => { if (isICFBlock(p) && p.props && p.props.course != null && p.props.course > m) m = p.props.course; }); return m; }
+function setSequence(n) {
+  seqHiddenParts = new Set();
+  if (n < seqMax) partRegistry.forEach((p, pi) => { if (isICFBlock(p) && p.props && p.props.course != null && p.props.course > n) seqHiddenParts.add(pi); });
+  recomputeHidden(); if (cutHLOn) buildCutHL();
+  $('icfSeqStat').textContent = n >= seqMax ? `All ${seqMax + 1} courses shown` : `Showing courses 0–${n} of ${seqMax}`;
+}
+// auto wall elevations: one INSIDE ortho elevation per wall (spanning all its levels) framed with corner returns
+function wallGroups() { const m = new Map(); partRegistry.forEach((p, pi) => { if (!isICFBlock(p) || !p.props || !p.props.wall) return; if (!m.has(p.props.wall)) m.set(p.props.wall, []); m.get(p.props.wall).push(pi); }); return m; }
+function bboxOfPids(pids) {
+  const b = new THREE.Box3(); b.makeEmpty();
+  pids.forEach(pi => { const bb = partBBox.get(pi); if (bb) { b.expandByPoint(new THREE.Vector3(bb.min[0], bb.min[1], bb.min[2])); b.expandByPoint(new THREE.Vector3(bb.max[0], bb.max[1], bb.max[2])); } });
+  if (!b.isEmpty()) return b;
+  const set = new Set(pids);   // fallback: scan merged geometry for these part ids
+  meshes.forEach(mesh => { const g = mesh.geometry, pos = g.attributes.position, idA = g.getAttribute('_partId'); if (!idA || !pos) return; for (let v = 0; v < idA.count; v++) { if (set.has(Math.round(idA.getX(v)))) b.expandByPoint(new THREE.Vector3(pos.getX(v), pos.getY(v), pos.getZ(v))); } });
+  return b;
+}
+function makeWallScene(wall, camPos, target, halfH) {
+  return { id: 's' + Date.now() + Math.random().toString(36).slice(2, 6), name: 'Elev ' + wall, parallel: true, lock2d: false,
+    cam: { px: camPos.x, py: camPos.y, pz: camPos.z, tx: target.x, ty: target.y, tz: target.z, ux: 0, uy: 1, uz: 0, zoom: 1, halfH },
+    section: { on: false, mode: 'plane', axis: 'X', flip: false, t: 0.5, show: false, box: { x: [0, 1], y: [0, 1], z: [0, 1] } } };
+}
+function autoWallElevations(opts) {
+  const groups = wallGroups(); if (!groups.size) return { made: 0 };
+  const realWalls = new Set(icfBlocksDeduped().map(b => b.props.wall).filter(Boolean));   // skip phantom walls (corner-return fragments with no own blocks)
+  const mc = new THREE.Box3().setFromObject(modelRoot).getCenter(new THREE.Vector3());
+  const aspect = (renderer.domElement.width / renderer.domElement.height) || 1.4;
+  const elevs = [];   // { scene, restrict } — restrict = this wall's blocks + its bookend corner returns
+  [...groups.keys()].filter(w => realWalls.has(w)).sort().forEach(wall => {
+    const pids = groups.get(wall), wb = bboxOfPids(pids); if (wb.isEmpty()) return;
+    const size = wb.getSize(new THREE.Vector3()), ctr = wb.getCenter(new THREE.Vector3());
+    const runA = size.x >= size.z ? 'x' : 'z', thickA = runA === 'x' ? 'z' : 'x';
+    const ri = runA === 'x' ? 0 : 2, ti = thickA === 'x' ? 0 : 2;
+    const n = new THREE.Vector3(); n[thickA] = (ctr[thickA] - mc[thickA]) >= 0 ? 1 : -1;   // outward (away from centre)
+    const dist = Math.max(size.x, size.y, size.z) * 2 + modelScale * 0.1;
+    const camPos = ctr.clone().addScaledVector(n, -dist);   // camera INSIDE the building → looks at the inside face
+    const cornerDist = (size[thickA] || modelScale * 0.02) * 2.4;   // catch perpendicular returns at each end
+    const margin = (size[thickA] || modelScale * 0.02) * 1.25 + modelScale * 0.006;
+    const halfH = Math.max(size.y / 2 + margin, (size[runA] / 2 + margin) / aspect) * 1.06;
+    // restrict labelling to THIS wall + corner blocks (else the ortho view labels every wall behind it)
+    const restrict = new Set(pids), runMin = wb.min[runA], runMax = wb.max[runA], thickPos = ctr[thickA];
+    partRegistry.forEach((p, pi) => {
+      if (restrict.has(pi) || !isICFBlock(p)) return; if (p.props && p.props.wall === wall) return;
+      const bb = partBBox.get(pi); if (!bb) return;
+      const cR = (bb.min[ri] + bb.max[ri]) / 2, cT = (bb.min[ti] + bb.max[ti]) / 2;
+      if (Math.abs(cT - thickPos) < cornerDist && (Math.abs(cR - runMin) < cornerDist || Math.abs(cR - runMax) < cornerDist)) restrict.add(pi);
+    });
+    elevs.push({ scene: makeWallScene(wall, camPos, ctr, halfH), restrict });
+  });
+  elevs.forEach(e => scenes.push(e.scene)); persistScenes(); renderScenes();
+  if (opts.label || opts.sheets) {
+    elevs.forEach(e => { restoreScene(e.scene); if (opts.label) labelICFInView(e.restrict); if (opts.sheets) { const sh = { id: 'sh' + Date.now() + Math.random().toString(36).slice(2, 6), name: e.scene.name, size: 'A3', orient: 'landscape', vps: [{ sceneId: e.scene.id }], fields: { title: e.scene.name }, annots: [], revisions: [] }; sheets.push(sh); } });
+    if (opts.sheets) { persistSheets(); renderSheetTabs(); }
+  }
+  const home = sceneById('__default__'); if (home) restoreScene(home);
+  return { made: elevs.length };
+}
+$('icfbtn') && ($('icfbtn').onclick = e => { e.preventDefault(); if ($('icfbtn').classList.contains('disabled')) return; const p = $('icfPop'); p.hidden = !p.hidden; if (!p.hidden) { $('compPop').hidden = $('sectionPop').hidden = $('levelsPop').hidden = true; seqMax = icfMaxCourse(); const sl = $('icfSeq'); sl.max = seqMax; sl.value = seqMax; $('icfSeqStat').textContent = `All ${seqMax + 1} courses shown`; } });
+$('icfCutHL') && ($('icfCutHL').onclick = () => setCutHL(!cutHLOn));
+$('icfSeq') && ($('icfSeq').addEventListener('input', () => setSequence(+$('icfSeq').value)));
+$('icfAutoElev') && ($('icfAutoElev').onclick = () => { $('icfElevStat').textContent = 'Building elevations…'; setTimeout(() => { const r = autoWallElevations({ label: $('icfElevLabel').checked, sheets: $('icfElevSheets').checked }); $('icfElevStat').textContent = r.made ? `Created ${r.made} wall elevation${r.made > 1 ? 's' : ''}${$('icfElevSheets').checked ? ' + sheets' : ''} — see Scenes.` : 'No ICF walls found.'; }, 30); });
+$('icfOff') && ($('icfOff').onclick = () => $('icfPop').hidden = true);
+
+// ---- section caps: cheap interior fill (back faces in a flat colour; works on any geometry) ----
+let cappingOn = false, capGroup = null, symbolGroup = null;
+let partBBox = new Map();   // partIndex -> {min:[x,y,z], max:[x,y,z]} for section-symbol placement
+let sectionOpenings = [];   // [{name, bbox:[6]}] world-metre opening voids → hatched at the cut
+const capColor = 0x9aa0a6;
+// Per-member section symbol: ✕ for cut studs/plates/binders, single diagonal for rails/noggins.
+const SYMBOL_FOR = { stud: 'cross', sole_plate: 'cross', head_binder: 'cross', king: 'cross', cripple: 'cross', junction: 'cross', rail: 'diag', noggin: 'diag' };
+function buildPartBBoxes() {
+  partBBox = new Map();
+  partGeoms.forEach(o => {
+    if (!o.isMesh) return;
+    const pos = o.geometry.attributes.position, idA = o.geometry.getAttribute('_partId'); if (!idA || !pos) return;
+    for (let v = 0; v < idA.count; v++) {
+      const pid = Math.round(idA.getX(v)); if (pid < 0) continue;
+      let b = partBBox.get(pid); if (!b) { b = { min: [1e9, 1e9, 1e9], max: [-1e9, -1e9, -1e9] }; partBBox.set(pid, b); }
+      const x = pos.getX(v), y = pos.getY(v), z = pos.getZ(v);
+      if (x < b.min[0]) b.min[0] = x; if (y < b.min[1]) b.min[1] = y; if (z < b.min[2]) b.min[2] = z;
+      if (x > b.max[0]) b.max[0] = x; if (y > b.max[1]) b.max[1] = y; if (z > b.max[2]) b.max[2] = z;
+    }
+  });
+}
+function clearSymbols() { if (symbolGroup) { scene.remove(symbolGroup); symbolGroup.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); symbolGroup = null; } }
+// Draw ✕ / diagonal across each cut member's cross-section — for the plane, or every box face.
+function buildSectionSymbols() {
+  clearSymbols();
+  if (!cappingOn || !sectionOn || !partBBox.size || !secBox) return;
+  symbolGroup = new THREE.Group(); scene.add(symbolGroup);
+  if (sectionMode === 'plane') addSymbolsForPlane(planePlane, null);
+  else clipPlanes.forEach((pl, i) => addSymbolsForPlane(pl, clipPlanes.filter((_, j) => j !== i)));
+  if (!symbolGroup.children.length) { scene.remove(symbolGroup); symbolGroup = null; }
+}
+function addSymbolsForPlane(plane, clipOthers) {
+  const n = plane.normal, ax = Math.abs(n.x) > 0.5 ? 0 : (Math.abs(n.y) > 0.5 ? 1 : 2);
+  const inA = [[1, 2], [0, 2], [0, 1]][ax];
+  const cut = n.clone().multiplyScalar(-plane.constant).toArray()[ax];
+  const verts = [], pad = modelScale * 0.0004;
+  partBBox.forEach((b, pid) => {
+    if (b.min[ax] > cut || b.max[ax] < cut) return;
+    const p = partRegistry.get(pid); const sym = p && SYMBOL_FOR[p.type]; if (!sym) return;
+    const dims = [b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]];
+    if (dims.indexOf(Math.max(dims[0], dims[1], dims[2])) !== ax) return;   // only a true cross-section
+    const [a0, a1] = inA, u0 = b.min[a0] + pad, u1 = b.max[a0] - pad, v0 = b.min[a1] + pad, v1 = b.max[a1] - pad;
+    if (u1 <= u0 || v1 <= v0) return;
+    const P = (u, v) => { const o = [0, 0, 0]; o[ax] = cut; o[a0] = u; o[a1] = v; return o; };
+    verts.push(...P(u0, v0), ...P(u1, v1));
+    if (sym === 'cross') verts.push(...P(u0, v1), ...P(u1, v0));
+  });
+  if (!verts.length) return;
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  const m = new THREE.LineBasicMaterial({ color: 0x111111, depthTest: false });
+  if (clipOthers) m.clippingPlanes = clipOthers;
+  const ls = new THREE.LineSegments(g, m); ls.renderOrder = 999; symbolGroup.add(ls);
+}
+// UK construction-section poché by material class: white timber, pink panel-splits,
+// insulation batt-hatch, ICF concrete grey. (Per-member ✕/diagonal symbols are added in a later pass.)
+const hatchCache = {};
+function makeHatchTexture(kind) {
+  if (hatchCache[kind]) return hatchCache[kind];
+  const S = 64, c = document.createElement('canvas'); c.width = c.height = S;
+  const x = c.getContext('2d');
+  x.fillStyle = '#fff'; x.fillRect(0, 0, S, S);
+  x.strokeStyle = '#111'; x.lineWidth = 2; x.lineCap = 'round';
+  if (kind === 'insulation') {                          // wavy batt rows
+    const amp = S * 0.2, rows = 2;
+    for (let r = 0; r < rows; r++) {
+      const cy = S * (r + 0.5) / rows; x.beginPath();
+      for (let i = 0; i <= S; i++) { const t = i / S * Math.PI * 4, y = cy + Math.sin(t) * amp; i ? x.lineTo(i, y) : x.moveTo(i, y); }
+      x.stroke();
+    }
+  } else if (kind === 'diagonal') {
+    for (let o = -S; o < S; o += 12) { x.beginPath(); x.moveTo(o, 0); x.lineTo(o + S, S); x.stroke(); }
+  }
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 4;
+  hatchCache[kind] = t; return t;
+}
+const ICF_FACE_MATS = new Set(['a', 'b', 'as', 'al', 'bs', 'bl']);   // BCDS names ICF form EPS faces A/B (+ split variants)
+const INSULATION_RE = /insulation|mineral wool|rockwool|glasswool|\bpir\b|\bquilt\b|batt/;   // genuine insulation (timber-panel infill)
+function capStyleFor(name) {
+  const n = (name || '').toLowerCase();
+  if (n.includes('panel split')) return { color: 0xff2b78 };                          // pink, solid
+  if (INSULATION_RE.test(n)) return { color: 0xffffff, hatch: 'insulation' };          // timber-panel insulation → batt hatch
+  if (n.includes('osb')) return { color: 0xcaa46a };                                  // OSB tan
+  if (n.startsWith('tlstf')) return { color: 0xffffff };                              // timber members → white
+  if (n.startsWith('icf') || n.includes('eps') || ICF_FACE_MATS.has(n)) return { color: 0x8fc9e0 };  // ICF forms (incl. EPS faces) → ICF grey
+  return { color: capColor };
+}
+// Project cap verts onto the cut plane's two in-plane axes → world-aligned hatch UVs (tileMm per tile).
+function addPlanarUVs(geo, normal, tileMm) {
+  const s = 1000 / tileMm, n = normal.clone().normalize();
+  const up = Math.abs(n.y) > 0.9 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
+  const u = new THREE.Vector3().crossVectors(up, n).normalize();
+  const v = new THREE.Vector3().crossVectors(n, u).normalize();
+  const pos = geo.attributes.position, uv = new Float32Array(pos.count * 2), p = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) { p.fromBufferAttribute(pos, i); uv[i * 2] = p.dot(u) * s; uv[i * 2 + 1] = p.dot(v) * s; }
+  geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+}
+function clearCaps() {
+  if (capGroup) {
+    capGroup.traverse(o => {
+      if (o.geometry && o.userData.capOwned) o.geometry.dispose();
+      const m = o.material; if (m) (Array.isArray(m) ? m : [m]).forEach(x => { if (x) { if (x.map && x.userData.cloned) x.map.dispose(); x.dispose(); } });
+    });
+    scene.remove(capGroup); capGroup = null;
+  }
+}
+const TIMBER_TYPES = new Set(['stud', 'sole_plate', 'head_binder', 'rail', 'noggin', 'lintel', 'king', 'cripple', 'junction', 'ripped']);
+function capStyleForPart(pr) {   // cap fill style from the part's TYPE (robust) then material
+  if (!pr) return { color: capColor };
+  const t = pr.type || '', m = (pr.material || '').toLowerCase();
+  if (t === 'panel_split' || m.includes('panel split')) return { color: 0xff2b78 };
+  if (t === 'insulation' || INSULATION_RE.test(m)) return { color: 0xffffff, hatch: 'insulation' };
+  if (t === 'osb' || m.includes('osb')) return { color: 0xcaa46a };
+  if (TIMBER_TYPES.has(t)) return { color: 0xffffff };
+  if (t === 'icf_block' || t === 'web' || m.startsWith('icf') || m.includes('eps') || ICF_FACE_MATS.has(m)) return { color: 0x8fc9e0 };
+  return { color: capColor };
+}
+// TRUE section caps by GEOMETRIC SLICING: intersect every triangle with the cut plane, group the cut
+// segments per part, then fill each part's cross-section (fan-triangulated) in its cap colour + draw the
+// black section outline. Works from any angle and is robust to inconsistent normals / open shells.
 function buildCaps() {
   clearCaps();
   if (!cappingOn || !sectionOn || !meshes.length || !clipPlanes.length) return;
   capGroup = new THREE.Group(); scene.add(capGroup);
-  const fillMat = new THREE.MeshBasicMaterial({ color: capColor, side: THREE.BackSide }); // inner faces revealed by the cut
-  fillMat.clippingPlanes = clipPlanes;             // live reference — follows the section as it moves
-  capGroup.userData.fillMat = fillMat;
-  meshes.forEach(mesh => { const m = new THREE.Mesh(mesh.geometry, fillMat); m.applyMatrix4(mesh.matrixWorld); m.renderOrder = 1; capGroup.add(m); });
+  let parts = 0, segs = 0;
+  if (sectionMode === 'plane') {
+    const r = sliceAtPlane(planePlane, null); parts += r.parts; segs += r.segs;
+    drawOpeningHatches(planePlane, null);
+  } else {   // box: cap every one of the 6 faces, each clipped to the box by the other 5 planes
+    clipPlanes.forEach((pl, i) => { const others = clipPlanes.filter((_, j) => j !== i); const r = sliceAtPlane(pl, others); parts += r.parts; segs += r.segs; drawOpeningHatches(pl, others); });
+  }
+  if (!capGroup.children.length) { scene.remove(capGroup); capGroup = null; }
+  window.__capDebug = { mode: sectionMode, parts, segs, children: capGroup ? capGroup.children.length : 0 };
 }
+// Slice all geometry at one plane → per-part filled cross-sections (+ black outline) into capGroup.
+// clipOthers (box mode) clips the resulting caps to the section box.
+function sliceAtPlane(plane, clipOthers) {
+  const n = plane.normal;
+  const up = Math.abs(n.y) > 0.9 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
+  const ux = new THREE.Vector3().crossVectors(up, n).normalize();
+  const uy = new THREE.Vector3().crossVectors(n, ux).normalize();
+  const eps = Math.max(modelScale * 1e-5, 1e-6);
+  const byPart = new Map(), segVerts = [];
+  const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3();
+  const addEdge = (P, Q, dp, dq, out) => { if ((dp > 0) !== (dq > 0)) { const t = dp / (dp - dq); out.push(new THREE.Vector3(P.x + (Q.x - P.x) * t, P.y + (Q.y - P.y) * t, P.z + (Q.z - P.z) * t)); } };
+  meshes.forEach(mesh => {
+    const g = mesh.geometry, pos = g.attributes.position, idA = g.getAttribute('_partId'); if (!pos) return;
+    const index = g.index ? g.index.array : null, cnt = index ? index.length : pos.count;
+    for (let i = 0; i + 2 < cnt; i += 3) {
+      const ia = index ? index[i] : i, ib = index ? index[i + 1] : i + 1, ic = index ? index[i + 2] : i + 2;
+      A.fromBufferAttribute(pos, ia); B.fromBufferAttribute(pos, ib); C.fromBufferAttribute(pos, ic);
+      const da = plane.distanceToPoint(A), db = plane.distanceToPoint(B), dc = plane.distanceToPoint(C);
+      if ((da > eps && db > eps && dc > eps) || (da < -eps && db < -eps && dc < -eps)) continue;   // wholly one side
+      const ip = []; addEdge(A, B, da, db, ip); addEdge(B, C, db, dc, ip); addEdge(C, A, dc, da, ip);
+      if (ip.length < 2) continue;
+      const pid = idA ? Math.round(idA.getX(ia)) : -1;
+      let arr = byPart.get(pid); if (!arr) { arr = []; byPart.set(pid, arr); }
+      arr.push(ip[0], ip[1]);
+      segVerts.push(ip[0].x, ip[0].y, ip[0].z, ip[1].x, ip[1].y, ip[1].z);
+    }
+  });
+  if (!byPart.size) return { parts: 0, segs: 0 };
+  const fillByColor = new Map(), cen = new THREE.Vector3(), tmp = new THREE.Vector3();
+  byPart.forEach((pts, pid) => {
+    if (pts.length < 6) return;
+    cen.set(0, 0, 0); pts.forEach(p => cen.add(p)); cen.multiplyScalar(1 / pts.length);
+    const uniq = []; for (const p of pts) { let dup = false; for (const q of uniq) { if (q.distanceToSquared(p) < eps * eps) { dup = true; break; } } if (!dup) uniq.push(p); }
+    if (uniq.length < 3) return;
+    uniq.sort((p, q) => Math.atan2(tmp.subVectors(p, cen).dot(uy), tmp.subVectors(p, cen).dot(ux)) - Math.atan2(tmp.subVectors(q, cen).dot(uy), tmp.subVectors(q, cen).dot(ux)));
+    const style = capStyleForPart(partRegistry.get(pid)), key = style.color + '|' + (style.hatch || '');
+    let fb = fillByColor.get(key); if (!fb) { fb = { style, verts: [] }; fillByColor.set(key, fb); }
+    for (let k = 0; k < uniq.length; k++) { const a = uniq[k], b = uniq[(k + 1) % uniq.length]; fb.verts.push(cen.x, cen.y, cen.z, a.x, a.y, a.z, b.x, b.y, b.z); }   // fan from centroid (convex cross-sections)
+  });
+  fillByColor.forEach(({ style, verts }) => {
+    if (!verts.length) return;
+    const fg = new THREE.BufferGeometry(); fg.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    const opts = { color: style.color, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 };
+    if (clipOthers) opts.clippingPlanes = clipOthers;
+    if (style.hatch) { addPlanarUVs(fg, n, 55); opts.map = makeHatchTexture(style.hatch).clone(); }
+    const fm = new THREE.MeshBasicMaterial(opts); if (style.hatch) fm.userData.cloned = true;
+    const fmesh = new THREE.Mesh(fg, fm); fmesh.renderOrder = 2; fmesh.userData.capOwned = true; capGroup.add(fmesh);
+  });
+  if (segVerts.length) {   // black section outline
+    const og = new THREE.BufferGeometry(); og.setAttribute('position', new THREE.Float32BufferAttribute(segVerts, 3));
+    const om = new THREE.LineBasicMaterial({ color: 0x111111 }); om.polygonOffset = true; om.polygonOffsetFactor = -1; om.polygonOffsetUnits = -1;
+    if (clipOthers) om.clippingPlanes = clipOthers;
+    const ol = new THREE.LineSegments(og, om); ol.renderOrder = 3; ol.userData.capOwned = true; capGroup.add(ol);
+  }
+  return { parts: byPart.size, segs: segVerts.length / 6 };
+}
+function updateCapPlanes() {}   // no-op (geometric caps are real geometry; nothing to reposition)
+// Openings are voids (no geometry) — the exporter records their world bbox. Where the cut plane crosses
+// an opening, draw a diagonal-hatched rectangle so the opening reads on the section.
+function drawOpeningHatches(plane, clipOthers) {
+  if (!sectionOpenings.length || !capGroup) return;
+  const n = plane.normal, ax = Math.abs(n.x) > 0.5 ? 0 : (Math.abs(n.y) > 0.5 ? 1 : 2);
+  const inA = [[1, 2], [0, 2], [0, 1]][ax];
+  const cut = n.clone().multiplyScalar(-plane.constant).toArray()[ax];
+  const verts = [];
+  sectionOpenings.forEach(op => {
+    const b = op.bbox; if (!b || b.length < 6) return;
+    if (b[ax] > cut || b[ax + 3] < cut) return;   // plane doesn't cross this opening
+    const a0 = inA[0], a1 = inA[1], u0 = b[a0], u1 = b[a0 + 3], v0 = b[a1], v1 = b[a1 + 3];
+    const P = (u, v) => { const o = [0, 0, 0]; o[ax] = cut; o[a0] = u; o[a1] = v; return o; };
+    const A = P(u0, v0), B = P(u1, v0), C = P(u1, v1), D = P(u0, v1);
+    verts.push(...A, ...B, ...C, ...A, ...C, ...D);
+  });
+  if (!verts.length) return;
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  addPlanarUVs(g, n, 90);
+  const opts = { color: 0xffffff, side: THREE.DoubleSide, map: makeHatchTexture('diagonal').clone(), polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 };
+  if (clipOthers) opts.clippingPlanes = clipOthers;
+  const m = new THREE.MeshBasicMaterial(opts); m.userData.cloned = true;
+  const mesh = new THREE.Mesh(g, m); mesh.renderOrder = 2; mesh.userData.capOwned = true; capGroup.add(mesh);
+}
+function buildCapsBackface() {   // box-mode fallback (interior back-face fill)
+  capGroup = new THREE.Group(); scene.add(capGroup);
+  meshes.forEach(mesh => {
+    const src = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
+    const fillMat = new THREE.MeshBasicMaterial({ color: capStyleFor(src && src.name).color, side: THREE.BackSide });
+    fillMat.clippingPlanes = clipPlanes;
+    const m = new THREE.Mesh(mesh.geometry, fillMat); m.applyMatrix4(mesh.matrixWorld); m.renderOrder = 1; capGroup.add(m);
+  });
+}
+let capsTimer = null;
+function scheduleCaps() { if (capsTimer) clearTimeout(capsTimer); capsTimer = setTimeout(() => { capsTimer = null; ensureCaps(); }, 45); }   // debounce the heavy slice during slider drags
 function ensureCaps() {
   if (!modelRoot) return;
-  if (cappingOn && sectionOn) { if (!capGroup) buildCaps(); }
-  else clearCaps();
+  if (cappingOn && sectionOn) buildCaps();   // re-slice (buildCaps clears first)
+  else { clearCaps(); clearSymbols(); }
 }
-$('secCap').onchange = () => { cappingOn = $('secCap').checked; applyClipToModel(sectionOn); ensureCaps(); };
+$('secCap').onchange = () => { cappingOn = $('secCap').checked; applyClipToModel(sectionOn); ensureCaps(); buildSectionSymbols(); };
 
 // ---- strip unwanted geometry by material name (envelope, stack joints, …) --
 // Runs on load BEFORE the merge, so flagged meshes never enter the model. Match is case-insensitive.
@@ -752,15 +1572,18 @@ const STRIP_NO_MATERIAL = true;             // drop meshes with no material assi
 function stripMaterials() {
   if (!modelRoot) return 0;
   const want = STRIP_MATERIALS.map(s => s.toLowerCase()), nodes = STRIP_NODE_NAMES.map(s => s.toLowerCase()), kill = [];
+  let totalMesh = 0, killMesh = 0;
   modelRoot.traverse(o => {
-    if (!(o.isMesh || o.isLine)) return;
+    if (!(o.isMesh || o.isLine)) return; if (o.isMesh) totalMesh++;
+    const isM = o.isMesh, mark = () => { kill.push(o); if (isM) killMesh++; };
     const nm = (o.name || '').toLowerCase();
-    if (nodes.some(s => nm.includes(s))) { kill.push(o); return; }
-    if (!o.material) { if (STRIP_NO_MATERIAL) kill.push(o); return; }
+    if (nodes.some(s => nm.includes(s))) { mark(); return; }
+    if (!o.material) { if (STRIP_NO_MATERIAL) mark(); return; }
     const mats = Array.isArray(o.material) ? o.material : [o.material];
-    if (STRIP_NO_MATERIAL && mats.some(m => !m || !m.name)) { kill.push(o); return; }
-    if (mats.some(m => m && m.name && want.some(w => m.name.toLowerCase().startsWith(w)))) kill.push(o);
+    if (STRIP_NO_MATERIAL && mats.some(m => !m || !m.name)) { mark(); return; }
+    if (mats.some(m => m && m.name && want.some(w => m.name.toLowerCase().startsWith(w)))) mark();
   });
+  if (totalMesh > 0 && killMesh >= totalMesh) return 0;   // safety: never strip the WHOLE model (e.g. a re-loaded Optimised GLB whose materials got de-duped / unnamed)
   kill.forEach(o => { if (o.parent) o.parent.remove(o); if (o.geometry) o.geometry.dispose(); });
   return kill.length;
 }
@@ -776,6 +1599,11 @@ function optimizeModel() {
     const grab = (o, map, keep) => {
       const m = o.material; if (!m || Array.isArray(m) || !o.geometry) return;
       const g = o.geometry.clone(); g.applyMatrix4(o.matrixWorld);
+      // tag every vertex with its part index → survives the merge, enables per-part pick + show/hide
+      // (applied to meshes AND edge-lines so a hidden part hides its outline too)
+      const pid = partIdByMesh.has(o.uuid) ? partIdByMesh.get(o.uuid) : -1;
+      const n = g.attributes.position.count, pa = new Float32Array(n); pa.fill(pid);
+      g.setAttribute('_partId', new THREE.BufferAttribute(pa, 1));
       if (!map.has(m)) map.set(m, []); map.get(m).push(g);
       if (keep) allTri.push(g);
     };
@@ -797,7 +1625,214 @@ function optimizeModel() {
     scene.remove(modelRoot); modelRoot.traverse(o => { if (o.geometry) o.geometry.dispose(); });
     modelRoot = root; scene.add(modelRoot); modelRoot.updateMatrixWorld(true);
     meshes = newMeshes; setEdges(edgesOn);
+    // snapshot positions so per-part hide can collapse (and restore) a part's verts in place
+    modelRoot.traverse(o => {
+      if ((o.isMesh || o.isLine) && o.geometry && o.geometry.getAttribute('_partId')) {
+        o.userData.origPos = o.geometry.attributes.position.array.slice();
+        partGeoms.push(o);
+      }
+    });
   } catch (e) { console.warn('optimize skipped:', e); }       // fall back to the unmerged model
+}
+
+// ---- part metadata: registry + click-to-inspect ----------------------------
+// Reads glTF node extras.tls (written by the exporter's bake_edges step) BEFORE the merge,
+// records partIndex -> fields and source mesh -> partIndex. optimizeModel() bakes that index
+// into a per-vertex _partId attribute so a raycast on the merged mesh resolves back to a part.
+function buildPartRegistry() {
+  partRegistry = new Map(); partIdByMesh = new Map(); selectedPart = -1; clearPartHighlight();
+  partGeoms = []; hiddenParts = new Set(); partFacets = null;
+  if (!modelRoot) return;
+  sectionOpenings = (modelRoot.userData && modelRoot.userData.tls_manifest && modelRoot.userData.tls_manifest.openings) || [];   // for opening hatch
+  let idx = 0;
+  modelRoot.traverse(o => {
+    const tls = o.userData && o.userData.tls;
+    if (tls && typeof tls === 'object') {
+      const pi = idx++;
+      partRegistry.set(pi, tls);
+      o.traverse(d => { if (d.isMesh || d.isLine) partIdByMesh.set(d.uuid, pi); });   // mesh + baked edges sit on child nodes
+    }
+  });
+  buildFacets();
+}
+// Build the {facet -> value -> Set(partIndex)} index that drives the outliner tree.
+const FACETS = ['parent', 'tag', 'level', 'panel', 'type', 'material'];
+function buildFacets() {
+  partFacets = {}; FACETS.forEach(f => partFacets[f] = new Map());
+  partRegistry.forEach((p, pi) => {
+    FACETS.forEach(f => {
+      const v = p[f]; if (!v) return;
+      if (!partFacets[f].has(v)) partFacets[f].set(v, new Set());
+      partFacets[f].get(v).add(pi);
+    });
+  });
+}
+function partAt(clientX, clientY) {
+  if (!meshes.length || !partRegistry.size) return -1;
+  setNDC(clientX, clientY); raycaster.setFromCamera(ndc, activeCam);
+  const hits = raycaster.intersectObjects(meshes, true);
+  for (const h of hits) {
+    if (!visibleUnderClip(h.point)) continue;
+    const attr = h.object.geometry.getAttribute('_partId');
+    if (attr && h.face) { const pid = Math.round(attr.getX(h.face.a)); if (pid >= 0) return pid; }
+  }
+  return -1;
+}
+function clearPartHighlight() { if (partHL) { scene.remove(partHL); if (partHL.geometry) partHL.geometry.dispose(); if (partHL.material) partHL.material.dispose(); partHL = null; } }
+function highlightPart(pi) {
+  clearPartHighlight();
+  if (pi < 0) return;
+  const verts = [];
+  meshes.forEach(mesh => {
+    const g = mesh.geometry, pos = g.attributes.position, idA = g.getAttribute('_partId'); if (!idA || !pos) return;
+    const index = g.index ? g.index.array : null, n = index ? index.length : pos.count;
+    for (let i = 0; i + 2 < n; i += 3) {
+      const a = index ? index[i] : i, b = index ? index[i + 1] : i + 1, c = index ? index[i + 2] : i + 2;
+      if (Math.round(idA.getX(a)) !== pi) continue;
+      verts.push(pos.getX(a), pos.getY(a), pos.getZ(a), pos.getX(b), pos.getY(b), pos.getZ(b), pos.getX(c), pos.getY(c), pos.getZ(c));
+    }
+  });
+  if (!verts.length) return;
+  const hg = new THREE.BufferGeometry(); hg.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  const hm = new THREE.MeshBasicMaterial({ color: AMBER, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+  hm.polygonOffset = true; hm.polygonOffsetFactor = -1; hm.polygonOffsetUnits = -1;
+  partHL = new THREE.Mesh(hg, hm); partHL.renderOrder = 6; scene.add(partHL); scheduleSceneUpdate && scheduleSceneUpdate();
+}
+function dimsLabel(s) { return s ? `${s.l} × ${s.w} × ${s.h} ${s.unit || 'mm'}` : '—'; }
+const PRETTY = s => String(s).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+function showPartInfo(pi) {
+  const box = $('partInfo'), p = partRegistry.get(pi);
+  if (!p) { box.hidden = true; return; }
+  const row = (k, v) => (v || v === 0) ? `<tr><td>${k}</td><td>${v}</td></tr>` : '';
+  let html = `<div class="pi-title">${(p.name || p.id || 'Part')}</div><table>` +
+    row('Type', (p.type || '').replace(/_/g, ' ')) + row('Size', dimsLabel(p.size)) +
+    row('Material', p.material) + row('Level', p.level) + row('Assembly', p.parent) +
+    row('Panel', p.panel) + row('Def', p.def) + row('Tag', p.tag) + `</table>`;
+  if (p.props && Object.keys(p.props).length) {
+    html += `<div class="pi-sub">Properties</div><table>` +
+      Object.entries(p.props).map(([k, v]) => row(PRETTY(k), v)).join('') + `</table>`;
+  }
+  $('partInfoBody').innerHTML = html;
+  box.hidden = false;
+}
+function setInspect(on) {
+  inspectMode = on; $('inspect').classList.toggle('active', on);
+  if (on) { cancelDim(); setLevelMode(false); if (selectedPart < 0) $('partInfo').hidden = true; }
+  else { $('partInfo').hidden = true; clearPartHighlight(); selectedPart = -1; }
+  updateHint();
+}
+$('inspect').onclick = e => { e.preventDefault(); if (!$('inspect').classList.contains('disabled')) setInspect(!inspectMode); };
+$('partInfoClose').onclick = () => { $('partInfo').hidden = true; selectedPart = -1; clearPartHighlight(); };
+
+// ---- outliner: tag/level/panel/type/material visibility toggles ------------
+let hiddenFacets = new Set();   // "facet::value" entries that are toggled OFF (source of truth)
+const FACET_LABEL = { parent: 'Assembly / Block', tag: 'Tags', level: 'Levels', panel: 'Panels', type: 'Member types', material: 'Materials' };
+// Collapse a hidden part's verts onto its own first vertex (zero-area → invisible, bbox unchanged); restore otherwise.
+function applyPartVisibility() {
+  partGeoms.forEach(o => {
+    const pos = o.geometry.attributes.position, orig = o.userData.origPos, idA = o.geometry.getAttribute('_partId');
+    if (!pos || !orig || !idA) return;
+    const arr = pos.array, cx = orig[0], cy = orig[1], cz = orig[2], any = hiddenParts.size > 0;
+    for (let v = 0, i = 0; v < idA.count; v++, i += 3) {
+      if (any && hiddenParts.has(Math.round(idA.getX(v)))) { arr[i] = cx; arr[i + 1] = cy; arr[i + 2] = cz; }
+      else { arr[i] = orig[i]; arr[i + 1] = orig[i + 1]; arr[i + 2] = orig[i + 2]; }
+    }
+    pos.needsUpdate = true;
+  });
+  scheduleSceneUpdate();
+}
+function recomputeHidden() {
+  hiddenParts = new Set();
+  partRegistry.forEach((p, pi) => {
+    for (const f of FACETS) { const val = p[f]; if (val && hiddenFacets.has(f + '::' + val)) { hiddenParts.add(pi); break; } }
+  });
+  if (typeof seqHiddenParts !== 'undefined') seqHiddenParts.forEach(pi => hiddenParts.add(pi));   // build-sequence overlay
+  applyPartVisibility();
+  if (selectedPart >= 0 && hiddenParts.has(selectedPart)) { clearPartHighlight(); $('partInfo').hidden = true; selectedPart = -1; }
+}
+function setFacetVisible(facet, value, visible) {
+  const key = facet + '::' + value;
+  if (visible) hiddenFacets.delete(key); else hiddenFacets.add(key);
+  recomputeHidden(); persistVisibility();
+}
+function setManyFacetVisible(facet, values, visible) {   // toggle a whole tag-folder at once
+  values.forEach(v => { const key = facet + '::' + v; if (visible) hiddenFacets.delete(key); else hiddenFacets.add(key); });
+  recomputeHidden(); persistVisibility();
+}
+// ---- Tag-Folder tree (mirrors SketchUp's Tags panel: folders contain tags) -----------------
+function buildTagTree() {
+  const root = { name: '', children: new Map(), tags: [] };
+  (partFacets.tag ? [...partFacets.tag.keys()] : []).forEach(path => {
+    const parts = path.split(' / '); let node = root;
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (!node.children.has(parts[i])) node.children.set(parts[i], { name: parts[i], children: new Map(), tags: [] });
+      node = node.children.get(parts[i]);
+    }
+    node.tags.push({ name: parts[parts.length - 1], path, n: partFacets.tag.get(path).size });
+  });
+  return root;
+}
+function collectTagPaths(node) {
+  let paths = node.tags.map(t => t.path);
+  node.children.forEach(c => { paths = paths.concat(collectTagPaths(c)); });
+  return paths;
+}
+function tagNodeHtml(node, depth) {
+  let html = '';
+  [...node.children.keys()].sort().forEach(k => {
+    const f = node.children.get(k), paths = collectTagPaths(f), allOn = paths.every(p => !hiddenFacets.has('tag::' + p));
+    html += `<details open class="ol-folder"><summary style="padding-left:${depth * 10}px">` +
+      `<input type="checkbox" class="tagfolder" data-paths="${encodeURIComponent(paths.join('|'))}"${allOn ? ' checked' : ''}> 📁 ${f.name} <span class="ol-n">${paths.length}</span></summary>`;
+    html += tagNodeHtml(f, depth + 1) + `</details>`;
+  });
+  node.tags.sort((a, b) => a.name.localeCompare(b.name)).forEach(t => {
+    const on = !hiddenFacets.has('tag::' + t.path);
+    html += `<label class="ol-row" style="padding-left:${(depth + 1) * 10 + 4}px"><input type="checkbox" data-f="tag" data-v="${encodeURIComponent(t.path)}"${on ? ' checked' : ''}>` +
+      `<span class="ol-name">🏷 ${t.name}</span><span class="ol-n">${t.n}</span></label>`;
+  });
+  return html;
+}
+function renderOutliner() {
+  const wrap = $('outlinerBody'); if (!wrap || !partFacets) return;
+  let html = '';
+  FACETS.forEach(f => {
+    const m = partFacets[f]; if (!m || !m.size) return;
+    if (f === 'tag') {   // render the SketchUp Tag / Tag-Folder hierarchy as a nested tree
+      html += `<details class="ol-group"><summary>${FACET_LABEL[f]} <span class="ol-n">${m.size}</span></summary>` + tagNodeHtml(buildTagTree(), 0) + `</details>`;
+      return;
+    }
+    const values = [...m.keys()].sort();
+    html += `<details class="ol-group"><summary>${FACET_LABEL[f]} <span class="ol-n">${values.length}</span></summary>`;
+    values.forEach(v => {
+      const on = !hiddenFacets.has(f + '::' + v);
+      html += `<label class="ol-row"><input type="checkbox" data-f="${f}" data-v="${encodeURIComponent(v)}"${on ? ' checked' : ''}>` +
+        `<span class="ol-name">${('' + v).replace(/_/g, ' ')}</span><span class="ol-n">${m.get(v).size}</span></label>`;
+    });
+    html += `</details>`;
+  });
+  wrap.innerHTML = html || '<div style="color:#889;padding:6px">No groupable metadata.</div>';
+}
+function setOutliner(on) {
+  if (on) renderOutliner();
+  $('outlinerPanel').hidden = !on; $('outliner').classList.toggle('active', on);
+}
+$('outliner').onclick = e => { e.preventDefault(); if (!$('outliner').classList.contains('disabled')) setOutliner($('outlinerPanel').hidden); };
+$('outlinerClose').onclick = () => setOutliner(false);
+$('outlinerBody').addEventListener('change', e => {
+  const cb = e.target; if (cb.tagName !== 'INPUT') return;
+  if (cb.classList.contains('tagfolder')) {                       // folder toggle → all tags under it
+    setManyFacetVisible('tag', decodeURIComponent(cb.dataset.paths).split('|'), cb.checked); renderOutliner();
+  } else {
+    setFacetVisible(cb.dataset.f, decodeURIComponent(cb.dataset.v), cb.checked);
+    if (cb.dataset.f === 'tag') renderOutliner();                 // keep parent-folder checkboxes in sync
+  }
+});
+$('outlinerBody').addEventListener('click', e => { if (e.target.tagName === 'INPUT') e.stopPropagation(); });   // checkbox in <summary> shouldn't toggle the folder
+$('olShowAll').onclick = () => { hiddenFacets = new Set(); recomputeHidden(); persistVisibility(); renderOutliner(); };
+function visKey() { return 'tlsglb-vis::' + fileName; }
+function persistVisibility() { try { localStorage.setItem(visKey(), JSON.stringify([...hiddenFacets])); } catch (e) {} scheduleCommit(); }
+function loadPersistedVisibility() {
+  try { const r = localStorage.getItem(visKey()); if (r) { hiddenFacets = new Set(JSON.parse(r)); recomputeHidden(); } } catch (e) {}
 }
 
 // ---- flat (unlit) shading --------------------------------------------------
@@ -810,6 +1845,7 @@ function unlitTwin(m) {
   if (unlitCache.has(m.uuid)) return unlitCache.get(m.uuid);
   const b = new THREE.MeshBasicMaterial({ color: m.color ? m.color.getHex() : 0xffffff, map: m.map || null,
     transparent: m.transparent, opacity: m.opacity, alphaTest: m.alphaTest, side: m.side, depthWrite: m.depthWrite });
+  b.name = m.name;   // preserve material name so section caps can classify by material (white/pink/insulation)
   b.polygonOffset = true; b.polygonOffsetFactor = 1; b.polygonOffsetUnits = 1;   // keep baked edges winning the depth test
   unlitCache.set(m.uuid, b); return b;
 }
@@ -899,7 +1935,7 @@ function restoreScene(s) {
   controls.target.set(s.cam.tx, s.cam.ty, s.cam.tz);
   activeCam.updateProjectionMatrix(); controls.update();
   setLock2D(!!s.lock2d);
-  activeSceneId = s.id; renderSceneTabs(); updateDimVisibility(); renderDimsList();
+  activeSceneId = s.id; renderSceneTabs(); updateDimVisibility(); renderDimsList(); drawSectionLines(); renderSectionList(); drawLevelLines(); renderLevelList(); drawCompLabels();
   clearTimeout(sceneUpdT); restoringScene = false;  // drop any auto-update queued by the restore itself
 }
 function renderSceneTabs() {
@@ -932,7 +1968,7 @@ function renderScenes() {
   });
 }
 function sceneKey() { return 'tlsglb-scenes::' + fileName; }
-function persistScenes() { try { localStorage.setItem(sceneKey(), JSON.stringify(scenes.filter(s => !s.locked))); } catch (e) {} }
+function persistScenes() { try { localStorage.setItem(sceneKey(), JSON.stringify(scenes.filter(s => !s.locked))); } catch (e) {} scheduleCommit(); }
 function loadPersistedScenes() {
   let raw; try { raw = localStorage.getItem(sceneKey()); } catch (e) {}
   const saved = raw ? (JSON.parse(raw) || []) : [];
@@ -971,7 +2007,7 @@ DIM_TYPES.forEach(t => {
   a.onclick = e => { e.preventDefault(); if (!dimtypesEl.classList.contains('disabled')) setDimType(t); };
 });
 function setDimType(m) {
-  cancelDim(); dimMode = m;
+  cancelDim(); setLevelMode(false); dimMode = m;
   dimtypesEl.querySelectorAll('[data-dim]').forEach(a => a.classList.toggle('active', a.dataset.dim === m));
   const multi = (m === 'continuous' || m === 'baseline');
   $('finish').style.display = $('stepback').style.display = multi ? 'inline-block' : 'none';
@@ -984,7 +2020,7 @@ function showDir(on) {
 }
 function updateDirActive() { $('jogv').classList.toggle('active', chainOrient === 'vertical'); $('jogh').classList.toggle('active', chainOrient === 'horizontal'); }
 function openPanel(on) { $('side').classList.toggle('open', on); $('list').classList.toggle('active', on); }
-function setComment(on) { if (on) cancelDim(); commentMode = on; $('comment').classList.toggle('active', on); if (on) openPanel(true); updateHint(); }
+function setComment(on) { if (on) { cancelDim(); setLevelMode(false); } commentMode = on; $('comment').classList.toggle('active', on); if (on) openPanel(true); updateHint(); }
 $('comment').onclick = e => { e.preventDefault(); if (!$('comment').classList.contains('disabled')) setComment(!commentMode); };
 $('list').onclick = e => { e.preventDefault(); if (!$('list').classList.contains('disabled')) openPanel(!$('side').classList.contains('open')); };
 function undoLastPick() {   // step back one point in a Continuous/Baseline chain (no full restart)
@@ -1142,10 +2178,13 @@ function pick(clientX, clientY) {
   let hit = null;
   for (const h of hits) { if (visibleUnderClip(h.point)) { hit = h; break; } }   // first hit that isn't sectioned off
   if (!hit) return null;
-  const biasPlane = (measurePlane && picks.length >= 1) ? measurePlane : null;   // only bias once we have a base point
+  // When a plane section is active, lock dimension picks to the cut plane so points never snap
+  // diagonally across Z levels — the section's level IS the measuring plane (from the very first pick).
+  const secPlane = (sectionOn && sectionMode === 'plane' && clipPlanes.length) ? planePlane : null;
+  const biasPlane = secPlane || ((measurePlane && picks.length >= 1) ? measurePlane : null);   // section plane wins; else bias once we have a base point
   const copTol = modelScale * 0.012;
   let freePoint = hit.point.clone();
-  if (biasPlane) { const ip = new THREE.Vector3(); if (raycaster.ray.intersectPlane(biasPlane, ip)) freePoint = ip; }   // keep free picks on the base plane
+  if (biasPlane) { const ip = new THREE.Vector3(); if (raycaster.ray.intersectPlane(biasPlane, ip)) freePoint = ip; }   // keep free picks on the base/section plane
   let result = { point: freePoint, type: 'free', normal: null };
   const f = hit.face, g = hit.object.geometry;
   if (f && g.attributes.position) {
@@ -1167,7 +2206,11 @@ function pick(clientX, clientY) {
       if (biasPlane && Math.abs(biasPlane.distanceToPoint(c.p)) < copTol) d -= SNAP_PX * 1.1;   // strongly favour points coplanar with the base
       if (d < bestD) { bestD = d; best = c; }
     }
-    if (best) result = { point: best.p.clone(), type: best.type, normal: result.normal };
+    if (best) {
+      const pt = best.p.clone();
+      if (secPlane) secPlane.projectPoint(pt, pt);   // flatten the snapped corner onto the cut plane → no Z skew
+      result = { point: pt, type: best.type, normal: result.normal };
+    }
   }
   lastPickNormal = result.normal;
   return result;
@@ -1187,6 +2230,7 @@ function showSnap(s) {
 }
 renderer.domElement.addEventListener('pointermove', e => {
   if (!modelRoot) { snapMarker.visible = false; return; }
+  if (inspectMode) { snapMarker.visible = false; return; }   // inspect mode doesn't snap/measure
   if (jogPhase) {
     jogCandidate = snapJog(computeJog(e.clientX, e.clientY, chainJogDir));
     if (jogForPending && pendingDef) { pendingDef.offAxis = chainJogDir.clone(); pendingDef.jog = jogCandidate; buildGeom(pendingDef); }
@@ -1201,6 +2245,13 @@ renderer.domElement.addEventListener('pointerdown', e => { downX = e.clientX; do
 renderer.domElement.addEventListener('pointerup', e => {
   if (!modelRoot) return;
   if (Math.hypot(e.clientX - downX, e.clientY - downY) > 6) return; // dragged → orbit
+  if (inspectMode) {                                  // click-to-inspect: select a part + show its info
+    const pi = partAt(e.clientX, e.clientY);
+    selectedPart = pi; highlightPart(pi); showPartInfo(pi);
+    meta(pi >= 0 ? `Part: ${(partRegistry.get(pi).name || '').replace(/_/g, ' ')}` : 'No part here');
+    return;
+  }
+  if (levelMode) { const s = pick(e.clientX, e.clientY); if (s) handleLevelPick(s.point); else meta('No point there — click on the model'); return; }
   // jog placement: click ANYWHERE (incl. empty space, away from geometry) to lock the dimension-line level
   if (jogPhase && jogForPending && pendingDef) {     // aligned/linear: lock the dimension-line location
     jogCandidate = snapJog(computeJog(e.clientX, e.clientY, chainJogDir));
@@ -1602,7 +2653,7 @@ $('popup').querySelector('[data-a=close]').onclick = () => { $('popup').hidden =
 // ---- comment persistence ---------------------------------------------------
 function storeKey() { return 'tlsglb-comments::' + fileName; }
 function serializeComments() { return comments.map(c => ({ id: c.id, text: c.text, x: c.pos.x, y: c.pos.y, z: c.pos.z, replies: c.replies || [] })); }
-function persistComments() { try { localStorage.setItem(storeKey(), JSON.stringify(serializeComments())); } catch (e) {} }
+function persistComments() { try { localStorage.setItem(storeKey(), JSON.stringify(serializeComments())); } catch (e) {} scheduleCommit(); }
 function loadPersistedComments() {
   let raw; try { raw = localStorage.getItem(storeKey()); } catch (e) {}
   if (raw) { try { JSON.parse(raw).forEach(d => createComment(new THREE.Vector3(d.x, d.y, d.z), d.text || '', d.id, d.replies || [])); } catch (e) {} }
@@ -1621,7 +2672,7 @@ function serializeDims() {
     allPts: d.allPts ? d.allPts.map(v3a) : null, extFixed: (d.extFixed != null ? d.extFixed : null),
   }));
 }
-function persistDims() { try { localStorage.setItem(dimsKey(), JSON.stringify(serializeDims())); } catch (e) {} }
+function persistDims() { try { localStorage.setItem(dimsKey(), JSON.stringify(serializeDims())); } catch (e) {} scheduleCommit(); }
 function addDimFromObj(o) {
   const d = { type: o.type, a: a3v(o.a), b: a3v(o.b), group: null, label: null, sceneId: o.sceneId || '__default__' };
   if (o.v) d.v = a3v(o.v); if (o.b2) d.b2 = a3v(o.b2);
@@ -1640,7 +2691,7 @@ function loadPersistedDims() {
 }
 $('export').onclick = e => {   // portable sidecar: comments + dimensions + scenes travel with the model
   e.preventDefault(); if ($('export').classList.contains('disabled')) return;
-  const bundle = { file: fileName, version: 3, sizes: sizesObj(), comments: serializeComments(), dimensions: serializeDims(), scenes: scenes.filter(s => !s.locked), sheets };
+  const bundle = annotationBundle();
   const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = fileName.replace(/\.(glb|gltf)$/i, '') + '.annot.json'; a.click();
@@ -1656,7 +2707,7 @@ function closeShare() { shareModal.classList.remove('open'); }
 shareModal.addEventListener('click', e => { if (e.target === shareModal) closeShare(); });
 
 function annotationBundle() {
-  return { file: fileName, version: 3, sizes: sizesObj(), comments: serializeComments(), dimensions: serializeDims(), scenes: scenes.filter(s => !s.locked), sheets };
+  return { file: fileName, version: 3, sizes: sizesObj(), comments: serializeComments(), dimensions: serializeDims(), scenes: scenes.filter(s => !s.locked), sheets, sections: namedSections, levels: { datumY: levelDatumY, levels }, complabels: { size: compLabelSize, labels: compLabels }, visibility: [...hiddenFacets] };
 }
 function bufToB64(buf) {   // chunked → avoids call-stack blowups on big binaries
   const bytes = new Uint8Array(buf); let bin = ''; const chunk = 0x8000;
@@ -1683,9 +2734,9 @@ function safeName(n) { return (n || 'model').replace(/\.(glb|gltf)$/i, '').repla
 
 function shareResultView(link) {
   shareCard.innerHTML = `<h3>✅ Share link ready</h3>
-    <p>Send this to your customer — it opens the model with your dimensions, scenes and sheets:</p>
+    <p>Send this to your customer — it opens the model with <strong>everything baked in</strong>: dimensions, comments, scenes, sections, levels and all your drawing sheets (paper size, title block &amp; on-sheet markups). No file to open — it all loads from the link.</p>
     <div class="linkbox"><input type="text" id="shareLink" readonly value="${link}"><button id="shareCopy">Copy</button></div>
-    <p class="note">GitHub Pages can take ~30–60 s to publish a freshly uploaded model, so give it a minute before the link loads first time.</p>
+    <p class="note">GitHub Pages can take ~30–60 s to publish a freshly uploaded model, so give it a minute before the link loads the first time. Re-Share any time to push your latest changes to the same link.</p>
     <div class="row"><button id="shareDone">Done</button></div>`;
   const inp = $('shareLink');
   inp.focus(); inp.select();
@@ -1734,8 +2785,13 @@ async function runShareUpload() {
     shareResultView(link);
   } catch (e) {
     const m = (e && e.message) || String(e);
-    if (/40[13]/.test(m)) { try { localStorage.removeItem(GH_TOKEN_KEY); } catch (x) {} shareTokenView('That token was rejected (' + m + '). Please paste a valid one.'); }
-    else { shareCard.innerHTML = `<h3>⚠ Share failed</h3><div class="errline">${m}</div><div class="row"><button id="shareDone">Close</button></div>`; $('shareDone').onclick = closeShare; }
+    if (/\b401\b/.test(m)) { try { localStorage.removeItem(GH_TOKEN_KEY); } catch (x) {} shareTokenView('That token was rejected as invalid (401). Please paste a valid one.'); }   // ONLY a genuine auth failure clears the token
+    else {
+      const hint = /\b403\b/.test(m) ? '<p class="note">403 = the token is valid but blocked: check it has <strong>Contents: Read and write</strong> on <strong>' + GH_REPO + '</strong>, or you may have hit a GitHub rate limit — wait a minute and retry.</p>'
+        : /\b(413|422)\b/.test(m) ? '<p class="note">The model may be too large for the GitHub Contents API — try <strong>⤓ Optimise GLB</strong> first, or strip webs.</p>' : '';
+      shareCard.innerHTML = `<h3>⚠ Share failed</h3><div class="errline">${m}</div>${hint}<div class="row"><button class="sec" id="shareRetry">Retry</button><button id="shareDone">Close</button></div>`;
+      $('shareDone').onclick = closeShare; $('shareRetry').onclick = runShareUpload;
+    }
   }
 }
 $('share').onclick = e => {
@@ -1766,10 +2822,14 @@ function importAnnotationBundle(o) {   // shared by file-Import and the auto-fet
   if (Array.isArray(o.scenes)) { o.scenes.forEach(s => { if (s && !s.locked && !scenes.some(x => x.id === s.id)) scenes.push(s); }); renderScenes(); persistScenes(); }
   (o.dimensions || []).forEach(addDimFromObj);
   if (Array.isArray(o.sheets)) { o.sheets.forEach(sh => { if (sh && !sheets.some(x => x.id === sh.id)) sheets.push(sh); }); persistSheets(); renderSheetTabs(); }
+  if (Array.isArray(o.sections)) { o.sections.forEach(s => { if (s && !namedSections.some(x => x.id === s.id)) namedSections.push(s); }); persistSections(); drawSectionLines(); renderSectionList(); }
+  if (o.levels && Array.isArray(o.levels.levels)) { if (levelDatumY == null && o.levels.datumY != null) levelDatumY = o.levels.datumY; o.levels.levels.forEach(s => { if (s && !levels.some(x => x.id === s.id)) levels.push(s); }); levels.sort((a, b) => a.y - b.y); persistLevels(); updateLevelDatumLbl(); drawLevelLines(); renderLevelList(); }
+  if (Array.isArray(o.visibility) && partRegistry.size) { hiddenFacets = new Set(o.visibility); recomputeHidden(); persistVisibility(); if (typeof renderOutliner === 'function') renderOutliner(); }
+  if (o.complabels && Array.isArray(o.complabels.labels)) { compLabelSize = o.complabels.size || compLabelSize; o.complabels.labels.forEach(l => { if (l && !compLabels.some(x => x.id === l.id && x.sceneId === l.sceneId)) compLabels.push(l); }); if ($('compSize')) $('compSize').value = Math.round(compLabelSize * 100); persistCompLabels(); drawCompLabels(); }
   if (dimensions.length) $('clear').classList.remove('disabled');
   updateDimVisibility(); renderDimsList(); persistDims(); renderCommentList();
 }
-function hasLocalAnnotations() { try { return !!(localStorage.getItem(storeKey()) || localStorage.getItem(sceneKey()) || localStorage.getItem(dimsKey())); } catch (e) { return false; } }
+function hasLocalAnnotations() { try { return !!(localStorage.getItem(storeKey()) || localStorage.getItem(sceneKey()) || localStorage.getItem(dimsKey()) || localStorage.getItem(secKey()) || localStorage.getItem(lvlKey()) || localStorage.getItem(clKey())); } catch (e) { return false; } }
 function sidecarUrl(url) { return url.replace(/\?.*$/, '').replace(/\.(glb|gltf)$/i, '') + '.annot.json'; }
 function tryLoadSidecar() {   // link-shared models carry annotations in <model>.annot.json next to the .glb
   if (!modelUrl) return;
@@ -1777,11 +2837,112 @@ function tryLoadSidecar() {   // link-shared models carry annotations in <model>
 }
 $('import').onclick = e => { e.preventDefault(); $('impfile').click(); };
 $('impfile').onchange = () => {
-  const f = $('impfile').files[0]; if (!f) return;
+  const f = $('impfile').files[0]; if (!f) return; $('impfile').value = '';
   const rd = new FileReader();
-  rd.onload = () => { let o; try { o = JSON.parse(rd.result); } catch (err2) { return err('Could not read that annotations file.'); } importAnnotationBundle(o); openPanel(true); };
+  rd.onload = () => {
+    let o; try { o = JSON.parse(rd.result); } catch (err2) { return err('Could not read that file (expected a .tlsv project or .annot.json).'); }
+    if (o && o.kind === 'tls-viewer-project') { loadProject(o); return; }   // full project bundle (GLB + everything)
+    if (!modelRoot) { return err('Open a model first, then load its annotations — or use a .tlsv project file that contains the model.'); }
+    importAnnotationBundle(o); openPanel(true);
+  };
   rd.readAsText(f);
 };
+// ---- robust project save/load: the GLB bytes + every annotation/view in ONE self-contained file ----
+let pendingProject = null;
+function b64ToBuf(b64) { const bin = atob(b64), len = bin.length, bytes = new Uint8Array(len); for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i); return bytes.buffer; }
+async function getModelBytes() {   // original GLB bytes, from the opened File or the source URL
+  if (modelFile) return await modelFile.arrayBuffer();
+  if (modelUrl) { const r = await fetch(modelUrl); if (!r.ok) throw new Error('could not re-fetch the model (' + r.status + ')'); return await r.arrayBuffer(); }
+  throw new Error('no model bytes available');
+}
+async function saveProject() {
+  if ($('saveproj').classList.contains('disabled')) return;
+  meta('Packing project…');
+  try {
+    const buf = await getModelBytes();
+    const proj = { kind: 'tls-viewer-project', app: 'TLS GLB Model Viewer', version: 1, file: fileName, savedAt: new Date().toISOString(), glb: bufToB64(buf), annotations: annotationBundle() };
+    const blob = new Blob([JSON.stringify(proj)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = safeName(fileName) + '.tlsv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    meta(`Project saved: ${a.download}  (${(blob.size / 1048576).toFixed(1)} MB — model + all annotations & views)`);
+  } catch (e) { err('Could not save project: ' + (e.message || e)); }
+}
+function loadProject(o) {
+  if (!o.glb) return err('That project file has no embedded model.');
+  let buf; try { buf = b64ToBuf(o.glb); } catch (e) { return err('Project model data is corrupt.'); }
+  const blob = new Blob([buf], { type: 'model/gltf-binary' }), url = URL.createObjectURL(blob);
+  pendingProject = o.annotations || null;
+  modelUrl = ''; modelFile = new File([blob], o.file || 'model.glb');   // so Share / Save-project can re-publish afterwards
+  meta('Opening project…'); clearBanner();
+  loader.load(url, g => { URL.revokeObjectURL(url); onLoaded(g, o.file || 'model.glb'); }, undefined,
+    e => { URL.revokeObjectURL(url); pendingProject = null; console.error(e); err('Could not open project model: ' + (e.message || e)); });
+}
+$('saveproj').onclick = e => { e.preventDefault(); saveProject(); };
+
+// ---- revise model: swap in a new GLB revision, keep all annotations, flag the ones that come unstuck ----
+let pendingRevision = false, staleList = [], staleGroup = null;
+const revRay = new THREE.Raycaster();
+function reviseModel(file) {
+  if (!file) return;
+  if (!modelRoot) { err('Open a model first, then Revise to swap in a new version.'); return; }
+  if (!/\.(glb|gltf)$/i.test(file.name)) { err('Revision must be a .glb / .gltf file.'); return; }
+  pendingProject = annotationBundle();   // keep everything; re-applied authoritatively after the new model loads
+  pendingRevision = true;
+  modelUrl = ''; modelFile = file;
+  meta('Loading revised model…'); clearBanner();
+  const url = URL.createObjectURL(file);
+  loader.load(url, g => { URL.revokeObjectURL(url); onLoaded(g, file.name); }, undefined,
+    e => { URL.revokeObjectURL(url); pendingProject = null; pendingRevision = false; console.error(e); err('Could not load revised model: ' + (e.message || e)); });
+}
+function nearGeometry(pt, tol) {   // does the model still have a surface within tol of this point? (6 short axis probes)
+  if (!meshes.length || !pt) return true;
+  const dirs = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+  for (const d of dirs) {
+    const dir = new THREE.Vector3(d[0], d[1], d[2]);
+    revRay.set(pt.clone().addScaledVector(dir, -tol), dir); revRay.near = 0; revRay.far = tol * 2;
+    if (revRay.intersectObjects(meshes, true).length) return true;
+  }
+  return false;
+}
+function clearStaleVisuals() { if (staleGroup) { scene.remove(staleGroup); staleGroup.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); staleGroup = null; } }
+function markStaleVisuals() {
+  clearStaleVisuals();
+  staleGroup = new THREE.Group(); scene.add(staleGroup);
+  staleList.forEach(s => { if (s.pt) staleGroup.add(makeSphere(0xff3030, s.pt, 3.2)); });
+}
+function focusPoint(pt) { if (!pt) return; const off = activeCam.position.clone().sub(controls.target); controls.target.copy(pt); activeCam.position.copy(pt.clone().add(off)); controls.update(); }
+function runRevisionReview() {
+  const tol = modelScale * 0.012, box = new THREE.Box3().setFromObject(modelRoot);
+  staleList = [];
+  dimensions.forEach(d => {
+    const pts = [d.a, d.b, d.v, d.b2].concat(d.allPts || []).filter(Boolean);
+    const bad = pts.find(pt => !nearGeometry(pt, tol));
+    d._stale = !!bad;
+    if (bad) staleList.push({ kind: 'Dimension', label: fmt(d.value || 0), pt: (d.a || pts[0]).clone(), focus: () => focusPoint(d.a || pts[0]) });
+  });
+  comments.forEach(c => { const bad = !nearGeometry(c.pos, tol); c._stale = bad; if (bad) staleList.push({ kind: 'Comment', label: '#' + c.id + ' ' + (c.text || '').slice(0, 22), pt: c.pos.clone(), focus: () => focusComment(c) }); });
+  levels.forEach(l => { const bad = l.y < box.min.y - tol * 4 || l.y > box.max.y + tol * 4; l._stale = bad; if (bad) staleList.push({ kind: 'Level', label: fmtElev(l.y), pt: null, focus: () => {} }); });
+  markStaleVisuals(); renderRevReview();
+}
+function renderRevReview() {
+  const body = $('revReviewBody'); if (!body) return;
+  $('revReview').hidden = false;
+  if (!staleList.length) { body.innerHTML = '<div class="rev-ok">✓ Model revised — all annotations still line up with geometry.</div>'; return; }
+  const groups = {}; staleList.forEach((s, i) => { (groups[s.kind] = groups[s.kind] || []).push({ s, i }); });
+  const n = staleList.length;
+  let h = `<div class="rev-note">${n} annotation${n > 1 ? 's' : ''} no longer ${n > 1 ? 'sit' : 'sits'} on the model and may need review (shown with red markers in 3D).</div>`;
+  Object.keys(groups).forEach(k => {
+    h += `<div class="rev-grp">${k}s (${groups[k].length})</div>`;
+    groups[k].forEach(({ s, i }) => { h += `<div class="rev-row"><span class="rl">${escHtml(s.label || '')}</span>${s.pt ? `<a data-focus="${i}">focus ↗</a>` : ''}</div>`; });
+  });
+  body.innerHTML = h;
+}
+function clearRevFlags() { staleList = []; clearStaleVisuals(); dimensions.forEach(d => d._stale = false); comments.forEach(c => c._stale = false); levels.forEach(l => l._stale = false); $('revReview').hidden = true; }
+$('revReviewBody') && $('revReviewBody').addEventListener('click', e => { const i = e.target.dataset.focus; if (i != null) { const s = staleList[+i]; if (s && s.focus) s.focus(); } });
+$('revReviewClose') && ($('revReviewClose').onclick = () => $('revReview').hidden = true);
+$('revClearFlags') && ($('revClearFlags').onclick = clearRevFlags);
+$('revise').onclick = e => { e.preventDefault(); if (!$('revise').classList.contains('disabled')) $('revfile').click(); };
+$('revfile').onchange = () => { const f = $('revfile').files[0]; $('revfile').value = ''; if (f) reviseModel(f); };
 
 // ---- sheet (drawing) view --------------------------------------------------
 // A sheet = the A3 template + VIEWPORTS. Each viewport is a WINDOW onto a scene: its paper
@@ -1789,7 +2950,11 @@ $('impfile').onchange = () => {
 // Dragging the window edge shows more/less; scale zooms. Rendered orthographic + transparent + hi-res.
 let sheetSvgText = null, sheetVPs = [], sheetSelId = null, sheetReturnSceneId = null, scaleDeb = null;
 let sheets = [], sheetCurId = null;   // all saved sheets for this model; sheetCurId = the one open in the overlay
-const SHEET_AREA = { x: 14, y: 12, w: 392, h: 212 };   // mm drawing area above the title block
+const PAPER = { A0: [841, 1189], A1: [594, 841], A2: [420, 594], A3: [297, 420], A4: [210, 297] };   // ISO portrait W×H (mm)
+const BORDER = 8, TBW = 182, TBH = 46;   // page margin + title-block footprint (mm), docked bottom-right
+let pageW = 420, pageH = 297;            // current open sheet's page dimensions (mm); default = A3 landscape
+function pageDimsOf(sh) { const d = PAPER[(sh && sh.size) || 'A3'] || PAPER.A3; return (sh && sh.orient === 'portrait') ? { w: d[0], h: d[1] } : { w: d[1], h: d[0] }; }   // default orientation = landscape
+function sheetArea() { return { x: BORDER, y: BORDER, w: pageW - 2 * BORDER, h: pageH - 2 * BORDER }; }   // drawable area inside the border
 const NICE_SCALES = [5, 10, 20, 25, 50, 75, 100, 150, 200, 250, 500, 1000, 1250, 2500];
 const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
 function niceScale(n) { let best = NICE_SCALES[0]; for (const s of NICE_SCALES) if (Math.abs(s - n) < Math.abs(best - n)) best = s; return best; }
@@ -1827,27 +2992,70 @@ function renderRegionPNG(cam, pw, ph) {
 function defaultWindow(sceneId, scaleN) {   // window mm that frames the scene at scaleN, clamped to the drawing area
   const sc = sceneById(sceneId); restoreScene(sc); const halfH = orthoHalfH, aspect = (renderer.domElement.width / renderer.domElement.height) || 1.4;
   let hMm = 2 * halfH * 1000 / scaleN, wMm = hMm * aspect;
-  if (wMm > SHEET_AREA.w) { const k = SHEET_AREA.w / wMm; wMm *= k; hMm *= k; }
-  if (hMm > SHEET_AREA.h) { const k = SHEET_AREA.h / hMm; wMm *= k; hMm *= k; }
+  const A = sheetArea();
+  if (wMm > A.w) { const k = A.w / wMm; wMm *= k; hMm *= k; }
+  if (hMm > A.h) { const k = A.h / hMm; wMm *= k; hMm *= k; }
   return { wMm, hMm, halfH };
 }
-function setSheetField(svg, name, value) {
-  svg.querySelectorAll('text').forEach(t => { if (t.getAttribute('freecad:editable') === name || t.getAttribute('data-field') === name) (t.querySelector('tspan') || t).textContent = value; });
+function autoScaleLabel() { const u = [...new Set(sheetVPs.map(v => v.scaleN))]; return u.length === 1 ? ('1:' + u[0]) : (sheetVPs.length ? 'As shown' : 'NTS'); }
+function todayStr() { const d = new Date(), p2 = n => String(n).padStart(2, '0'); return `${p2(d.getDate())}/${p2(d.getMonth() + 1)}/${d.getFullYear()}`; }
+// Build the page border + a clean BuildEase title block (fixed real size, bottom-right) — works at any sheet size.
+function frameSvg() {
+  const sh = currentSheet() || {}, f = sh.fields || {};
+  const X = pageW - BORDER - TBW, Y = pageH - BORDER - TBH;   // title-block origin
+  const txt = (x, y, s, t, fill, anchor, weight) => `<text x="${x}" y="${y}" font-family="Arial, Helvetica, sans-serif" font-size="${s}" fill="${fill || '#1d3557'}"${anchor ? ` text-anchor="${anchor}"` : ''}${weight ? ` font-weight="${weight}"` : ''}>${escHtml(t)}</text>`;
+  const lbl = (x, y, t) => txt(x, y, 2.0, t, '#8893a6', null, '700');
+  const val = (x, y, t, s) => txt(x, y, s || 3.0, t == null || t === '' ? '—' : t, '#1d3557', null, '600');
+  let g = `<g id="frameLayer">`;
+  // page border (double rule)
+  g += `<rect x="${BORDER}" y="${BORDER}" width="${pageW - 2 * BORDER}" height="${pageH - 2 * BORDER}" fill="none" stroke="#1d3557" stroke-width="0.7"/>`;
+  g += `<rect x="${BORDER + 1.6}" y="${BORDER + 1.6}" width="${pageW - 2 * BORDER - 3.2}" height="${pageH - 2 * BORDER - 3.2}" fill="none" stroke="#1d3557" stroke-width="0.25"/>`;
+  // title block frame
+  g += `<rect x="${X}" y="${Y}" width="${TBW}" height="${TBH}" fill="#ffffff" stroke="#1d3557" stroke-width="0.6"/>`;
+  const rows = [Y + 10, Y + 22, Y + 31, Y + 39];   // horizontal dividers
+  rows.forEach(yy => g += `<line x1="${X}" y1="${yy}" x2="${X + TBW}" y2="${yy}" stroke="#1d3557" stroke-width="0.3"/>`);
+  // brand bar
+  g += txt(X + 4, Y + 7.2, 5.2, 'BuildEase', '#1d3557', null, '800');
+  g += txt(X + TBW - 4, Y + 6.6, 2.4, 'Tremco CPG · Nudura', '#667', 'end', '600');
+  // title
+  g += lbl(X + 4, Y + 14, 'DRAWING TITLE');
+  g += val(X + 4, Y + 20, f.title || '', 4.2);
+  // project / client
+  g += lbl(X + 4, Y + 25.5, 'PROJECT'); g += val(X + 4, Y + 30, f.project || '', 2.8);
+  g += `<line x1="${X + TBW / 2}" y1="${Y + 22}" x2="${X + TBW / 2}" y2="${Y + 31}" stroke="#1d3557" stroke-width="0.3"/>`;
+  g += lbl(X + TBW / 2 + 3, Y + 25.5, 'CLIENT'); g += val(X + TBW / 2 + 3, Y + 30, f.client || '', 2.8);
+  // bottom data cells: Drawn | Checked | Date | Scale | No | Rev | Size | Status
+  const cells = [
+    ['DRAWN', f.author], ['CHK', f.checked], ['DATE', f.date || todayStr()], ['SCALE', autoScaleLabel()],
+    ['DWG No.', f.number], ['REV', f.sheet], ['SIZE', (sh.size || 'A3')], ['STATUS', f.status],
+  ];
+  const cw = TBW / 4;
+  cells.forEach((c, i) => {
+    const col = i % 4, rrow = i < 4 ? 0 : 1, cxx = X + col * cw, cyy = (rrow === 0 ? Y + 31 : Y + 39);
+    if (col > 0) g += `<line x1="${cxx}" y1="${Y + 31}" x2="${cxx}" y2="${Y + TBH}" stroke="#1d3557" stroke-width="0.25"/>`;
+    g += lbl(cxx + 1.5, cyy + 3, c[0]); g += val(cxx + 1.5, cyy + 6.6, c[1], 2.8);
+  });
+  // revision history table, stacked directly above the title block
+  const revs = sh.revisions || [];
+  if (revs.length) {
+    const rr = 4.2, rcols = [12, 26, TBW - 12 - 26 - 16, 16], revH = (revs.length + 1) * rr, rY = Y - revH - 1.5;
+    g += `<rect x="${X}" y="${rY}" width="${TBW}" height="${revH}" fill="#fff" stroke="#1d3557" stroke-width="0.5"/>`;
+    g += `<rect x="${X}" y="${rY}" width="${TBW}" height="${rr}" fill="#eef2f7"/>`;
+    let hx = X; ['REV', 'DATE', 'DESCRIPTION', 'BY'].forEach((h, ci) => { g += txt(hx + 1.5, rY + rr - 1.3, 2.0, h, '#1d3557', null, '700'); hx += rcols[ci]; });
+    let dx = X; rcols.forEach((w, ci) => { if (ci > 0) g += `<line x1="${dx}" y1="${rY}" x2="${dx}" y2="${rY + revH}" stroke="#1d3557" stroke-width="0.2"/>`; dx += w; });
+    revs.forEach((r, ri) => { const ry = rY + rr * (ri + 1); g += `<line x1="${X}" y1="${ry}" x2="${X + TBW}" y2="${ry}" stroke="#1d3557" stroke-width="0.2"/>`; let cxx = X; [r.rev, r.date, r.desc, r.by].forEach((v, ci) => { g += txt(cxx + 1.5, ry + rr - 1.3, 2.4, v || '', '#1d3557', null, '500'); cxx += rcols[ci]; }); });
+  }
+  g += `</g>`;
+  return g;
 }
-function fillSheetFields() {
-  const svg = $('sheetPaper').querySelector('svg'); if (!svg) return;
-  setSheetField(svg, 'TITLE', $('f_title').value); setSheetField(svg, 'NUMBER', $('f_number').value);
-  setSheetField(svg, 'SHEET', $('f_sheet').value); setSheetField(svg, 'AUTHOR NAME', $('f_author').value);
-  const scales = sheetVPs.map(v => v.scaleN), uniq = [...new Set(scales)];
-  setSheetField(svg, 'SCALE', uniq.length === 1 ? ('1:' + uniq[0]) : (scales.length ? 'As shown' : 'NTS'));
-  const d = new Date(), p2 = n => String(n).padStart(2, '0'); setSheetField(svg, 'CREATION DATE', `${p2(d.getDate())}/${p2(d.getMonth() + 1)}/${d.getFullYear()}`);
-}
+function drawSheetFrame() { const fl = $('sheetSvg') && $('sheetSvg').querySelector('#frameLayer'); if (fl) fl.outerHTML = frameSvg(); }
+function fillSheetFields() { drawSheetFrame(); }   // title-block values are rendered straight from the sheet's fields
 function fitSheetPaper() {
-  const scroll = $('sheetScroll'), pad = 40, ar = 420 / 297;
+  const scroll = $('sheetScroll'), pad = 40, ar = pageW / pageH;
   let w = scroll.clientWidth - pad, h = w / ar; if (h > scroll.clientHeight - pad) { h = scroll.clientHeight - pad; w = h * ar; }
   $('sheetPaper').style.width = Math.max(240, w) + 'px'; $('sheetPaper').style.height = Math.max(170, w / ar) + 'px';
 }
-function styleVPEl(el, vp) { el.style.left = (vp.x / 420 * 100) + '%'; el.style.top = (vp.y / 297 * 100) + '%'; el.style.width = (vp.wMm / 420 * 100) + '%'; el.style.height = (vp.hMm / 297 * 100) + '%'; }
+function styleVPEl(el, vp) { el.style.left = (vp.x / pageW * 100) + '%'; el.style.top = (vp.y / pageH * 100) + '%'; el.style.width = (vp.wMm / pageW * 100) + '%'; el.style.height = (vp.hMm / pageH * 100) + '%'; }
 function renderSheet() {
   const paper = $('sheetPaper'); if (!paper.querySelector('svg')) return;
   paper.querySelectorAll('.svp').forEach(e => e.remove());
@@ -1857,20 +3065,20 @@ function renderSheet() {
     Object.keys(VP_HANDLES).forEach(dir => { const h = document.createElement('div'); h.className = 'hd ' + dir; el.appendChild(h); attachVPResize(h, el, vp, VP_HANDLES[dir]); });
     paper.appendChild(el); attachVPDrag(el, vp);
   });
-  fillSheetFields();
+  fillSheetFields(); drawVpCaptions(); renderAnnots();
 }
 function selectVP(id) {
   sheetSelId = id;
   $('sheetPaper').querySelectorAll('.svp').forEach(e => e.classList.toggle('sel', e.dataset.id === id));
   const vp = sheetVPs.find(v => v.id === id);
-  $('vpCtl').hidden = !vp; if (vp) $('vpScale').value = vp.scaleN || '';
+  $('vpCtl').hidden = !vp; if (vp) { $('vpScale').value = vp.scaleN || ''; $('vpTitle').value = vp.title || ''; }
 }
 function attachVPDrag(el, vp) {
   el.addEventListener('pointerdown', e => {
-    if (e.button !== 0 || e.target.classList.contains('svp-rz')) return; e.preventDefault(); selectVP(vp.id);
-    const rect = $('sheetPaper').getBoundingClientRect(), mx = 420 / rect.width, my = 297 / rect.height;
+    if (e.button !== 0 || e.target.classList.contains('svp-rz') || (annotTool && annotTool !== 'select')) return; e.preventDefault(); selectVP(vp.id);
+    const rect = $('sheetPaper').getBoundingClientRect(), mx = pageW / rect.width, my = pageH / rect.height;
     const sx = e.clientX, sy = e.clientY, ox = vp.x, oy = vp.y;
-    const move = ev => { vp.x = clampN(ox + (ev.clientX - sx) * mx, 0, 420 - vp.wMm); vp.y = clampN(oy + (ev.clientY - sy) * my, 0, 297 - vp.hMm); el.style.left = (vp.x / 420 * 100) + '%'; el.style.top = (vp.y / 297 * 100) + '%'; };
+    const move = ev => { vp.x = snapV(clampN(ox + (ev.clientX - sx) * mx, 0, pageW - vp.wMm)); vp.y = snapV(clampN(oy + (ev.clientY - sy) * my, 0, pageH - vp.hMm)); el.style.left = (vp.x / pageW * 100) + '%'; el.style.top = (vp.y / pageH * 100) + '%'; drawVpCaptions(); };
     const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); persistSheet(); };
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
   });
@@ -1879,15 +3087,15 @@ const VP_HANDLES = { e: { r: 1 }, w: { l: 1 }, s: { b: 1 }, n: { t: 1 }, ne: { t
 function attachVPResize(handle, el, vp, spec) {   // drag any edge/corner → reshape the window; the opposite edge stays put (crop)
   handle.addEventListener('pointerdown', e => {
     e.preventDefault(); e.stopPropagation(); selectVP(vp.id);
-    const rect = $('sheetPaper').getBoundingClientRect(), mx = 420 / rect.width, my = 297 / rect.height;
+    const rect = $('sheetPaper').getBoundingClientRect(), mx = pageW / rect.width, my = pageH / rect.height;
     const sx = e.clientX, sy = e.clientY, o = { x: vp.x, y: vp.y, w: vp.wMm, h: vp.hMm };
     const move = ev => {
       const dx = (ev.clientX - sx) * mx, dy = (ev.clientY - sy) * my;
       let x = o.x, y = o.y, w = o.w, h = o.h;
       if (spec.r) w = o.w + dx; if (spec.l) { x = o.x + dx; w = o.w - dx; }
       if (spec.b) h = o.h + dy; if (spec.t) { y = o.y + dy; h = o.h - dy; }
-      w = Math.max(20, w); h = Math.max(20, h); x = clampN(x, 0, 400); y = clampN(y, 0, 277);
-      w = Math.min(w, 420 - x); h = Math.min(h, 297 - y);
+      w = Math.max(20, w); h = Math.max(20, h); x = clampN(x, 0, pageW - 20); y = clampN(y, 0, pageH - 20);
+      w = Math.min(w, pageW - x); h = Math.min(h, pageH - y);
       vp.x = x; vp.y = y; vp.wMm = w; vp.hMm = h; styleVPEl(el, vp);
     };
     const up = () => {
@@ -1904,19 +3112,54 @@ function attachVPResize(handle, el, vp, spec) {   // drag any edge/corner → re
 }
 function addViewport(sceneId) {
   const scaleN = niceScale(2 * defaultWindow(sceneId, 100).halfH * 1000 / 150);   // pick a scale ~150mm tall
-  const w = defaultWindow(sceneId, scaleN), n = sheetVPs.length;
-  const vp = { id: 'vp' + Date.now() + Math.random().toString(36).slice(2, 5), sceneId, scaleN, x: SHEET_AREA.x + n * 8, y: SHEET_AREA.y + n * 8, wMm: w.wMm, hMm: w.hMm };
+  const w = defaultWindow(sceneId, scaleN), n = sheetVPs.length, A = sheetArea();
+  const vp = { id: 'vp' + Date.now() + Math.random().toString(36).slice(2, 5), sceneId, scaleN, x: A.x + n * 8, y: A.y + n * 8, wMm: w.wMm, hMm: w.hMm };
   vp.url = renderViewportImage(vp); restoreReturnScene();
   sheetVPs.push(vp); renderSheet(); selectVP(vp.id); persistSheet();
+  if (!$('sheetAnnotPanel').hidden) renderSheetAnnot();   // a new view → its scene may need section/level chips
 }
+// ---- sheet annotations panel: toggle which sections / levels appear on each view's scene ----
+function sheetSceneIds() { return [...new Set(sheetVPs.map(v => v.sceneId))]; }
+function rerenderSheetViewports() { sheetVPs.forEach(vp => { vp.url = renderViewportImage(vp); }); restoreReturnScene(); renderSheet(); }
+function renderSheetAnnot() {
+  const el = $('sheetAnnotList'); if (!el) return;
+  const scns = sheetSceneIds().map(id => scenes.find(s => s.id === id)).filter(Boolean);
+  if (!scns.length) { el.innerHTML = '<div class="empty" style="color:#999;font-size:12px;padding:6px 2px">Add a view first — then bind sections / levels to it here.</div>'; return; }
+  const block = (arr, kind, attr) => arr.map(s => {
+    const scs = s.scenes || [];
+    let chips = `<span class="scenechip${scs.length ? '' : ' on'}" ${attr}="${s.id}" data-all="1">All scenes</span>`;
+    chips += scns.map(sc => `<span class="scenechip${scs.includes(sc.id) ? ' on' : ''}" ${attr}="${s.id}" data-scene="${sc.id}">${escHtml(sc.name)}</span>`).join('');
+    const nm = kind === 'sec' ? s.name : fmtElev(s.y);
+    return `<div class="secitem"><div class="srow"><b>${escHtml(nm)}</b></div><div class="scenechips">${chips}</div></div>`;
+  }).join('');
+  let html = '';
+  if (namedSections.length) html += '<div class="ah">Sections</div>' + block(namedSections, 'sec', 'data-secid');
+  if (levels.length) html += '<div class="ah">Levels</div>' + block(levels, 'lvl', 'data-lvlid');
+  el.innerHTML = html || '<div class="empty" style="color:#999;font-size:12px;padding:6px 2px">No sections or levels yet — create them in the 3D view first.</div>';
+}
+$('sheetAnnotBtn') && ($('sheetAnnotBtn').onclick = () => { const p = $('sheetAnnotPanel'); p.hidden = !p.hidden; if (!p.hidden) renderSheetAnnot(); });
+$('sheetAnnotList') && $('sheetAnnotList').addEventListener('click', e => {
+  const t = e.target; if (!t.classList.contains('scenechip')) return;
+  const secId = t.dataset.secid, lvlId = t.dataset.lvlid;
+  const s = secId ? namedSections.find(x => x.id === secId) : levels.find(x => x.id === lvlId); if (!s) return;
+  toggleSceneBinding(s, t.dataset);
+  if (secId) persistSections(); else persistLevels();
+  renderSheetAnnot(); rerenderSheetViewports();
+});
 function sheetsKey() { return 'tlsglb-sheets::' + fileName; }
 function vpSpec(v) { return { sceneId: v.sceneId, scaleN: v.scaleN, x: v.x, y: v.y, wMm: v.wMm, hMm: v.hMm, panX: v.panX || 0, panY: v.panY || 0 }; }
 function currentSheet() { return sheets.find(s => s.id === sheetCurId); }
-function persistSheets() { try { localStorage.setItem(sheetsKey(), JSON.stringify(sheets)); } catch (e) {} }
+function persistSheets() { try { localStorage.setItem(sheetsKey(), JSON.stringify(sheets)); } catch (e) {} scheduleCommit(); }
+function readFields() {
+  return { title: $('f_title').value, number: $('f_number').value, sheet: $('f_sheet').value, author: $('f_author').value,
+    project: $('f_project').value, client: $('f_client').value, checked: $('f_checked').value, date: $('f_date').value, status: $('f_status').value };
+}
 function persistSheet() {   // sync the OPEN sheet's working state back into the sheets list, then save
   const sh = currentSheet(); if (!sh) return;
   sh.vps = sheetVPs.map(vpSpec);
-  sh.fields = { title: $('f_title').value, number: $('f_number').value, sheet: $('f_sheet').value, author: $('f_author').value };
+  sh.fields = readFields();
+  sh.annots = sheetAnnots.map(a => Object.assign({}, a));
+  sh.size = $('sheetSize').value; sh.orient = $('sheetOrient').value;
   if ($('f_sheetname').value) sh.name = $('f_sheetname').value;
   persistSheets(); renderSheetTabs();
 }
@@ -1933,8 +3176,35 @@ function renderSheetTabs() {
 }
 function populateSheetScenes() { const sel = $('sheetAddSel'); sel.innerHTML = ''; scenes.forEach(s => { const o = document.createElement('option'); o.value = s.id; o.textContent = s.name + (s.locked ? ' (home)' : ''); sel.appendChild(o); }); }
 function buildSheetPaper() {
-  $('sheetPaper').innerHTML = sheetSvgText;
-  const svg = $('sheetPaper').querySelector('svg'); if (svg) { svg.setAttribute('viewBox', '0 0 420 297'); svg.setAttribute('width', '100%'); svg.setAttribute('height', '100%'); svg.removeAttribute('id'); }
+  const paper = $('sheetPaper');
+  paper.innerHTML = `<svg id="sheetGrid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pageW} ${pageH}" preserveAspectRatio="none"></svg>`
+    + `<svg id="sheetSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pageW} ${pageH}" preserveAspectRatio="none">${frameSvg()}<g id="vpCapLayer"></g><g id="annotLayer"></g></svg>`;
+  drawGrid();
+}
+const SNAP_GRID = 5;   // mm
+let snapOn = false;
+function snapV(v) { return snapOn ? Math.round(v / SNAP_GRID) * SNAP_GRID : v; }
+function drawGrid() {
+  const g = $('sheetGrid'); if (!g) return;
+  if (!snapOn) { g.innerHTML = ''; return; }
+  let s = ''; const step = SNAP_GRID * 2;   // draw every 10mm to keep it light
+  for (let x = BORDER; x <= pageW - BORDER; x += step) s += `<line x1="${x}" y1="${BORDER}" x2="${x}" y2="${pageH - BORDER}" stroke="#dbe2ec" stroke-width="0.15"/>`;
+  for (let y = BORDER; y <= pageH - BORDER; y += step) s += `<line x1="${BORDER}" y1="${y}" x2="${pageW - BORDER}" y2="${y}" stroke="#dbe2ec" stroke-width="0.15"/>`;
+  g.innerHTML = s;
+}
+function drawVpCaptions() {
+  const lay = $('sheetSvg') && $('sheetSvg').querySelector('#vpCapLayer'); if (!lay) return;
+  const sh = currentSheet();
+  if (!sh || sh.showVpTitles === false) { lay.innerHTML = ''; return; }
+  let s = '';
+  sheetVPs.forEach((vp, n) => {
+    const sc = sceneById(vp.sceneId), nm = vp.title || (sc ? sc.name : 'View'), bx = vp.x, by = vp.y + vp.hMm + 6;
+    s += `<circle cx="${bx + 3}" cy="${by - 2.6}" r="3" fill="#1d3557"/><text x="${bx + 3}" y="${by - 1.4}" text-anchor="middle" font-family="Arial" font-weight="800" font-size="3.4" fill="#fff">${n + 1}</text>`;
+    s += `<text x="${bx + 8}" y="${by}" font-family="Arial" font-weight="700" font-size="4.3" fill="#1d3557">${escHtml(nm)}</text>`;
+    s += `<text x="${bx + 8}" y="${by + 4.8}" font-family="Arial" font-size="3" fill="#556">Scale 1:${vp.scaleN}</text>`;
+    s += `<line x1="${bx}" y1="${by + 1.6}" x2="${bx + 8 + Math.max(nm.length * 2.4, 26)}" y2="${by + 1.6}" stroke="#1d3557" stroke-width="0.5"/>`;
+  });
+  lay.innerHTML = s;
 }
 function loadSheetVPs(sh) {   // capture each viewport's image for the sheet being opened
   sheetVPs = []; sheetSelId = null;
@@ -1942,7 +3212,8 @@ function loadSheetVPs(sh) {   // capture each viewport's image for the sheet bei
     if (!sceneById(s.sceneId)) return;
     const scaleN = s.scaleN || niceScale(2 * defaultWindow(s.sceneId, 100).halfH * 1000 / 150);
     let wMm = s.wMm, hMm = s.hMm; if (wMm == null || hMm == null) { const w = defaultWindow(s.sceneId, scaleN); wMm = w.wMm; hMm = w.hMm; }
-    const vp = { id: 'vp' + Date.now() + i + Math.random().toString(36).slice(2, 4), sceneId: s.sceneId, scaleN, x: (s.x != null ? s.x : SHEET_AREA.x + i * 8), y: (s.y != null ? s.y : SHEET_AREA.y + i * 8), wMm, hMm, panX: s.panX || 0, panY: s.panY || 0 };
+    const A = sheetArea();
+    const vp = { id: 'vp' + Date.now() + i + Math.random().toString(36).slice(2, 4), sceneId: s.sceneId, scaleN, x: (s.x != null ? s.x : A.x + i * 8), y: (s.y != null ? s.y : A.y + i * 8), wMm, hMm, panX: s.panX || 0, panY: s.panY || 0 };
     vp.url = renderViewportImage(vp); sheetVPs.push(vp);
   });
   restoreReturnScene();
@@ -1950,28 +3221,101 @@ function loadSheetVPs(sh) {   // capture each viewport's image for the sheet bei
 function openSheetById(id) {
   const sh = sheets.find(s => s.id === id); if (!sh || !modelRoot) return;
   sheetReturnSceneId = activeSceneId; sheetCurId = id;
+  setAnnotTool('select'); annotSel = null; $('annotProps').hidden = true; $('sheetFieldsPanel').hidden = true; $('sheetRevPanel').hidden = true;
   $('sheetOverlay').classList.add('open'); populateSheetScenes(); renderSheetTabs();
-  const run = () => {
-    buildSheetPaper();
-    const f = sh.fields || {}; $('f_sheetname').value = sh.name || ''; $('f_title').value = f.title || ''; $('f_number').value = f.number || ''; $('f_sheet').value = f.sheet || ''; $('f_author').value = f.author || '';
-    loadSheetVPs(sh); fitSheetPaper(); renderSheet();
-    if (sheetVPs.length) selectVP(sheetVPs[0].id); else $('vpCtl').hidden = true;
-    persistSheet();   // store computed defaults for a fresh sheet
-  };
-  if (sheetSvgText) run();
-  else fetch('sheet_a3.svg', { cache: 'no-cache' }).then(r => r.text()).then(t => { sheetSvgText = t; run(); }).catch(() => err('Could not load sheet template (sheet_a3.svg).'));
+  const d = pageDimsOf(sh); pageW = d.w; pageH = d.h;   // page dims BEFORE building the paper
+  $('sheetSize').value = sh.size || 'A3'; $('sheetOrient').value = sh.orient || 'landscape';
+  $('vpTitlesChk').checked = sh.showVpTitles !== false; $('vpSnapChk').checked = snapOn;
+  buildSheetPaper();
+  const f = sh.fields || {};
+  $('f_sheetname').value = sh.name || '';
+  ['title', 'number', 'sheet', 'author', 'project', 'client', 'checked', 'date', 'status'].forEach(k => { const el = $('f_' + k); if (el) el.value = f[k] || ''; });
+  sheetAnnots = (sh.annots || []).map(a => Object.assign({}, a));
+  loadSheetVPs(sh); fitSheetPaper(); renderSheet();
+  if (sheetVPs.length) selectVP(sheetVPs[0].id); else $('vpCtl').hidden = true;
+  if (!$('sheetAnnotPanel').hidden) renderSheetAnnot();
+  persistSheet();   // store computed defaults for a fresh sheet
 }
 function newSheet() {
   if (!modelRoot) return;
-  const sh = { id: 'sh' + Date.now() + Math.random().toString(36).slice(2, 5), name: 'Sheet ' + (sheets.length + 1), vps: activeSceneId ? [{ sceneId: activeSceneId }] : [], fields: {} };
+  const sh = { id: 'sh' + Date.now() + Math.random().toString(36).slice(2, 5), name: 'Sheet ' + (sheets.length + 1), size: 'A3', orient: 'landscape', vps: activeSceneId ? [{ sceneId: activeSceneId }] : [], fields: {}, annots: [], revisions: [] };
   sheets.push(sh); persistSheets(); renderSheetTabs(); openSheetById(sh.id);
 }
 function loadSheets() { sheets = []; sheetCurId = null; try { const raw = localStorage.getItem(sheetsKey()); if (raw) sheets = JSON.parse(raw) || []; } catch (e) {} renderSheetTabs(); }
 $('sheet').onclick = e => { e.preventDefault(); if (!$('sheet').classList.contains('disabled')) newSheet(); };
 $('sheetAddTab').onclick = () => { if (modelRoot) newSheet(); };
-$('sheetClose').onclick = () => $('sheetOverlay').classList.remove('open');
-$('sheetPrint').onclick = () => window.print();
+$('sheetClose').onclick = () => { $('sheetOverlay').classList.remove('open'); $('sheetAnnotPanel').hidden = true; $('sheetFieldsPanel').hidden = true; $('sheetRevPanel').hidden = true; $('annotProps').hidden = true; };
+let printStyleEl = null;
+$('sheetPrint').onclick = () => {
+  if (!printStyleEl) { printStyleEl = document.createElement('style'); document.head.appendChild(printStyleEl); }
+  const orient = (pageW >= pageH) ? 'landscape' : 'portrait', size = $('sheetSize').value || 'A3';
+  printStyleEl.textContent = `@media print { @page { size: ${size} ${orient}; margin: 0; } #sheetPaper { width: ${pageW}mm !important; height: ${pageH}mm !important; } }`;
+  window.print();
+};
 $('sheetAdd').onclick = () => { const id = $('sheetAddSel').value; if (id) addViewport(id); };
+function changePaper() {
+  const sh = currentSheet(); if (!sh) return;
+  sh.size = $('sheetSize').value; sh.orient = $('sheetOrient').value;
+  const d = pageDimsOf(sh); pageW = d.w; pageH = d.h;
+  sheetVPs.forEach(vp => { vp.x = clampN(vp.x, 0, Math.max(0, pageW - vp.wMm)); vp.y = clampN(vp.y, 0, Math.max(0, pageH - vp.hMm)); });   // keep viewports on-page
+  sheetAnnots.forEach(a => clampAnnot(a));
+  buildSheetPaper(); fitSheetPaper(); renderSheet(); persistSheet();
+}
+$('sheetSize').onchange = changePaper;
+$('sheetOrient').onchange = changePaper;
+$('sheetFieldsBtn').onclick = () => { const p = $('sheetFieldsPanel'); p.hidden = !p.hidden; };
+$('schedAdd').onclick = () => {
+  if (!currentSheet()) return;
+  const A = sheetArea(), kind = $('schedKind').value;
+  const a = { id: ANID(), type: 'schedule', kind, x: A.x + 4, y: A.y + 4, fs: 2.6, title: '' };
+  sheetAnnots.push(a); renderAnnots(); selectAnnot(a); persistSheet();
+};
+// ---- revision history editor ----
+function renderRevList() {
+  const sh = currentSheet(), el = $('sheetRevList'); if (!el || !sh) return;
+  const revs = sh.revisions || (sh.revisions = []);
+  let h = `<div class="rhead"><span style="width:40px">Rev</span><span style="width:78px">Date</span><span style="flex:1">Description</span><span style="width:46px">By</span><span style="width:26px"></span></div>`;
+  h += revs.map((r, i) => `<div class="rrow"><input class="c-rev" data-i="${i}" data-k="rev" value="${escHtml(r.rev || '')}"><input class="c-date" data-i="${i}" data-k="date" value="${escHtml(r.date || '')}"><input class="c-desc" data-i="${i}" data-k="desc" value="${escHtml(r.desc || '')}"><input class="c-by" data-i="${i}" data-k="by" value="${escHtml(r.by || '')}"><button class="rdel" data-del="${i}">✕</button></div>`).join('');
+  if (!revs.length) h += '<div style="color:#889;font-size:12px;padding:4px 0">No revisions yet — “Add revision” to start the history.</div>';
+  el.innerHTML = h;
+}
+$('sheetRevBtn').onclick = () => { const p = $('sheetRevPanel'); p.hidden = !p.hidden; if (!p.hidden) renderRevList(); };
+$('revAdd').onclick = () => { const sh = currentSheet(); if (!sh) return; const revs = sh.revisions = sh.revisions || []; revs.push({ rev: 'P' + (revs.length + 1), date: todayStr(), desc: '', by: (sh.fields && sh.fields.author) || '' }); if (sh.fields) { sh.fields.sheet = revs[revs.length - 1].rev; $('f_sheet').value = sh.fields.sheet; } renderRevList(); drawSheetFrame(); persistSheet(); };
+$('sheetRevList').addEventListener('input', e => { const t = e.target; if (t.dataset.k == null) return; const sh = currentSheet(); if (!sh || !sh.revisions[+t.dataset.i]) return; sh.revisions[+t.dataset.i][t.dataset.k] = t.value; drawSheetFrame(); persistSheet(); });
+$('sheetRevList').addEventListener('click', e => { const d = e.target.dataset.del; if (d == null) return; const sh = currentSheet(); if (!sh) return; sh.revisions.splice(+d, 1); renderRevList(); drawSheetFrame(); persistSheet(); });
+// ---- export every sheet to one PDF (compose frame SVG + viewport images per page) ----
+function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('image load failed')); i.src = src; }); }
+async function composeSheetCanvas() {
+  const k = 4, cw = Math.round(pageW * k), ch = Math.round(pageH * k);
+  const cv = document.createElement('canvas'); cv.width = cw; cv.height = ch; const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cw, ch);
+  for (const vp of sheetVPs) { if (!vp.url) continue; try { const img = await loadImg(vp.url); ctx.drawImage(img, vp.x * k, vp.y * k, vp.wMm * k, vp.hMm * k); } catch (e) {} }
+  const svgEl = $('sheetSvg');
+  if (svgEl) { let s = new XMLSerializer().serializeToString(svgEl); if (!/xmlns=/.test(s)) s = s.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"'); s = s.replace('<svg', `<svg width="${cw}" height="${ch}"`); try { const img = await loadImg('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s)); ctx.drawImage(img, 0, 0, cw, ch); } catch (e) {} }
+  return cv;
+}
+async function exportAllSheetsPDF() {
+  if (!sheets.length) { err('No sheets to export.'); return; }
+  const btn = $('sheetPdfAll'), old = btn.textContent; btn.textContent = 'Building…';
+  try {
+    if (!(window.jspdf && window.jspdf.jsPDF)) await new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js'; s.onload = res; s.onerror = () => rej(new Error('could not load the PDF library')); document.head.appendChild(s); });
+    const JsPDF = window.jspdf && window.jspdf.jsPDF; if (!JsPDF) throw new Error('PDF library unavailable');
+    const openId = sheetCurId; annotSel = null; let pdf = null;
+    for (const sh of sheets) {
+      openSheetById(sh.id); await new Promise(r => setTimeout(r, 80));
+      const cv = await composeSheetCanvas();
+      const orient = pageW >= pageH ? 'l' : 'p', fmt = (sh.size || 'A3').toLowerCase();
+      if (!pdf) pdf = new JsPDF({ orientation: orient, unit: 'mm', format: fmt }); else pdf.addPage(fmt, orient);
+      pdf.addImage(cv.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageW, pageH);
+    }
+    const blob = pdf.output('blob'), a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = safeName(fileName) + '-sheets.pdf'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+    meta(`Exported ${sheets.length} sheet${sheets.length > 1 ? 's' : ''} to PDF (${(blob.size / 1048576).toFixed(1)} MB)`);
+    if (openId) openSheetById(openId);
+  } catch (e) { console.error(e); err('PDF export failed: ' + (e.message || e) + ' (needs internet for the PDF library).'); }
+  btn.textContent = old;
+}
+$('sheetPdfAll').onclick = exportAllSheetsPDF;
 $('f_sheetname').addEventListener('input', () => { const sh = currentSheet(); if (sh) { sh.name = $('f_sheetname').value || sh.name; persistSheets(); renderSheetTabs(); } });
 $('vpScale').addEventListener('input', () => {
   const vp = sheetVPs.find(v => v.id === sheetSelId); if (!vp) return;
@@ -1982,8 +3326,308 @@ $('vpScale').addEventListener('input', () => {
   }, 350);
 });
 $('vpDelete').onclick = () => { sheetVPs = sheetVPs.filter(v => v.id !== sheetSelId); sheetSelId = null; $('vpCtl').hidden = true; renderSheet(); persistSheet(); };
-['f_title', 'f_number', 'f_sheet', 'f_author'].forEach(id => $(id).addEventListener('input', () => { fillSheetFields(); persistSheet(); }));
+$('vpTitle').addEventListener('input', () => { const vp = sheetVPs.find(v => v.id === sheetSelId); if (!vp) return; vp.title = $('vpTitle').value; drawVpCaptions(); persistSheet(); });
+$('vpTitlesChk').addEventListener('change', () => { const sh = currentSheet(); if (sh) { sh.showVpTitles = $('vpTitlesChk').checked; drawVpCaptions(); persistSheet(); } });
+$('vpSnapChk').addEventListener('change', () => { snapOn = $('vpSnapChk').checked; drawGrid(); });
+['f_title', 'f_number', 'f_sheet', 'f_author', 'f_project', 'f_client', 'f_checked', 'f_date', 'f_status'].forEach(id => $(id).addEventListener('input', () => { fillSheetFields(); persistSheet(); }));
 window.addEventListener('resize', () => { if ($('sheetOverlay').classList.contains('open')) fitSheetPaper(); });
+
+// ---- sheet annotation suite: text, leader, shapes, north, scale bar, detail/section/rev tags ----
+let sheetAnnots = [], annotSel = null, annotTool = 'select', annotDraft = null;
+const ANNOT_NAME = { text: 'Text', leader: 'Leader', line: 'Line', arrow: 'Arrow', rect: 'Rectangle', ellipse: 'Ellipse', cloud: 'Revision cloud', north: 'North arrow', scalebar: 'Scale bar', tag: 'Tag', schedule: 'Schedule' };
+const SCHED_KINDS = [['member', 'Member schedule'], ['block', 'Block schedule'], ['material', 'Material summary'], ['cut', 'Cut block schedule'], ['concrete', 'Concrete take-off'], ['level', 'Parts by level'], ['sheetindex', 'Drawing index'], ['legend', 'Section legend']];
+function setAnnotTool(t) {
+  annotTool = t || 'select';
+  document.querySelectorAll('#annotTools .atool').forEach(b => b.classList.toggle('active', b.dataset.tool === annotTool));
+  const paper = $('sheetPaper'); if (paper) paper.style.cursor = (annotTool !== 'select') ? 'crosshair' : '';
+}
+document.querySelectorAll('#annotTools .atool').forEach(b => b.onclick = () => setAnnotTool(b.dataset.tool));
+function paperRect() { return $('sheetPaper').getBoundingClientRect(); }
+function evToMm(e) { const r = paperRect(); return { x: clampN((e.clientX - r.left) / r.width * pageW, 0, pageW), y: clampN((e.clientY - r.top) / r.height * pageH, 0, pageH) }; }
+function clampAnnot(a) { ['x', 'x1', 'x2', 'tx'].forEach(k => { if (a[k] != null) a[k] = clampN(a[k], 0, pageW); }); ['y', 'y1', 'y2', 'ty'].forEach(k => { if (a[k] != null) a[k] = clampN(a[k], 0, pageH); }); }
+const ANID = () => 'an' + Date.now() + Math.random().toString(36).slice(2, 5);
+function makeAnnot(tool, p) {
+  if (tool === 'text') return { id: ANID(), type: 'text', x: p.x, y: p.y, text: 'Text', size: 4, color: '#1d3557' };
+  if (tool === 'north') return { id: ANID(), type: 'north', x: p.x, y: p.y, r: 9 };
+  if (tool === 'scalebar') return { id: ANID(), type: 'scalebar', x: p.x, y: p.y, len: 50, scaleN: (sheetVPs[0] ? sheetVPs[0].scaleN : 100) };
+  if (tool === 'detail') return { id: ANID(), type: 'tag', kind: 'detail', x: p.x, y: p.y, r: 7, text: '1', text2: '' };
+  if (tool === 'section') return { id: ANID(), type: 'tag', kind: 'section', x: p.x, y: p.y, r: 7, text: 'A', text2: '' };
+  if (tool === 'rev') return { id: ANID(), type: 'tag', kind: 'rev', x: p.x, y: p.y, r: 5, text: '1', color: '#e63946' };
+  return null;
+}
+function finishCreate(d) {
+  const { tool, start, cur } = d;
+  if (tool === 'line' || tool === 'arrow') return { id: ANID(), type: tool, x1: start.x, y1: start.y, x2: cur.x, y2: cur.y, color: '#1d3557', w: 0.4 };
+  if (tool === 'leader') return { id: ANID(), type: 'leader', tx: start.x, ty: start.y, x: cur.x, y: cur.y, text: 'Note', size: 3.5, color: '#1d3557' };
+  const x = Math.min(start.x, cur.x), y = Math.min(start.y, cur.y), w = Math.max(2, Math.abs(cur.x - start.x)), h = Math.max(2, Math.abs(cur.y - start.y));
+  if (tool === 'rect') return { id: ANID(), type: 'rect', x, y, w, h, color: '#1d3557', sw: 0.4, fill: 'none' };
+  if (tool === 'ellipse') return { id: ANID(), type: 'ellipse', x, y, w, h, color: '#1d3557', sw: 0.4, fill: 'none' };
+  if (tool === 'cloud') return { id: ANID(), type: 'cloud', x, y, w, h, color: '#e63946', sw: 0.5 };
+  return null;
+}
+function startCreate(tool, e) {
+  const p = evToMm(e); if (snapOn) { p.x = snapV(p.x); p.y = snapV(p.y); }
+  if (['text', 'north', 'scalebar', 'detail', 'section', 'rev'].includes(tool)) {
+    const a = makeAnnot(tool, p);
+    if (a) { sheetAnnots.push(a); renderAnnots(); selectAnnot(a); persistSheet(); if (['text', 'detail', 'section', 'rev'].includes(tool)) editAnnotText(a); }
+    setAnnotTool('select'); return;
+  }
+  annotDraft = { tool, start: p, cur: p };
+  const move = ev => { annotDraft.cur = evToMm(ev); renderAnnots(); };
+  const up = () => {
+    window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
+    const a = finishCreate(annotDraft); annotDraft = null;
+    if (a) { sheetAnnots.push(a); renderAnnots(); selectAnnot(a); persistSheet(); if (tool === 'leader') editAnnotText(a); } else renderAnnots();
+    setAnnotTool('select');
+  };
+  window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+}
+function startMove(a, e) {
+  const s = evToMm(e), o = Object.assign({}, a);
+  const move = ev => { const p = evToMm(ev); let dx = p.x - s.x, dy = p.y - s.y;
+    if (snapOn) { const ax0 = (o.x != null ? o.x : o.x1 != null ? o.x1 : o.tx) || 0, ay0 = (o.y != null ? o.y : o.y1 != null ? o.y1 : o.ty) || 0; dx = snapV(ax0 + dx) - ax0; dy = snapV(ay0 + dy) - ay0; }
+    if (o.x != null) a.x = o.x + dx; if (o.y != null) a.y = o.y + dy;
+    if (o.x1 != null) a.x1 = o.x1 + dx; if (o.y1 != null) a.y1 = o.y1 + dy;
+    if (o.x2 != null) a.x2 = o.x2 + dx; if (o.y2 != null) a.y2 = o.y2 + dy;
+    if (o.tx != null) a.tx = o.tx + dx; if (o.ty != null) a.ty = o.ty + dy;
+    renderAnnots();
+  };
+  const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); persistSheet(); };
+  window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+}
+function startHandleDrag(handle, e) {
+  const a = sheetAnnots.find(x => x.id === handle.dataset.aid); if (!a) return; const h = handle.dataset.h; selectAnnot(a);
+  const move = ev => {
+    const p = evToMm(ev);
+    if (h === 'p1') { a.x1 = p.x; a.y1 = p.y; } else if (h === 'p2') { a.x2 = p.x; a.y2 = p.y; }
+    else if (h === 'tip') { a.tx = p.x; a.ty = p.y; } else if (h === 'text') { a.x = p.x; a.y = p.y; }
+    else if (h === 'tl') { const bx = a.x + a.w, by = a.y + a.h; a.x = Math.min(p.x, bx - 2); a.y = Math.min(p.y, by - 2); a.w = bx - a.x; a.h = by - a.y; }
+    else if (h === 'br') { a.w = Math.max(2, p.x - a.x); a.h = Math.max(2, p.y - a.y); }
+    else if (h === 'size') { if (a.type === 'scalebar') a.len = Math.max(10, p.x - a.x); else if (a.type === 'text') a.size = Math.max(1.5, Math.hypot(p.x - a.x, p.y - a.y)); else a.r = Math.max(2, Math.hypot(p.x - a.x, p.y - a.y)); }
+    renderAnnots();
+  };
+  const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); persistSheet(); };
+  window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+}
+function selectAnnot(a) { annotSel = a; renderAnnots(); if (a) renderAnnotProps(a); else { annotSel = null; $('annotProps').hidden = true; } }
+function deleteAnnot(a) { sheetAnnots = sheetAnnots.filter(x => x !== a); if (annotSel === a) annotSel = null; $('annotProps').hidden = true; renderAnnots(); persistSheet(); }
+function editAnnotText(a) { const v = prompt('Text:', a.text || ''); if (v !== null) { a.text = v; persistSheet(); renderAnnots(); if (annotSel === a) renderAnnotProps(a); } }
+function onPaperDown(e) {
+  if (!$('sheetOverlay').classList.contains('open') || e.button !== 0) return;
+  const handle = e.target.closest && e.target.closest('.annHandle');
+  const annEl = e.target.closest && e.target.closest('.ann');
+  if (annotTool !== 'select' && !handle && !annEl) { e.preventDefault(); startCreate(annotTool, e); return; }
+  if (handle) { e.preventDefault(); e.stopPropagation(); startHandleDrag(handle, e); return; }
+  if (annEl) { e.preventDefault(); e.stopPropagation(); const a = sheetAnnots.find(x => x.id === annEl.dataset.aid); if (a) { selectAnnot(a); startMove(a, e); } return; }
+  if (annotTool === 'select') selectAnnot(null);
+}
+$('sheetPaper').addEventListener('pointerdown', onPaperDown);
+$('sheetPaper').addEventListener('dblclick', e => { const annEl = e.target.closest && e.target.closest('.ann'); if (annEl) { const a = sheetAnnots.find(x => x.id === annEl.dataset.aid); if (a && (a.type === 'text' || a.type === 'leader' || a.type === 'tag')) editAnnotText(a); } });
+window.addEventListener('keydown', e => {
+  if (!$('sheetOverlay').classList.contains('open')) return;
+  if (/^(input|textarea|select)$/i.test((e.target && e.target.tagName) || '')) return;
+  if (e.key === 'Escape') { if (annotTool !== 'select') setAnnotTool('select'); else if (annotSel) selectAnnot(null); return; }
+  if ((e.key === 'Delete' || e.key === 'Backspace') && annotSel) { e.preventDefault(); deleteAnnot(annotSel); }
+});
+// ---- annotation SVG renderers (all coordinates in page mm) ----
+function arrowHead(x1, y1, x2, y2, size, color) {
+  const ang = Math.atan2(y2 - y1, x2 - x1), a1 = ang + Math.PI * 0.85, a2 = ang - Math.PI * 0.85;
+  return `<path d="M${x2} ${y2} L${x2 + Math.cos(a1) * size} ${y2 + Math.sin(a1) * size} M${x2} ${y2} L${x2 + Math.cos(a2) * size} ${y2 + Math.sin(a2) * size}" stroke="${color}" stroke-width="${size * 0.3}" fill="none" stroke-linecap="round"/>`;
+}
+function textTspans(a, x) { return String(a.text || '').split('\n').map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : (a.size || 4) * 1.2}">${escHtml(ln)}</tspan>`).join(''); }
+function cloudPath(x, y, w, h) {
+  const r = Math.max(2.2, Math.min(w, h) / 7), pts = [];
+  const seg = (x1, y1, x2, y2) => { const L = Math.hypot(x2 - x1, y2 - y1), n = Math.max(1, Math.round(L / (r * 1.8))); for (let i = 0; i < n; i++) { const t = (i + 1) / n; pts.push([x1 + (x2 - x1) * t, y1 + (y2 - y1) * t]); } };
+  pts.push([x, y]); seg(x, y, x + w, y); seg(x + w, y, x + w, y + h); seg(x + w, y + h, x, y + h); seg(x, y + h, x, y);
+  let d = `M${pts[0][0]} ${pts[0][1]}`; for (let i = 1; i < pts.length; i++) d += ` A ${r} ${r} 0 0 1 ${pts[i][0]} ${pts[i][1]}`; return d + ' Z';
+}
+function northSvg(a) { const r = a.r || 9, x = a.x, y = a.y; return `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="#1d3557" stroke-width="0.4"/><path d="M ${x} ${y - r * 0.72} L ${x - r * 0.42} ${y + r * 0.5} L ${x} ${y + r * 0.16} L ${x + r * 0.42} ${y + r * 0.5} Z" fill="#1d3557"/><text x="${x}" y="${y - r - 1}" text-anchor="middle" font-family="Arial" font-weight="800" font-size="${r * 0.7}" fill="#1d3557">N</text>`; }
+function scalebarSvg(a) {
+  const L = a.len || 50, n = 5, seg = L / n, x = a.x, y = a.y, hh = 2.2, sN = a.scaleN || 100; let s = '';
+  for (let i = 0; i < n; i++) s += `<rect x="${x + i * seg}" y="${y}" width="${seg}" height="${hh}" fill="${i % 2 ? '#fff' : '#1d3557'}" stroke="#1d3557" stroke-width="0.25"/>`;
+  const tot = Math.round(L / 1000 * sN * 100) / 100;
+  s += `<text x="${x}" y="${y - 1}" font-family="Arial" font-size="2.6" fill="#1d3557">0</text>`;
+  s += `<text x="${x + L}" y="${y - 1}" text-anchor="end" font-family="Arial" font-size="2.6" fill="#1d3557">${tot} m</text>`;
+  s += `<text x="${x + L / 2}" y="${y + hh + 3}" text-anchor="middle" font-family="Arial" font-size="2.6" fill="#1d3557">Scale 1:${sN}</text>`;
+  return s;
+}
+function tagSvg(a) {
+  const r = a.r || 7, x = a.x, y = a.y;
+  if (a.kind === 'rev') { const c = a.color || '#e63946'; return `<path d="M ${x} ${y - r} L ${x + r} ${y + r} L ${x - r} ${y + r} Z" fill="#fff" stroke="${c}" stroke-width="0.5"/><text x="${x}" y="${y + r * 0.6}" text-anchor="middle" font-family="Arial" font-weight="800" font-size="${r * 0.8}" fill="${c}">${escHtml(a.text || '1')}</text>`; }
+  let s = `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="#1d3557" stroke-width="0.5"/>`;
+  s += `<line x1="${x - r}" y1="${y}" x2="${x + r}" y2="${y}" stroke="#1d3557" stroke-width="0.4"/>`;
+  s += `<text x="${x}" y="${y - 1}" text-anchor="middle" font-family="Arial" font-weight="700" font-size="${r * 0.85}" fill="#1d3557">${escHtml(a.text || '1')}</text>`;
+  s += `<text x="${x}" y="${y + r * 0.85}" text-anchor="middle" font-family="Arial" font-size="${r * 0.6}" fill="#1d3557">${escHtml(a.text2 || '–')}</text>`;
+  return s;
+}
+// ---- schedule tables built live from the part metadata (extras.tls) ----
+function schedMaxDimM(p) { const s = p.size; return s ? Math.max(s.l || 0, s.w || 0, s.h || 0) / 1000 : 0; }
+function schedSizeStr(p) { const s = p.size; return s ? `${Math.round(s.l)}×${Math.round(s.w)}×${Math.round(s.h)}` : '—'; }
+// one entry per ICF block (A/B foam sides share a parent + carry the same volume → must dedupe)
+function icfBlocksDeduped() {
+  const m = new Map();
+  partRegistry.forEach(p => { if (!isICFBlock(p)) return; const k = blockKeyOf(p); if (!m.has(k)) m.set(k, { key: k, label: blockLabelOf(p), props: p.props || {} }); });
+  return [...m.values()];
+}
+function scheduleData(kind) {
+  const PR = s => String(s == null || s === '' ? '—' : s).replace(/_/g, ' ');
+  if (kind === 'sheetindex') {
+    const rows = sheets.map(sh => [sh.fields && sh.fields.number || '—', sh.name || 'Sheet', (sh.fields && sh.fields.sheet) || '—', (sh.fields && sh.fields.status) || '—']);
+    return { title: 'DRAWING INDEX', cols: [{ label: 'No.' }, { label: 'Title' }, { label: 'Rev', align: 'end' }, { label: 'Status' }], rows };
+  }
+  if (kind === 'cut') {
+    const rows = icfBlocksDeduped().filter(b => b.props.is_cut).map(b => [b.label, PR(b.props.wall), String(b.props.course != null ? b.props.course : '—'), b.props.cut_length_in ? Math.round(b.props.cut_length_in * 25.4) + '' : '—'])
+      .sort((a, b) => a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : (+a[2] - +b[2]));
+    if (!rows.length) return { title: 'CUT BLOCK SCHEDULE', cols: [{ label: 'Note' }], rows: [['No cut blocks in this model']] };
+    return { title: 'CUT BLOCK SCHEDULE', cols: [{ label: 'Block' }, { label: 'Wall' }, { label: 'Course', align: 'end' }, { label: 'Cut len mm', align: 'end' }], rows };
+  }
+  if (kind === 'concrete') {
+    const m = new Map(); let tv = 0, tn = 0, tc = 0;
+    icfBlocksDeduped().forEach(b => { const w = b.props.wall || '—', e = m.get(w) || { n: 0, cut: 0, vol: 0 }; e.n++; tn++; if (b.props.is_cut) { e.cut++; tc++; } e.vol += (b.props.total_volume_m3 || 0); tv += (b.props.total_volume_m3 || 0); m.set(w, e); });
+    if (!tn) return { title: 'CONCRETE TAKE-OFF', cols: [{ label: 'Note' }], rows: [['No ICF blocks in this model']] };
+    const rows = [...m.entries()].sort().map(([w, e]) => [PR(w), String(e.n), String(e.cut), e.vol.toFixed(2)]);
+    rows.push(['TOTAL', String(tn), String(tc), tv.toFixed(2)]);
+    return { title: 'CONCRETE TAKE-OFF', cols: [{ label: 'Wall' }, { label: 'Blocks', align: 'end' }, { label: 'Cut', align: 'end' }, { label: 'Volume m³', align: 'end' }], rows };
+  }
+  if (kind === 'legend') {
+    return { title: 'SECTION LEGEND', cols: [{ label: 'Key' }, { label: 'Component (cut)' }], rows: [
+      ['✕', 'Stud / sole plate / head binder'], ['╱', 'Rail / noggin'], ['▨', 'Insulation (batt)'],
+      ['▦', 'ICF block / EPS'], ['▒', 'OSB / sheathing'], ['■', 'Panel split (pink)'], ['▭', 'Opening void (hatched)'],
+    ] };
+  }
+  const parts = [...partRegistry.values()];
+  if (!parts.length) return { title: 'SCHEDULE', cols: [{ label: 'Note' }], rows: [['No part metadata in this model']] };
+  if (kind === 'material') {
+    const m = new Map(); parts.forEach(p => { const k = p.material || '—', e = m.get(k) || { qty: 0, len: 0 }; e.qty++; e.len += schedMaxDimM(p); m.set(k, e); });
+    return { title: 'MATERIAL SUMMARY', cols: [{ label: 'Material' }, { label: 'Qty', align: 'end' }, { label: 'Length m', align: 'end' }], rows: [...m.entries()].sort((a, b) => b[1].qty - a[1].qty).map(([k, e]) => [PR(k), String(e.qty), e.len ? e.len.toFixed(1) : '—']) };
+  }
+  if (kind === 'level') {
+    const m = new Map(); parts.forEach(p => { const k = p.level || '—'; m.set(k, (m.get(k) || 0) + 1); });
+    return { title: 'PARTS BY LEVEL', cols: [{ label: 'Level' }, { label: 'Qty', align: 'end' }], rows: [...m.entries()].sort().map(([k, q]) => [PR(k), String(q)]) };
+  }
+  const m = new Map();   // member / block → group by type + size
+  parts.forEach(p => { const t = p.type || 'part', sz = schedSizeStr(p), k = t + '|' + sz, e = m.get(k) || { type: t, size: sz, qty: 0, len: 0 }; e.qty++; e.len += schedMaxDimM(p); m.set(k, e); });
+  const arr = [...m.values()].sort((a, b) => a.type < b.type ? -1 : a.type > b.type ? 1 : b.qty - a.qty);
+  if (kind === 'block') return { title: 'BLOCK SCHEDULE', cols: [{ label: 'Type' }, { label: 'Size mm' }, { label: 'Qty', align: 'end' }], rows: arr.map(e => [PR(e.type), e.size, String(e.qty)]) };
+  return { title: 'MEMBER SCHEDULE', cols: [{ label: 'Type' }, { label: 'Size mm' }, { label: 'Qty', align: 'end' }, { label: 'Length m', align: 'end' }], rows: arr.map(e => [PR(e.type), e.size, String(e.qty), e.len ? e.len.toFixed(1) : '—']) };
+}
+function scheduleSvg(a) {
+  const d = scheduleData(a.kind || 'member'), fs = a.fs || 2.6, pad = 1.4, rh = fs * 1.9, charW = fs * 0.56, x = a.x, y = a.y;
+  const cols = d.cols.map((c, ci) => { let w = c.label.length; d.rows.forEach(r => w = Math.max(w, String(r[ci] == null ? '' : r[ci]).length)); return Math.max(9, w * charW + pad * 2); });
+  const W = cols.reduce((s, w) => s + w, 0), nR = d.rows.length, H = rh * (nR + 2);
+  let s = `<rect x="${x}" y="${y}" width="${W}" height="${H}" fill="#fff" stroke="#1d3557" stroke-width="0.4"/>`;
+  s += `<rect x="${x}" y="${y}" width="${W}" height="${rh}" fill="#1d3557"/><text x="${x + pad}" y="${y + rh - pad}" font-family="Arial" font-weight="700" font-size="${fs}" fill="#fff">${escHtml(a.title || d.title)}</text>`;
+  const hy = y + rh; s += `<rect x="${x}" y="${hy}" width="${W}" height="${rh}" fill="#eef2f7"/>`;
+  let cx = x; d.cols.forEach((c, ci) => { const en = c.align === 'end'; s += `<text x="${cx + (en ? cols[ci] - pad : pad)}" y="${hy + rh - pad}" font-family="Arial" font-weight="700" font-size="${fs}" fill="#1d3557"${en ? ' text-anchor="end"' : ''}>${escHtml(c.label)}</text>`; cx += cols[ci]; });
+  d.rows.forEach((r, ri) => { const ry = hy + rh * (ri + 1); cx = x; d.cols.forEach((c, ci) => { const en = c.align === 'end'; s += `<text x="${cx + (en ? cols[ci] - pad : pad)}" y="${ry + rh - pad}" font-family="Arial" font-size="${fs}" fill="#1d3557"${en ? ' text-anchor="end"' : ''}>${escHtml(String(r[ci] == null ? '' : r[ci]))}</text>`; cx += cols[ci]; }); });
+  cx = x; cols.forEach((w, ci) => { if (ci > 0) s += `<line x1="${cx}" y1="${hy}" x2="${cx}" y2="${y + H}" stroke="#cdd3df" stroke-width="0.2"/>`; cx += w; });
+  for (let ri = 0; ri <= nR; ri++) { const ly = hy + rh * ri; s += `<line x1="${x}" y1="${ly}" x2="${x + W}" y2="${ly}" stroke="#cdd3df" stroke-width="0.2"/>`; }
+  return s;
+}
+function annotSvg(a) {
+  const c = a.color || '#1d3557', o = `<g class="ann" data-aid="${a.id}">`, z = '</g>';
+  if (a.type === 'schedule') return o + scheduleSvg(a) + z;
+  if (a.type === 'text') return o + `<text x="${a.x}" y="${a.y}" font-family="Arial, sans-serif" font-size="${a.size || 4}" fill="${c}" font-weight="600">${textTspans(a, a.x)}</text>` + z;
+  if (a.type === 'line') return o + `<line x1="${a.x1}" y1="${a.y1}" x2="${a.x2}" y2="${a.y2}" stroke="${c}" stroke-width="${a.w || 0.4}" stroke-linecap="round"/>` + z;
+  if (a.type === 'arrow') return o + `<line x1="${a.x1}" y1="${a.y1}" x2="${a.x2}" y2="${a.y2}" stroke="${c}" stroke-width="${a.w || 0.4}" stroke-linecap="round"/>` + arrowHead(a.x1, a.y1, a.x2, a.y2, 3, c) + z;
+  if (a.type === 'leader') return o + `<line x1="${a.x}" y1="${a.y}" x2="${a.tx}" y2="${a.ty}" stroke="${c}" stroke-width="0.4" stroke-linecap="round"/>` + arrowHead(a.x, a.y, a.tx, a.ty, 2.6, c) + `<text x="${a.x}" y="${a.y - 1}" font-family="Arial, sans-serif" font-size="${a.size || 3.5}" fill="${c}" font-weight="600">${textTspans(a, a.x)}</text>` + z;
+  if (a.type === 'rect') return o + `<rect x="${a.x}" y="${a.y}" width="${a.w}" height="${a.h}" fill="${a.fill || 'none'}" stroke="${c}" stroke-width="${a.sw || 0.4}"/>` + z;
+  if (a.type === 'ellipse') return o + `<ellipse cx="${a.x + a.w / 2}" cy="${a.y + a.h / 2}" rx="${a.w / 2}" ry="${a.h / 2}" fill="${a.fill || 'none'}" stroke="${c}" stroke-width="${a.sw || 0.4}"/>` + z;
+  if (a.type === 'cloud') return o + `<path d="${cloudPath(a.x, a.y, a.w, a.h)}" fill="none" stroke="${a.color || '#e63946'}" stroke-width="${a.sw || 0.5}"/>` + z;
+  if (a.type === 'north') return o + northSvg(a) + z;
+  if (a.type === 'scalebar') return o + scalebarSvg(a) + z;
+  if (a.type === 'tag') return o + tagSvg(a) + z;
+  return '';
+}
+function draftSvg(d) { const a = finishCreate(d); return a ? annotSvg(a).replace('class="ann"', 'class="ann" opacity="0.6"') : ''; }
+function handlesSvg(a) {
+  const H = (x, y, h) => `<rect class="annHandle" data-aid="${a.id}" data-h="${h}" x="${x - 1.1}" y="${y - 1.1}" width="2.2" height="2.2"/>`;
+  if (a.type === 'line' || a.type === 'arrow') return H(a.x1, a.y1, 'p1') + H(a.x2, a.y2, 'p2');
+  if (a.type === 'leader') return H(a.tx, a.ty, 'tip') + H(a.x, a.y, 'text');
+  if (a.type === 'rect' || a.type === 'ellipse' || a.type === 'cloud') return H(a.x, a.y, 'tl') + H(a.x + a.w, a.y + a.h, 'br');
+  if (a.type === 'scalebar') return H(a.x + (a.len || 50), a.y, 'size');
+  if (a.type === 'text') return H(a.x, a.y, 'size');
+  if (a.type === 'schedule') return H(a.x, a.y, 'noop');   // auto-sized; move only
+  return H(a.x + (a.r || 7), a.y, 'size');   // north / tag
+}
+function renderAnnots() {
+  const svg = $('sheetSvg'), layer = svg && svg.querySelector('#annotLayer'); if (!layer) return;
+  let s = sheetAnnots.map(annotSvg).join('');
+  if (annotDraft) s += draftSvg(annotDraft);
+  if (annotSel && sheetAnnots.includes(annotSel)) s += handlesSvg(annotSel);
+  layer.innerHTML = s;
+}
+function renderAnnotProps(a) {
+  const pr = $('annotProps'); pr.hidden = false;
+  const hasText = ['text', 'leader', 'tag'].includes(a.type);
+  const colorVal = a.color || (a.type === 'tag' && a.kind === 'rev' ? '#e63946' : '#1d3557');
+  let h = `<div class="row"><b>${ANNOT_NAME[a.type] || a.type}</b><button class="del" data-act="del">Delete</button></div>`;
+  if (hasText) h += `<div class="row"><input type="text" id="apText" value="${escHtml(a.text || '')}" placeholder="text"></div>`;
+  if (a.type === 'tag' && a.kind !== 'rev') h += `<div class="row"><span>Ref</span><input type="text" id="apText2" value="${escHtml(a.text2 || '')}" placeholder="sheet/detail"></div>`;
+  if (a.type === 'text' || a.type === 'leader') h += `<div class="row"><span>Text size</span><input type="number" id="apSize" value="${(a.size || 4)}" step="0.5" min="1"></div>`;
+  if (['line', 'arrow', 'rect', 'ellipse', 'cloud'].includes(a.type)) h += `<div class="row"><span>Line wt</span><input type="number" id="apSw" value="${(a.type === 'line' || a.type === 'arrow') ? (a.w || 0.4) : (a.sw || 0.4)}" step="0.1" min="0.1"></div>`;
+  if (a.type === 'scalebar') h += `<div class="row"><span>Scale 1:</span><input type="number" id="apScale" value="${a.scaleN || 100}" step="1" min="1"></div>`;
+  if (a.type === 'schedule') { h += `<div class="row"><span>Type</span><select id="apKind">${SCHED_KINDS.map(k => `<option value="${k[0]}"${(a.kind || 'member') === k[0] ? ' selected' : ''}>${k[1]}</option>`).join('')}</select></div>`; h += `<div class="row"><input type="text" id="apTitle" value="${escHtml(a.title || '')}" placeholder="custom title (blank = auto)"></div>`; h += `<div class="row"><span>Font</span><input type="number" id="apFs" value="${a.fs || 2.6}" step="0.2" min="1.5"></div>`; }
+  if (['rect', 'ellipse'].includes(a.type)) h += `<div class="row"><span>Fill</span><select id="apFill"><option value="none"${a.fill === 'none' ? ' selected' : ''}>None</option><option value="rgba(29,53,87,0.10)"${a.fill && a.fill !== 'none' ? ' selected' : ''}>Tint</option></select></div>`;
+  h += `<div class="row"><span>Colour</span><input type="color" id="apColor" value="${colorVal}"></div>`;
+  pr.innerHTML = h;
+  const byId = id => pr.querySelector('#' + id), upd = () => { persistSheet(); renderAnnots(); };
+  byId('apText') && byId('apText').addEventListener('input', () => { a.text = byId('apText').value; upd(); });
+  byId('apText2') && byId('apText2').addEventListener('input', () => { a.text2 = byId('apText2').value; upd(); });
+  byId('apSize') && byId('apSize').addEventListener('input', () => { a.size = parseFloat(byId('apSize').value) || a.size; upd(); });
+  byId('apSw') && byId('apSw').addEventListener('input', () => { const v = parseFloat(byId('apSw').value) || 0.4; if (a.type === 'line' || a.type === 'arrow') a.w = v; else a.sw = v; upd(); });
+  byId('apScale') && byId('apScale').addEventListener('input', () => { a.scaleN = parseFloat(byId('apScale').value) || a.scaleN; upd(); });
+  byId('apFill') && byId('apFill').addEventListener('change', () => { a.fill = byId('apFill').value; upd(); });
+  byId('apColor') && byId('apColor').addEventListener('input', () => { a.color = byId('apColor').value; upd(); });
+  byId('apKind') && byId('apKind').addEventListener('change', () => { a.kind = byId('apKind').value; upd(); });
+  byId('apTitle') && byId('apTitle').addEventListener('input', () => { a.title = byId('apTitle').value; upd(); });
+  byId('apFs') && byId('apFs').addEventListener('input', () => { a.fs = parseFloat(byId('apFs').value) || a.fs; upd(); });
+  pr.querySelector('[data-act=del]').onclick = () => deleteAnnot(a);
+}
+
+// ---- undo / redo: snapshot the whole annotation bundle; hooked into every persist* ----
+let undoStack = [], redoStack = [], undoBusy = false, undoPresent = null, undoT = null;
+function snapBundle() { try { return JSON.stringify(annotationBundle()); } catch (e) { return null; } }
+function updateUndoButtons() { $('undo') && $('undo').classList.toggle('disabled', !undoStack.length); $('redo') && $('redo').classList.toggle('disabled', !redoStack.length); }
+function initUndo() { undoStack = []; redoStack = []; undoPresent = snapBundle(); updateUndoButtons(); }
+function scheduleCommit() {
+  if (undoBusy || !modelRoot) return;
+  clearTimeout(undoT); undoT = setTimeout(() => {
+    if (undoBusy) return; const s = snapBundle(); if (s == null || s === undoPresent) return;
+    if (undoPresent != null) { undoStack.push(undoPresent); if (undoStack.length > 60) undoStack.shift(); }
+    undoPresent = s; redoStack = []; updateUndoButtons();
+  }, 350);
+}
+function applyBundleReplace(o) {
+  undoBusy = true;
+  try {
+    comments.forEach(c => { scene.remove(c.obj); if (c.anchor) scene.remove(c.anchor); }); comments = [];
+    clearAllDimensions();
+    namedSections = []; clearSectionLines();
+    levels = []; levelDatumY = null; clearLevelLines(); updateLevelDatumLbl();
+    compLabels = []; clearCompLabels();
+    sheets = []; sheetCurId = null; sheetVPs = []; sheetAnnots = []; annotSel = null;
+    $('sheetOverlay').classList.remove('open');
+    hiddenFacets = new Set();
+    scenes = [makeDefaultScene()]; activeSceneId = '__default__';
+    importAnnotationBundle(o);
+    recomputeHidden();
+    renderScenes(); renderCommentList(); renderDimsList(); updateDimVisibility();
+    drawSectionLines(); renderSectionList(); drawLevelLines(); renderLevelList(); drawCompLabels(); renderSheetTabs();
+    persistComments(); persistDims(); persistScenes(); persistSections(); persistLevels(); persistCompLabels(); persistSheets(); persistVisibility();
+  } catch (e) { console.error('undo apply failed', e); }
+  undoBusy = false;
+}
+function doUndo() { if (!undoStack.length) return; redoStack.push(undoPresent); undoPresent = undoStack.pop(); applyBundleReplace(JSON.parse(undoPresent)); updateUndoButtons(); meta('Undo'); }
+function doRedo() { if (!redoStack.length) return; undoStack.push(undoPresent); undoPresent = redoStack.pop(); applyBundleReplace(JSON.parse(undoPresent)); updateUndoButtons(); meta('Redo'); }
+$('undo') && ($('undo').onclick = e => { e.preventDefault(); if (!$('undo').classList.contains('disabled')) doUndo(); });
+$('redo') && ($('redo').onclick = e => { e.preventDefault(); if (!$('redo').classList.contains('disabled')) doRedo(); });
+window.addEventListener('keydown', e => {
+  if (/^(input|textarea|select)$/i.test((e.target && e.target.tagName) || '')) return;
+  const z = (e.key === 'z' || e.key === 'Z'), y = (e.key === 'y' || e.key === 'Y');
+  if ((e.ctrlKey || e.metaKey) && z && !e.shiftKey) { e.preventDefault(); doUndo(); }
+  else if ((e.ctrlKey || e.metaKey) && (y || (z && e.shiftKey))) { e.preventDefault(); doRedo(); }
+});
 
 // ---- init ------------------------------------------------------------------
 setDimType('aligned');
