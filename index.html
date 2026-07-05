@@ -532,7 +532,7 @@
     </span>
     <span class="seg"><label>Add view <select id="sheetAddSel"></select></label><button id="sheetAdd">＋ Add</button></span>
     <span class="seg" id="vpCtl" hidden><label>Scale 1:<input id="vpScale" size="5"></label><label>Title <input id="vpTitle" size="10" placeholder="(scene name)"></label><button id="vpDelete">Delete view</button></span>
-    <span class="seg"><label><input type="checkbox" id="vpTitlesChk" checked> Titles</label><label><input type="checkbox" id="vpSnapChk"> Grid/snap</label></span>
+    <span class="seg"><label><input type="checkbox" id="vpTitlesChk" checked> Titles</label><label title="Show a scannable QR code in each viewport that opens the model at that scene"><input type="checkbox" id="vpQRChk" checked> QR</label><label><input type="checkbox" id="vpSnapChk"> Grid/snap</label></span>
     <span class="seg" id="annotTools">
       <button class="atool active" data-tool="select" title="Select / move">▤</button>
       <button class="atool" data-tool="text" title="Text">T</button>
@@ -836,6 +836,7 @@ function onLoaded(gltf, name) {
   loadSheets();   // sheets reference scene ids, so load after scenes
   if (!hadLocal) tryLoadSidecar();   // first-time / link-shared viewer: pull annotations published next to the model
   initUndo();
+  applyPendingScene();   // ?scene= deep-link: scenes from local cache are ready now (sidecar path applies after fetch)
 }
 function fitCamera(center, size) {
   const maxDim = Math.max(size.x, size.y, size.z) || 1;
@@ -1898,6 +1899,13 @@ $('exportglb').onclick = e => { e.preventDefault(); if (!$('exportglb').classLis
 
 // ---- scenes (saved views: camera + projection + section) -------------------
 let scenes = [], activeSceneId = null, restoringScene = false, sceneUpdT = null;
+let pendingSceneTarget = null;   // scene id/name from a ?scene= deep-link (QR), applied once scenes are loaded
+function applyPendingScene() {
+  if (!pendingSceneTarget || !modelRoot) return;
+  const t = pendingSceneTarget;
+  const sc = scenes.find(s => s.id === t) || scenes.find(s => (s.name || '') === t);
+  if (sc) { pendingSceneTarget = null; restoreScene(sc); meta(metaEl.textContent + '  ·  scene: ' + (sc.name || sc.id)); }
+}
 function makeDefaultScene() { const s = captureScene('Default'); s.id = '__default__'; s.locked = true; return s; }
 function autoUpdateActiveScene() {
   if (restoringScene || !activeSceneId) return;
@@ -2834,7 +2842,7 @@ function hasLocalAnnotations() { try { return !!(localStorage.getItem(storeKey()
 function sidecarUrl(url) { return url.replace(/\?.*$/, '').replace(/\.(glb|gltf)$/i, '') + '.annot.json'; }
 function tryLoadSidecar() {   // link-shared models carry annotations in <model>.annot.json next to the .glb
   if (!modelUrl) return;
-  fetch(sidecarUrl(modelUrl)).then(r => r.ok ? r.json() : null).then(o => { if (o) { importAnnotationBundle(o); meta(metaEl.textContent + '  ·  annotations loaded'); } }).catch(() => {});
+  fetch(sidecarUrl(modelUrl)).then(r => r.ok ? r.json() : null).then(o => { if (o) { importAnnotationBundle(o); meta(metaEl.textContent + '  ·  annotations loaded'); applyPendingScene(); } }).catch(() => {});
 }
 $('import').onclick = e => { e.preventDefault(); $('impfile').click(); };
 $('impfile').onchange = () => {
@@ -2946,6 +2954,86 @@ $('revise').onclick = e => { e.preventDefault(); if (!$('revise').classList.cont
 $('revfile').onchange = () => { const f = $('revfile').files[0]; $('revfile').value = ''; if (f) reviseModel(f); };
 
 // ---- sheet (drawing) view --------------------------------------------------
+// ---- QR encoder (self-contained, byte mode, auto version 1..10, EC level M) — verified round-trip ----
+const QRGEN = (function () {
+  const EXP = new Array(512), LOG = new Array(256);
+  (function () { let x = 1; for (let i = 0; i < 255; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 0x100) x ^= 0x11D; } for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255]; })();
+  const gfMul = (a, b) => (a === 0 || b === 0) ? 0 : EXP[LOG[a] + LOG[b]];
+  function rsGenPoly(deg) { let poly = [1]; for (let i = 0; i < deg; i++) { const np = new Array(poly.length + 1).fill(0); for (let j = 0; j < poly.length; j++) { np[j] ^= gfMul(poly[j], 1); np[j + 1] ^= gfMul(poly[j], EXP[i]); } poly = np; } return poly; }
+  function rsEncode(data, ecLen) { const gen = rsGenPoly(ecLen), res = new Array(ecLen).fill(0); for (let i = 0; i < data.length; i++) { const factor = data[i] ^ res[0]; res.shift(); res.push(0); if (factor !== 0) for (let j = 0; j < ecLen; j++) res[j] ^= gfMul(gen[j + 1], factor); } return res; }
+  const ECB_M = { 1: [10, [[1, 16]]], 2: [16, [[1, 28]]], 3: [26, [[1, 44]]], 4: [18, [[2, 32]]], 5: [24, [[2, 43]]], 6: [16, [[4, 27]]], 7: [18, [[4, 31]]], 8: [22, [[2, 38], [2, 39]]], 9: [22, [[3, 36], [2, 37]]], 10: [26, [[4, 43], [1, 44]]] };
+  const ALIGN = { 1: [], 2: [6, 18], 3: [6, 22], 4: [6, 26], 5: [6, 30], 6: [6, 34], 7: [6, 22, 38], 8: [6, 24, 42], 9: [6, 26, 46], 10: [6, 28, 50] };
+  function dataCapacityBytes(ver) { const [, groups] = ECB_M[ver]; let d = 0; groups.forEach(([n, dd]) => d += n * dd); return Math.floor((d * 8 - 4 - (ver <= 9 ? 8 : 16)) / 8); }
+  function chooseVersion(len) { for (let v = 1; v <= 10; v++) if (dataCapacityBytes(v) >= len) return v; throw new Error('QR: data too long (' + len + ' bytes)'); }
+  function toBytes(s) { return Array.from(new TextEncoder().encode(s)); }
+  function buildData(bytes, ver) {
+    const [ec, groups] = ECB_M[ver]; let totalDataCw = 0; groups.forEach(([n, d]) => totalDataCw += n * d);
+    const bits = [], put = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+    put(0b0100, 4); put(bytes.length, ver <= 9 ? 8 : 16); bytes.forEach(b => put(b, 8));
+    const cap = totalDataCw * 8; for (let i = 0; i < 4 && bits.length < cap; i++) bits.push(0); while (bits.length % 8) bits.push(0);
+    const cw = []; for (let i = 0; i < bits.length; i += 8) { let v = 0; for (let j = 0; j < 8; j++) v = (v << 1) | bits[i + j]; cw.push(v); }
+    const PADS = [0xEC, 0x11]; let pi = 0; while (cw.length < totalDataCw) cw.push(PADS[pi++ % 2]);
+    const dataBlocks = [], ecBlocks = []; let idx = 0;
+    groups.forEach(([n, d]) => { for (let i = 0; i < n; i++) { const blk = cw.slice(idx, idx + d); idx += d; dataBlocks.push(blk); ecBlocks.push(rsEncode(blk, ec)); } });
+    const maxData = Math.max(...dataBlocks.map(b => b.length)), out = [];
+    for (let i = 0; i < maxData; i++) dataBlocks.forEach(b => { if (i < b.length) out.push(b[i]); });
+    for (let i = 0; i < ec; i++) ecBlocks.forEach(b => out.push(b[i]));
+    return out;
+  }
+  function newMatrix(size) { const m = []; for (let i = 0; i < size; i++) m.push(new Array(size).fill(null)); return m; }
+  function placeFinder(m, r, c) { for (let dr = -1; dr <= 7; dr++) for (let dc = -1; dc <= 7; dc++) { const rr = r + dr, cc = c + dc; if (rr < 0 || cc < 0 || rr >= m.length || cc >= m.length) continue; const inRing = (dr >= 0 && dr <= 6 && (dc === 0 || dc === 6)) || (dc >= 0 && dc <= 6 && (dr === 0 || dr === 6)); const inCore = dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4; m[rr][cc] = (inRing || inCore) ? 1 : 0; } }
+  function placeFunctions(m, ver) {
+    const size = m.length;
+    placeFinder(m, 0, 0); placeFinder(m, 0, size - 7); placeFinder(m, size - 7, 0);
+    for (let i = 8; i < size - 8; i++) { const b = i % 2 === 0 ? 1 : 0; if (m[6][i] === null) m[6][i] = b; if (m[i][6] === null) m[i][6] = b; }
+    for (const r of ALIGN[ver]) for (const c of ALIGN[ver]) { if ((r <= 7 && c <= 7) || (r <= 7 && c >= size - 8) || (r >= size - 8 && c <= 7)) continue; for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) { const ring = Math.max(Math.abs(dr), Math.abs(dc)); m[r + dr][c + dc] = (ring === 1) ? 0 : 1; } }
+    m[size - 8][8] = 1;
+    if (ver >= 7) { let rem = ver << 12; for (let i = 17; i >= 12; i--) if ((rem >> i) & 1) rem ^= 0x1F25 << (i - 12); const vbits = (ver << 12) | (rem & 0xFFF); for (let i = 0; i < 18; i++) { const bit = (vbits >> i) & 1, a = size - 11 + (i % 3), b = Math.floor(i / 3); m[b][a] = bit; m[a][b] = bit; } }
+    for (let i = 0; i < 9; i++) { if (m[8][i] === null) m[8][i] = -2; if (m[i][8] === null) m[i][8] = -2; }
+    for (let i = 0; i < 8; i++) { if (m[8][size - 1 - i] === null) m[8][size - 1 - i] = -2; if (m[size - 1 - i][8] === null) m[size - 1 - i][8] = -2; }
+  }
+  function placeData(m, codewords) {
+    const size = m.length; let bitIdx = 0; const bits = []; codewords.forEach(cw => { for (let i = 7; i >= 0; i--) bits.push((cw >> i) & 1); });
+    let dir = -1;
+    for (let col = size - 1; col > 0; col -= 2) { if (col === 6) col--; for (let i = 0; i < size; i++) { const row = dir < 0 ? size - 1 - i : i; for (let c = 0; c < 2; c++) { const cc = col - c; if (m[row][cc] === null) { m[row][cc] = bitIdx < bits.length ? bits[bitIdx] : 0; bitIdx++; } } } dir = -dir; }
+  }
+  const MASKS = [(r, c) => (r + c) % 2 === 0, (r, c) => r % 2 === 0, (r, c) => c % 3 === 0, (r, c) => (r + c) % 3 === 0, (r, c) => (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0, (r, c) => ((r * c) % 2 + (r * c) % 3) === 0, (r, c) => (((r * c) % 2 + (r * c) % 3) % 2) === 0, (r, c) => (((r + c) % 2 + (r * c) % 3) % 2) === 0];
+  let FUNC;
+  function applyMask(m, maskId) { const size = m.length, out = newMatrix(size); for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) { if (FUNC[r][c]) out[r][c] = m[r][c] === -2 ? 0 : m[r][c]; else out[r][c] = (MASKS[maskId](r, c) ? 1 - m[r][c] : m[r][c]); } return out; }
+  function formatBits(maskId) { const data = maskId; let bch = data << 10; for (let i = 14; i >= 10; i--) if ((bch >> i) & 1) bch ^= 0x537 << (i - 10); return (((data << 10) | (bch & 0x3FF)) ^ 0x5412) & 0x7FFF; }
+  function placeFormat(m, maskId) { const size = m.length, fmt = formatBits(maskId), bit = i => (fmt >> i) & 1; for (let i = 0; i <= 5; i++) m[i][8] = bit(i); m[7][8] = bit(6); m[8][8] = bit(7); m[8][7] = bit(8); for (let i = 9; i <= 14; i++) m[8][14 - i] = bit(i); for (let i = 0; i <= 7; i++) m[8][size - 1 - i] = bit(i); for (let i = 8; i <= 14; i++) m[size - 15 + i][8] = bit(i); }
+  function penalty(m) {
+    const size = m.length; let p = 0;
+    for (let r = 0; r < size; r++) { let run = 1; for (let c = 1; c < size; c++) { if (m[r][c] === m[r][c - 1]) { run++; if (run === 5) p += 3; else if (run > 5) p++; } else run = 1; } }
+    for (let c = 0; c < size; c++) { let run = 1; for (let r = 1; r < size; r++) { if (m[r][c] === m[r - 1][c]) { run++; if (run === 5) p += 3; else if (run > 5) p++; } else run = 1; } }
+    for (let r = 0; r < size - 1; r++) for (let c = 0; c < size - 1; c++) { const v = m[r][c]; if (v === m[r][c + 1] && v === m[r + 1][c] && v === m[r + 1][c + 1]) p += 3; }
+    const pat1 = [1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0], pat2 = [0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1];
+    const check = (arr) => { for (let i = 0; i + 11 <= arr.length; i++) { let a = true, b = true; for (let j = 0; j < 11; j++) { if (arr[i + j] !== pat1[j]) a = false; if (arr[i + j] !== pat2[j]) b = false; } if (a || b) p += 40; } };
+    for (let r = 0; r < size; r++) { const row = []; for (let c = 0; c < size; c++) row.push(m[r][c]); check(row); }
+    for (let c = 0; c < size; c++) { const col = []; for (let r = 0; r < size; r++) col.push(m[r][c]); check(col); }
+    let dark = 0; for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) dark += m[r][c]; p += Math.floor(Math.abs(dark / (size * size) * 100 - 50) / 5) * 10;
+    return p;
+  }
+  function encode(text) {
+    const bytes = toBytes(text), ver = chooseVersion(bytes.length), size = 17 + 4 * ver;
+    const base = newMatrix(size); placeFunctions(base, ver);
+    FUNC = []; for (let r = 0; r < size; r++) { FUNC.push([]); for (let c = 0; c < size; c++) FUNC[r].push(base[r][c] !== null); }
+    const withData = base.map(row => row.slice()); placeData(withData, buildData(bytes, ver));
+    let best = null, bestP = Infinity;
+    for (let mid = 0; mid < 8; mid++) { const masked = applyMask(withData, mid); placeFormat(masked, mid); const p = penalty(masked); if (p < bestP) { bestP = p; best = masked; } }
+    return { size, modules: best };
+  }
+  // returns an SVG <g> (dark modules only, no background) sized sizeMm × sizeMm, translated to (x,y)
+  function svgGroup(text, x, y, sizeMm, quiet) {
+    quiet = quiet == null ? 2 : quiet;
+    const { modules, size } = encode(text), total = size + quiet * 2, unit = sizeMm / total;
+    let rects = '';
+    for (let r = 0; r < size; r++) { let c = 0; while (c < size) { if (modules[r][c]) { let w = 1; while (c + w < size && modules[r][c + w]) w++; rects += `<rect x="${((c + quiet) * unit).toFixed(3)}" y="${((r + quiet) * unit).toFixed(3)}" width="${(w * unit).toFixed(3)}" height="${unit.toFixed(3)}"/>`; c += w; } else c++; } }
+    return `<g transform="translate(${x.toFixed(3)},${y.toFixed(3)})"><g fill="#000">${rects}</g></g>`;
+  }
+  return { encode, svgGroup };
+})();
+
 // A sheet = the A3 template + VIEWPORTS. Each viewport is a WINDOW onto a scene: its paper
 // size (mm) and scale (1:N) decide how much model is visible (window_mm/1000 * N = metres shown).
 // Dragging the window edge shows more/less; scale zooms. Rendered orthographic + transparent + hi-res.
@@ -3072,7 +3160,7 @@ function renderSheet() {
     Object.keys(VP_HANDLES).forEach(dir => { const h = document.createElement('div'); h.className = 'hd ' + dir; el.appendChild(h); attachVPResize(h, el, vp, VP_HANDLES[dir]); });
     paper.appendChild(el); attachVPDrag(el, vp);
   });
-  fillSheetFields(); drawVpCaptions(); renderAnnots();
+  fillSheetFields(); drawVpCaptions(); drawVpQR(); renderAnnots();
 }
 function selectVP(id) {
   sheetSelId = id;
@@ -3085,7 +3173,7 @@ function attachVPDrag(el, vp) {
     if (e.button !== 0 || e.target.classList.contains('svp-rz') || (annotTool && annotTool !== 'select')) return; e.preventDefault(); selectVP(vp.id);
     const rect = $('sheetPaper').getBoundingClientRect(), mx = pageW / rect.width, my = pageH / rect.height;
     const sx = e.clientX, sy = e.clientY, ox = vp.x, oy = vp.y;
-    const move = ev => { vp.x = snapV(clampN(ox + (ev.clientX - sx) * mx, 0, pageW - vp.wMm)); vp.y = snapV(clampN(oy + (ev.clientY - sy) * my, 0, pageH - vp.hMm)); el.style.left = (vp.x / pageW * 100) + '%'; el.style.top = (vp.y / pageH * 100) + '%'; drawVpCaptions(); };
+    const move = ev => { vp.x = snapV(clampN(ox + (ev.clientX - sx) * mx, 0, pageW - vp.wMm)); vp.y = snapV(clampN(oy + (ev.clientY - sy) * my, 0, pageH - vp.hMm)); el.style.left = (vp.x / pageW * 100) + '%'; el.style.top = (vp.y / pageH * 100) + '%'; drawVpCaptions(); drawVpQR(); };
     const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); persistSheet(); };
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
   });
@@ -3103,7 +3191,7 @@ function attachVPResize(handle, el, vp, spec) {   // drag any edge/corner → re
       if (spec.b) h = o.h + dy; if (spec.t) { y = o.y + dy; h = o.h - dy; }
       w = Math.max(20, w); h = Math.max(20, h); x = clampN(x, 0, pageW - 20); y = clampN(y, 0, pageH - 20);
       w = Math.min(w, pageW - x); h = Math.min(h, pageH - y);
-      vp.x = x; vp.y = y; vp.wMm = w; vp.hMm = h; styleVPEl(el, vp);
+      vp.x = x; vp.y = y; vp.wMm = w; vp.hMm = h; styleVPEl(el, vp); drawVpCaptions(); drawVpQR();
     };
     const up = () => {
       window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
@@ -3186,7 +3274,7 @@ function populateSheetScenes() { const sel = $('sheetAddSel'); sel.innerHTML = '
 function buildSheetPaper() {
   const paper = $('sheetPaper');
   paper.innerHTML = `<svg id="sheetGrid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pageW} ${pageH}" preserveAspectRatio="none"></svg>`
-    + `<svg id="sheetSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pageW} ${pageH}" preserveAspectRatio="none">${frameSvg()}<g id="vpCapLayer"></g><g id="annotLayer"></g></svg>`;
+    + `<svg id="sheetSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pageW} ${pageH}" preserveAspectRatio="none">${frameSvg()}<g id="vpQRLayer"></g><g id="vpCapLayer"></g><g id="annotLayer"></g></svg>`;
   drawGrid();
 }
 const SNAP_GRID = 5;   // mm
@@ -3214,6 +3302,30 @@ function drawVpCaptions() {
   });
   lay.innerHTML = s;
 }
+// ---- per-viewport QR deep-links: scan → open the model at that exact scene ----
+function sheetModelPath() {   // repo-relative path (or absolute URL) the Share link would use for this model
+  if (modelUrl && /^https?:/i.test(modelUrl)) return modelUrl.replace(/^https?:\/\/[^/]+\/tls-glb-viewer\//i, '');
+  return 'models/' + safeName(fileName) + '.glb';
+}
+function sceneDeepLink(sceneId) { return PAGES_BASE + '?model=' + encodeURIComponent(sheetModelPath()) + '&scene=' + encodeURIComponent(sceneId); }
+function drawVpQR() {
+  const lay = $('sheetSvg') && $('sheetSvg').querySelector('#vpQRLayer'); if (!lay) return;
+  const sh = currentSheet();
+  if (!sh || sh.showVpQR === false) { lay.innerHTML = ''; return; }
+  let s = '';
+  sheetVPs.forEach(vp => {
+    const sc = sceneById(vp.sceneId); if (!sc) return;
+    const nm = vp.title || sc.name || 'View';
+    const qrMm = clampN(Math.min(vp.wMm, vp.hMm) * 0.26, 15, 24);   // scannable on paper, not overwhelming
+    const pad = 1.6, x = vp.x + pad, y = vp.y + pad, box = qrMm + 2 * pad, labelH = 5;
+    let qr = ''; try { qr = QRGEN.svgGroup(sceneDeepLink(vp.sceneId), x + pad, y + pad, qrMm); } catch (e) { return; }   // too-long URL → skip QR for this vp
+    // white card behind QR + scene-name strip so it reads over the model image
+    s += `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${box.toFixed(2)}" height="${(box + labelH).toFixed(2)}" rx="1" fill="#fff" stroke="#1d3557" stroke-width="0.3"/>`;
+    s += qr;
+    s += `<text x="${(x + box / 2).toFixed(2)}" y="${(y + box + labelH - 1.4).toFixed(2)}" text-anchor="middle" font-family="Arial" font-weight="700" font-size="2.6" fill="#1d3557">${escHtml(nm.length > 22 ? nm.slice(0, 21) + '…' : nm)}</text>`;
+  });
+  lay.innerHTML = s;
+}
 function loadSheetVPs(sh) {   // capture each viewport's image for the sheet being opened
   sheetVPs = []; sheetSelId = null;
   (sh.vps || []).forEach((s, i) => {
@@ -3233,7 +3345,7 @@ function openSheetById(id) {
   $('sheetOverlay').classList.add('open'); populateSheetScenes(); renderSheetTabs();
   const d = pageDimsOf(sh); pageW = d.w; pageH = d.h;   // page dims BEFORE building the paper
   $('sheetSize').value = sh.size || 'A3'; $('sheetOrient').value = sh.orient || 'landscape';
-  $('vpTitlesChk').checked = sh.showVpTitles !== false; $('vpSnapChk').checked = snapOn;
+  $('vpTitlesChk').checked = sh.showVpTitles !== false; $('vpQRChk').checked = sh.showVpQR !== false; $('vpSnapChk').checked = snapOn;
   buildSheetPaper();
   const f = sh.fields || {};
   $('f_sheetname').value = sh.name || '';
@@ -3337,6 +3449,7 @@ $('vpScale').addEventListener('input', () => {
 $('vpDelete').onclick = () => { sheetVPs = sheetVPs.filter(v => v.id !== sheetSelId); sheetSelId = null; $('vpCtl').hidden = true; renderSheet(); persistSheet(); };
 $('vpTitle').addEventListener('input', () => { const vp = sheetVPs.find(v => v.id === sheetSelId); if (!vp) return; vp.title = $('vpTitle').value; drawVpCaptions(); persistSheet(); });
 $('vpTitlesChk').addEventListener('change', () => { const sh = currentSheet(); if (sh) { sh.showVpTitles = $('vpTitlesChk').checked; drawVpCaptions(); persistSheet(); } });
+$('vpQRChk').addEventListener('change', () => { const sh = currentSheet(); if (sh) { sh.showVpQR = $('vpQRChk').checked; drawVpQR(); persistSheet(); } });
 $('vpSnapChk').addEventListener('change', () => { snapOn = $('vpSnapChk').checked; drawGrid(); });
 ['f_title', 'f_number', 'f_sheet', 'f_author', 'f_project', 'f_client', 'f_checked', 'f_date', 'f_status'].forEach(id => $(id).addEventListener('input', () => { fillSheetFields(); persistSheet(); }));
 $('f_brand').addEventListener('change', () => { fillSheetFields(); persistSheet(); });
@@ -3642,7 +3755,9 @@ window.addEventListener('keydown', e => {
 // ---- init ------------------------------------------------------------------
 setDimType('aligned');
 loadPersistedSizes();   // restore saved Sizes before any model/dimensions load
-const qp = new URLSearchParams(location.search).get('model');
+const _urlParams = new URLSearchParams(location.search);
+const qp = _urlParams.get('model');
+pendingSceneTarget = _urlParams.get('scene') || null;   // QR/deep-link → restore this scene once it's loaded
 if (qp) { meta(qp.split('/').pop() + ' — loading…'); loadFromURL(qp, qp.split('/').pop()); }
 // Otherwise open empty — no model is auto-loaded. Drag-drop a .glb, use Open, or pass ?model=URL.
 </script>
