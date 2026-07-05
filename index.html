@@ -406,6 +406,10 @@
 
       <div class="popover" id="scenesPop" hidden>
         <div class="acts" style="margin-top:0"><button id="sceneSave">＋ Save current view</button></div>
+        <div class="acts" style="margin-top:6px; align-items:center; gap:10px; flex-wrap:wrap; border-top:1px solid #eee; padding-top:6px">
+          <label style="font-size:12px; color:#1d3557; cursor:pointer"><input type="checkbox" id="sceneLineChk"> Line drawing (B&amp;W)</label>
+          <label id="sceneWeightWrap" style="font-size:12px; color:#1d3557; display:none">Weight <input type="range" id="sceneWeight" min="1" max="6" step="0.5" value="2" style="width:80px; vertical-align:middle"></label>
+        </div>
         <div id="sceneList" class="scenelist"></div>
       </div>
 
@@ -548,7 +552,7 @@
       <button class="atool" data-tool="section" title="Section / detail tag">A↗</button>
       <button class="atool" data-tool="rev" title="Revision triangle">▵</button>
     </span>
-    <span class="seg"><label>Schedule <select id="schedKind" class="sb"><option value="member">Member</option><option value="block">Block</option><option value="material">Material</option><option value="cut">Cut blocks</option><option value="concrete">Concrete take-off</option><option value="level">By level</option><option value="sheetindex">Drawing index</option><option value="legend">Section legend</option></select></label><button id="schedAdd">▦ Table</button></span>
+    <span class="seg"><label>Schedule <select id="schedKind" class="sb"><option value="member">Member</option><option value="block">Block</option><option value="material">Material</option><option value="cut">Cut blocks</option><option value="concrete">Concrete take-off</option><option value="level">By level</option><option value="sheetindex">Drawing index</option><option value="legend">Section legend</option></select></label><button id="schedAdd">▦ Table</button><button id="tableImport" title="Import your own table from a CSV or Excel (.xlsx) file onto this sheet">⤒ Import CSV/XLSX</button><input type="file" id="tableFile" accept=".csv,.xlsx,.xls" hidden></span>
     <button id="sheetFieldsBtn" title="Edit title-block fields">📋 Title block ▾</button>
     <button id="sheetRevBtn" title="Revision history">⟳ Revisions ▾</button>
     <button id="sheetAnnotBtn" title="Toggle which sections / levels show on each view">§ Lines ▾</button>
@@ -624,6 +628,7 @@ const ICONS = {
   angular: '<svg viewBox="0 0 24 16" width="20" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="4" y1="14" x2="21" y2="14"/><line x1="4" y1="14" x2="19" y2="3"/><path d="M15 14a11 11 0 0 0-3-6"/></svg>',
 };
 let dimMode = 'aligned', jogDirDefault = 'horizontal', linearOrient = 'horizontal';
+let sceneStyle = { line: false, weight: 2 }, fatEdges = null, fatEdgesBuilding = false;   // per-scene line-drawing style (declared early: resize() runs at boot)
 
 // ---- three.js setup --------------------------------------------------------
 const scene = new THREE.Scene();
@@ -695,7 +700,7 @@ function resize() {
   const w = stage.clientWidth, h = stage.clientHeight;
   camera.aspect = w / h || 1; camera.updateProjectionMatrix();
   setOrthoFrustum(orthoHalfH);
-  renderer.setSize(w, h); labelRenderer.setSize(w, h);
+  renderer.setSize(w, h); labelRenderer.setSize(w, h); setFatEdgeResolution(w, h);
 }
 window.addEventListener('resize', resize);
 function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, activeCam); labelRenderer.render(scene, activeCam); }
@@ -745,6 +750,7 @@ function makeTextSprite(text, worldHeight) {
 function clearModel() {
   if (modelRoot) { scene.remove(modelRoot); modelRoot.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
   modelRoot = null; meshes = [];
+  fatEdges = null; sceneStyle = { line: false, weight: 2 }; scene.background = new THREE.Color(SHADED_BG);   // reset line-drawing style for the new model
   clearPartHighlight(); partRegistry = new Map(); partIdByMesh = new Map(); selectedPart = -1;
   partGeoms = []; hiddenParts = new Set(); hiddenFacets = new Set(); partFacets = null;
   inspectMode = false; $('inspect').classList.remove('active'); $('inspect').classList.add('disabled'); $('partInfo').hidden = true;
@@ -1863,8 +1869,55 @@ function applyFlatShade() {
 $('uniform').onclick = e => { e.preventDefault(); if ($('uniform').classList.contains('disabled')) return; flatShade = !flatShade; applyFlatShade(); };
 
 // ---- edges (baked-in, or auto-generated on load) ---------------------------
-function setEdges(on) { edgesOn = on; if (modelRoot) modelRoot.traverse(o => { if (o.isLine) o.visible = on; }); $('edges').classList.toggle('active', on); }
+function setEdges(on) { edgesOn = on; if (modelRoot) modelRoot.traverse(o => { if (o.isLine && !o.userData.isFat) o.visible = on; }); $('edges').classList.toggle('active', on); if (sceneStyle.line) applySceneStyle({ line: true, weight: sceneStyle.weight }); }
 $('edges').onclick = e => { e.preventDefault(); if (!$('edges').classList.contains('disabled')) setEdges(!edgesOn); };
+
+// ---- per-scene render style: shaded model  ↔  black/white line drawing (edges only) + lineweight ----
+// (sceneStyle / fatEdges declared earlier, before resize() runs at boot)
+const SHADED_BG = 0xf4f4f1;
+async function buildFatEdges() {   // fat (variable-width) black lines from the model's baked edges — WebGL can't widen plain lines
+  if (fatEdges || fatEdgesBuilding || !modelRoot) return;
+  fatEdgesBuilding = true;
+  try {
+    const [LS2, LSG, LM] = await Promise.all([
+      import('three/addons/lines/LineSegments2.js'),
+      import('three/addons/lines/LineSegmentsGeometry.js'),
+      import('three/addons/lines/LineMaterial.js'),
+    ]);
+    const lines = []; modelRoot.traverse(o => { if (o.isLine && !o.userData.isFat && o.geometry && o.geometry.attributes.position) lines.push(o); });
+    const items = [];
+    lines.forEach(o => {
+      const g = new LSG.LineSegmentsGeometry(); g.setPositions(Array.from(o.geometry.attributes.position.array));
+      const mat = new LM.LineMaterial({ color: 0x000000, linewidth: sceneStyle.weight, worldUnits: false });
+      mat.resolution.set(stage.clientWidth || 1, stage.clientHeight || 1);
+      const seg = new LS2.LineSegments2(g, mat); seg.userData.isFat = true; seg.visible = false; seg.renderOrder = 5;
+      (o.parent || modelRoot).add(seg); items.push({ seg, mat });
+    });
+    fatEdges = { items };
+  } catch (e) { console.warn('fat line-weight unavailable, using thin edges', e); fatEdges = { items: [] }; }
+  fatEdgesBuilding = false;
+}
+function setFatEdgeResolution(w, h) { if (fatEdges) fatEdges.items.forEach(it => it.mat.resolution.set(w, h)); }
+async function applySceneStyle(style) {
+  sceneStyle = { line: !!(style && style.line), weight: Math.max(1, (style && style.weight) || 2) };
+  const line = sceneStyle.line, thick = sceneStyle.weight > 1;
+  if (modelRoot) modelRoot.traverse(o => { if (o.isMesh) o.visible = !line; });   // hide shaded faces in line mode
+  scene.background = new THREE.Color(line ? 0xffffff : SHADED_BG);
+  if (line && thick) await buildFatEdges();
+  if (modelRoot) modelRoot.traverse(o => { if (o.isLine && !o.userData.isFat) o.visible = line ? !thick : edgesOn; });   // thin baked edges
+  if (fatEdges) fatEdges.items.forEach(it => { it.mat.linewidth = sceneStyle.weight; it.seg.visible = line && thick; });
+  syncStyleUI();
+}
+function syncStyleUI() {
+  const chk = $('sceneLineChk'), wrap = $('sceneWeightWrap'), wt = $('sceneWeight');
+  if (!chk) return;
+  chk.checked = sceneStyle.line; if (wrap) wrap.style.display = sceneStyle.line ? '' : 'none'; if (wt) wt.value = sceneStyle.weight;
+}
+function setActiveSceneStyle(patch) {
+  const st = { line: sceneStyle.line, weight: sceneStyle.weight, ...patch };
+  applySceneStyle(st);
+  const s = scenes.find(x => x.id === activeSceneId); if (s) { s.style = { line: st.line, weight: st.weight }; persistScenes(); }
+}
 
 // ---- export optimised (meshopt-compressed) GLB -----------------------------
 // Takes the already-merged + edge-baked model, exports a GLB, then compresses it with meshopt
@@ -1926,6 +1979,7 @@ function captureScene(name) {
     parallel, lock2d,
     cam: { px: c.position.x, py: c.position.y, pz: c.position.z, tx: controls.target.x, ty: controls.target.y, tz: controls.target.z, ux: c.up.x, uy: c.up.y, uz: c.up.z, zoom: ocam.zoom, halfH: orthoHalfH },
     section: { on: sectionOn, mode: sectionMode, axis: sectionAxis, flip: sectionFlip, t: sectionT, show: sectionShowHelper, box: JSON.parse(JSON.stringify(boxFrac)) },
+    style: { line: sceneStyle.line, weight: sceneStyle.weight },
   };
 }
 function restoreScene(s) {
@@ -1945,6 +1999,7 @@ function restoreScene(s) {
   activeCam.updateProjectionMatrix(); controls.update();
   setLock2D(!!s.lock2d);
   activeSceneId = s.id; renderSceneTabs(); updateDimVisibility(); renderDimsList(); drawSectionLines(); renderSectionList(); drawLevelLines(); renderLevelList(); drawCompLabels();
+  applySceneStyle(s.style);   // shaded vs black/white line-drawing + lineweight (per scene)
   clearTimeout(sceneUpdT); restoringScene = false;  // drop any auto-update queued by the restore itself
 }
 function renderSceneTabs() {
@@ -1991,6 +2046,8 @@ $('sceneSave').onclick = () => {
   const s = captureScene(n.trim() || undefined); scenes.push(s); activeSceneId = s.id;  // becomes active → auto-updates from here
   renderScenes(); persistScenes(); updateDimVisibility(); renderDimsList();   // new scene starts with no dimensions
 };
+$('sceneLineChk').addEventListener('change', () => setActiveSceneStyle({ line: $('sceneLineChk').checked }));
+$('sceneWeight').addEventListener('input', () => setActiveSceneStyle({ weight: parseFloat($('sceneWeight').value) || 2 }));
 
 // ---- file inputs / drag-drop ----------------------------------------------
 $('openbtn').onclick = () => $('file').click();
@@ -3069,12 +3126,12 @@ function renderRegionPNG(cam, pw, ph) {
   const prevBg = scene.background, prevAlpha = renderer.getClearAlpha(), snapVis = snapMarker.visible, phv = planeHelper && planeHelper.visible, bhv = boxHelper && boxHelper.visible;
   snapMarker.visible = false; if (planeHelper) planeHelper.visible = false; if (boxHelper) boxHelper.visible = false;
   scene.background = null; renderer.setClearAlpha(0);
-  renderer.setPixelRatio(1); renderer.setSize(pw, ph, false);
+  renderer.setPixelRatio(1); renderer.setSize(pw, ph, false); setFatEdgeResolution(pw, ph);   // fat lines need the render size to width correctly
   let url = '';
   try { renderer.render(scene, cam); url = dom.toDataURL('image/png'); } catch (e) { console.warn('viewport render failed', e); }
   renderer.setClearAlpha(prevAlpha); scene.background = prevBg;
   snapMarker.visible = snapVis; if (planeHelper) planeHelper.visible = phv; if (boxHelper) boxHelper.visible = bhv;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); renderer.setSize(cw, ch); labelRenderer.setSize(cw, ch);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); renderer.setSize(cw, ch); labelRenderer.setSize(cw, ch); setFatEdgeResolution(cw, ch);
   camera.aspect = (cw / ch) || 1; camera.updateProjectionMatrix(); setOrthoFrustum(orthoHalfH);
   return url;
 }
@@ -3391,6 +3448,56 @@ $('schedAdd').onclick = () => {
   const a = { id: ANID(), type: 'schedule', kind, x: A.x + 4, y: A.y + 4, fs: 2.6, title: '' };
   sheetAnnots.push(a); renderAnnots(); selectAnnot(a); persistSheet();
 };
+// ---- import a CSV / Excel table onto the sheet as a movable table block ----
+function parseCSV(text) {   // RFC-4180-ish: quoted fields, escaped quotes, CR/LF, commas
+  const rows = []; let row = [], field = '', inQ = false;
+  text = text.replace(/^﻿/, '');   // strip BOM
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQ) { if (ch === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; } else field += ch; }
+    else if (ch === '"') inQ = true;
+    else if (ch === ',') { row.push(field); field = ''; }
+    else if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+    else if (ch === '\r') { /* handled by \n */ }
+    else field += ch;
+  }
+  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim() !== ''));   // drop blank lines
+}
+function tableFromGrid(grid, name) {   // grid = array of arrays; first row = header
+  if (!grid.length) throw new Error('empty table');
+  const header = grid[0].map((c, i) => ({ label: String(c == null || c === '' ? 'Col ' + (i + 1) : c).trim() }));
+  const body = grid.slice(1).map(r => header.map((_, i) => (r[i] == null ? '' : String(r[i]))));
+  const A = sheetArea();
+  return { id: ANID(), type: 'table', x: A.x + 4, y: A.y + 4, fs: 2.6, title: (name || 'IMPORTED TABLE').replace(/\.(csv|xlsx?|xls)$/i, '').replace(/[_-]+/g, ' ').toUpperCase(), cols: header, rows: body };
+}
+function placeImportedTable(a) { sheetAnnots.push(a); renderAnnots(); selectAnnot(a); persistSheet(); meta(`Imported table: ${a.cols.length} cols × ${a.rows.length} rows`); }
+let reimportTarget = null;   // when set, the parsed table replaces this annotation's data instead of adding a new one
+async function ensureXLSX() {
+  if (window.XLSX) return window.XLSX;
+  await new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js'; s.onload = res; s.onerror = () => rej(new Error('could not load the Excel library (needs internet)')); document.head.appendChild(s); });
+  if (!window.XLSX) throw new Error('Excel library unavailable'); return window.XLSX;
+}
+async function importTableFile(file) {
+  try {
+    let grid;
+    if (/\.(xlsx|xls)$/i.test(file.name)) {
+      const XLSX = await ensureXLSX();
+      const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      grid = XLSX.utils.sheet_to_json(ws, { header: 1, blankrows: false, defval: '' });
+    } else {
+      grid = parseCSV(await file.text());
+    }
+    if (!grid || !grid.length) return err('That file has no readable rows.');
+    const t = tableFromGrid(grid, file.name);
+    if (reimportTarget) { reimportTarget.cols = t.cols; reimportTarget.rows = t.rows; renderAnnots(); persistSheet(); meta(`Replaced table data: ${t.cols.length} cols × ${t.rows.length} rows`); }
+    else placeImportedTable(t);
+  } catch (e) { err('Import failed: ' + (e.message || e)); }
+  finally { reimportTarget = null; $('tableFile').value = ''; }
+}
+$('tableImport').onclick = () => { if (!currentSheet()) return; reimportTarget = null; $('tableFile').click(); };
+$('tableFile').addEventListener('change', e => { const f = e.target.files[0]; if (f) importTableFile(f); });
 // ---- revision history editor ----
 function renderRevList() {
   const sh = currentSheet(), el = $('sheetRevList'); if (!el || !sh) return;
@@ -3457,7 +3564,7 @@ window.addEventListener('resize', () => { if ($('sheetOverlay').classList.contai
 
 // ---- sheet annotation suite: text, leader, shapes, north, scale bar, detail/section/rev tags ----
 let sheetAnnots = [], annotSel = null, annotTool = 'select', annotDraft = null;
-const ANNOT_NAME = { text: 'Text', leader: 'Leader', line: 'Line', arrow: 'Arrow', rect: 'Rectangle', ellipse: 'Ellipse', cloud: 'Revision cloud', north: 'North arrow', scalebar: 'Scale bar', tag: 'Tag', schedule: 'Schedule' };
+const ANNOT_NAME = { text: 'Text', leader: 'Leader', line: 'Line', arrow: 'Arrow', rect: 'Rectangle', ellipse: 'Ellipse', cloud: 'Revision cloud', north: 'North arrow', scalebar: 'Scale bar', tag: 'Tag', schedule: 'Schedule', table: 'Imported table' };
 const SCHED_KINDS = [['member', 'Member schedule'], ['block', 'Block schedule'], ['material', 'Material summary'], ['cut', 'Cut block schedule'], ['concrete', 'Concrete take-off'], ['level', 'Parts by level'], ['sheetindex', 'Drawing index'], ['legend', 'Section legend']];
 function setAnnotTool(t) {
   annotTool = t || 'select';
@@ -3634,22 +3741,26 @@ function scheduleData(kind) {
   if (kind === 'block') return { title: 'BLOCK SCHEDULE', cols: [{ label: 'Type' }, { label: 'Size mm' }, { label: 'Qty', align: 'end' }], rows: arr.map(e => [PR(e.type), e.size, String(e.qty)]) };
   return { title: 'MEMBER SCHEDULE', cols: [{ label: 'Type' }, { label: 'Size mm' }, { label: 'Qty', align: 'end' }, { label: 'Length m', align: 'end' }], rows: arr.map(e => [PR(e.type), e.size, String(e.qty), e.len ? e.len.toFixed(1) : '—']) };
 }
-function scheduleSvg(a) {
-  const d = scheduleData(a.kind || 'member'), fs = a.fs || 2.6, pad = 1.4, rh = fs * 1.9, charW = fs * 0.56, x = a.x, y = a.y;
-  const cols = d.cols.map((c, ci) => { let w = c.label.length; d.rows.forEach(r => w = Math.max(w, String(r[ci] == null ? '' : r[ci]).length)); return Math.max(9, w * charW + pad * 2); });
-  const W = cols.reduce((s, w) => s + w, 0), nR = d.rows.length, H = rh * (nR + 2);
+// shared table renderer for both auto schedules and imported CSV/Excel tables
+function drawTableSvg(x, y, fs, title, dcols, rows) {
+  const pad = 1.4, rh = fs * 1.9, charW = fs * 0.56;
+  const cols = dcols.map((c, ci) => { let w = String(c.label).length; rows.forEach(r => w = Math.max(w, String(r[ci] == null ? '' : r[ci]).length)); return Math.max(9, w * charW + pad * 2); });
+  const W = cols.reduce((s, w) => s + w, 0), nR = rows.length, H = rh * (nR + 2);
   let s = `<rect x="${x}" y="${y}" width="${W}" height="${H}" fill="#fff" stroke="#1d3557" stroke-width="0.4"/>`;
-  s += `<rect x="${x}" y="${y}" width="${W}" height="${rh}" fill="#1d3557"/><text x="${x + pad}" y="${y + rh - pad}" font-family="Arial" font-weight="700" font-size="${fs}" fill="#fff">${escHtml(a.title || d.title)}</text>`;
+  s += `<rect x="${x}" y="${y}" width="${W}" height="${rh}" fill="#1d3557"/><text x="${x + pad}" y="${y + rh - pad}" font-family="Arial" font-weight="700" font-size="${fs}" fill="#fff">${escHtml(title)}</text>`;
   const hy = y + rh; s += `<rect x="${x}" y="${hy}" width="${W}" height="${rh}" fill="#eef2f7"/>`;
-  let cx = x; d.cols.forEach((c, ci) => { const en = c.align === 'end'; s += `<text x="${cx + (en ? cols[ci] - pad : pad)}" y="${hy + rh - pad}" font-family="Arial" font-weight="700" font-size="${fs}" fill="#1d3557"${en ? ' text-anchor="end"' : ''}>${escHtml(c.label)}</text>`; cx += cols[ci]; });
-  d.rows.forEach((r, ri) => { const ry = hy + rh * (ri + 1); cx = x; d.cols.forEach((c, ci) => { const en = c.align === 'end'; s += `<text x="${cx + (en ? cols[ci] - pad : pad)}" y="${ry + rh - pad}" font-family="Arial" font-size="${fs}" fill="#1d3557"${en ? ' text-anchor="end"' : ''}>${escHtml(String(r[ci] == null ? '' : r[ci]))}</text>`; cx += cols[ci]; }); });
+  let cx = x; dcols.forEach((c, ci) => { const en = c.align === 'end'; s += `<text x="${cx + (en ? cols[ci] - pad : pad)}" y="${hy + rh - pad}" font-family="Arial" font-weight="700" font-size="${fs}" fill="#1d3557"${en ? ' text-anchor="end"' : ''}>${escHtml(c.label)}</text>`; cx += cols[ci]; });
+  rows.forEach((r, ri) => { const ry = hy + rh * (ri + 1); cx = x; dcols.forEach((c, ci) => { const en = c.align === 'end'; s += `<text x="${cx + (en ? cols[ci] - pad : pad)}" y="${ry + rh - pad}" font-family="Arial" font-size="${fs}" fill="#1d3557"${en ? ' text-anchor="end"' : ''}>${escHtml(String(r[ci] == null ? '' : r[ci]))}</text>`; cx += cols[ci]; }); });
   cx = x; cols.forEach((w, ci) => { if (ci > 0) s += `<line x1="${cx}" y1="${hy}" x2="${cx}" y2="${y + H}" stroke="#cdd3df" stroke-width="0.2"/>`; cx += w; });
   for (let ri = 0; ri <= nR; ri++) { const ly = hy + rh * ri; s += `<line x1="${x}" y1="${ly}" x2="${x + W}" y2="${ly}" stroke="#cdd3df" stroke-width="0.2"/>`; }
   return s;
 }
+function scheduleSvg(a) { const d = scheduleData(a.kind || 'member'); return drawTableSvg(a.x, a.y, a.fs || 2.6, a.title || d.title, d.cols, d.rows); }
+function tableSvg(a) { return drawTableSvg(a.x, a.y, a.fs || 2.6, a.title || 'TABLE', a.cols || [{ label: '—' }], a.rows || []); }
 function annotSvg(a) {
   const c = a.color || '#1d3557', o = `<g class="ann" data-aid="${a.id}">`, z = '</g>';
   if (a.type === 'schedule') return o + scheduleSvg(a) + z;
+  if (a.type === 'table') return o + tableSvg(a) + z;
   if (a.type === 'text') return o + `<text x="${a.x}" y="${a.y}" font-family="Arial, sans-serif" font-size="${a.size || 4}" fill="${c}" font-weight="600">${textTspans(a, a.x)}</text>` + z;
   if (a.type === 'line') return o + `<line x1="${a.x1}" y1="${a.y1}" x2="${a.x2}" y2="${a.y2}" stroke="${c}" stroke-width="${a.w || 0.4}" stroke-linecap="round"/>` + z;
   if (a.type === 'arrow') return o + `<line x1="${a.x1}" y1="${a.y1}" x2="${a.x2}" y2="${a.y2}" stroke="${c}" stroke-width="${a.w || 0.4}" stroke-linecap="round"/>` + arrowHead(a.x1, a.y1, a.x2, a.y2, 3, c) + z;
@@ -3670,7 +3781,7 @@ function handlesSvg(a) {
   if (a.type === 'rect' || a.type === 'ellipse' || a.type === 'cloud') return H(a.x, a.y, 'tl') + H(a.x + a.w, a.y + a.h, 'br');
   if (a.type === 'scalebar') return H(a.x + (a.len || 50), a.y, 'size');
   if (a.type === 'text') return H(a.x, a.y, 'size');
-  if (a.type === 'schedule') return H(a.x, a.y, 'noop');   // auto-sized; move only
+  if (a.type === 'schedule' || a.type === 'table') return H(a.x, a.y, 'noop');   // auto-sized; move only
   return H(a.x + (a.r || 7), a.y, 'size');   // north / tag
 }
 function renderAnnots() {
@@ -3691,6 +3802,7 @@ function renderAnnotProps(a) {
   if (['line', 'arrow', 'rect', 'ellipse', 'cloud'].includes(a.type)) h += `<div class="row"><span>Line wt</span><input type="number" id="apSw" value="${(a.type === 'line' || a.type === 'arrow') ? (a.w || 0.4) : (a.sw || 0.4)}" step="0.1" min="0.1"></div>`;
   if (a.type === 'scalebar') h += `<div class="row"><span>Scale 1:</span><input type="number" id="apScale" value="${a.scaleN || 100}" step="1" min="1"></div>`;
   if (a.type === 'schedule') { h += `<div class="row"><span>Type</span><select id="apKind">${SCHED_KINDS.map(k => `<option value="${k[0]}"${(a.kind || 'member') === k[0] ? ' selected' : ''}>${k[1]}</option>`).join('')}</select></div>`; h += `<div class="row"><input type="text" id="apTitle" value="${escHtml(a.title || '')}" placeholder="custom title (blank = auto)"></div>`; h += `<div class="row"><span>Font</span><input type="number" id="apFs" value="${a.fs || 2.6}" step="0.2" min="1.5"></div>`; }
+  if (a.type === 'table') { h += `<div class="row"><input type="text" id="apTitle" value="${escHtml(a.title || '')}" placeholder="table title"></div>`; h += `<div class="row"><span>Font</span><input type="number" id="apFs" value="${a.fs || 2.6}" step="0.2" min="1.5"></div>`; h += `<div class="row"><button id="apReimport">Replace data…</button></div>`; }
   if (['rect', 'ellipse'].includes(a.type)) h += `<div class="row"><span>Fill</span><select id="apFill"><option value="none"${a.fill === 'none' ? ' selected' : ''}>None</option><option value="rgba(29,53,87,0.10)"${a.fill && a.fill !== 'none' ? ' selected' : ''}>Tint</option></select></div>`;
   h += `<div class="row"><span>Colour</span><input type="color" id="apColor" value="${colorVal}"></div>`;
   pr.innerHTML = h;
@@ -3705,6 +3817,7 @@ function renderAnnotProps(a) {
   byId('apKind') && byId('apKind').addEventListener('change', () => { a.kind = byId('apKind').value; upd(); });
   byId('apTitle') && byId('apTitle').addEventListener('input', () => { a.title = byId('apTitle').value; upd(); });
   byId('apFs') && byId('apFs').addEventListener('input', () => { a.fs = parseFloat(byId('apFs').value) || a.fs; upd(); });
+  byId('apReimport') && (byId('apReimport').onclick = () => { reimportTarget = a; $('tableFile').click(); });
   pr.querySelector('[data-act=del]').onclick = () => deleteAnnot(a);
 }
 
