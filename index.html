@@ -557,6 +557,7 @@
     <button id="sheetClose">✕ Close</button>
   </div>
   <div id="sheetFieldsPanel" hidden>
+    <label>Brand <select id="f_brand"><option value="buildease">BuildEase</option><option value="tls">TLS Suite</option></select></label>
     <label class="fwide">Drawing title <input id="f_title" type="text"></label>
     <label>Project <input id="f_project" type="text"></label>
     <label>Client <input id="f_client" type="text"></label>
@@ -2999,7 +3000,12 @@ function defaultWindow(sceneId, scaleN) {   // window mm that frames the scene a
 }
 function autoScaleLabel() { const u = [...new Set(sheetVPs.map(v => v.scaleN))]; return u.length === 1 ? ('1:' + u[0]) : (sheetVPs.length ? 'As shown' : 'NTS'); }
 function todayStr() { const d = new Date(), p2 = n => String(n).padStart(2, '0'); return `${p2(d.getDate())}/${p2(d.getMonth() + 1)}/${d.getFullYear()}`; }
-// Build the page border + a clean BuildEase title block (fixed real size, bottom-right) — works at any sheet size.
+// Selectable title-block branding (per sheet, via the Title block panel).
+const SHEET_BRANDS = {
+  buildease: { name: 'BuildEase', sub: 'Tremco CPG · Nudura' },
+  tls:       { name: 'TLS Suite', sub: 'Timber Frame Design' },
+};
+// Build the page border + a clean title block (fixed real size, bottom-right) — works at any sheet size.
 function frameSvg() {
   const sh = currentSheet() || {}, f = sh.fields || {};
   const X = pageW - BORDER - TBW, Y = pageH - BORDER - TBH;   // title-block origin
@@ -3015,8 +3021,9 @@ function frameSvg() {
   const rows = [Y + 10, Y + 22, Y + 31, Y + 39];   // horizontal dividers
   rows.forEach(yy => g += `<line x1="${X}" y1="${yy}" x2="${X + TBW}" y2="${yy}" stroke="#1d3557" stroke-width="0.3"/>`);
   // brand bar
-  g += txt(X + 4, Y + 7.2, 5.2, 'BuildEase', '#1d3557', null, '800');
-  g += txt(X + TBW - 4, Y + 6.6, 2.4, 'Tremco CPG · Nudura', '#667', 'end', '600');
+  const brand = SHEET_BRANDS[f.brand] || SHEET_BRANDS.buildease;
+  g += txt(X + 4, Y + 7.2, 5.2, brand.name, '#1d3557', null, '800');
+  g += txt(X + TBW - 4, Y + 6.6, 2.4, brand.sub, '#667', 'end', '600');
   // title
   g += lbl(X + 4, Y + 14, 'DRAWING TITLE');
   g += val(X + 4, Y + 20, f.title || '', 4.2);
@@ -3152,7 +3159,8 @@ function currentSheet() { return sheets.find(s => s.id === sheetCurId); }
 function persistSheets() { try { localStorage.setItem(sheetsKey(), JSON.stringify(sheets)); } catch (e) {} scheduleCommit(); }
 function readFields() {
   return { title: $('f_title').value, number: $('f_number').value, sheet: $('f_sheet').value, author: $('f_author').value,
-    project: $('f_project').value, client: $('f_client').value, checked: $('f_checked').value, date: $('f_date').value, status: $('f_status').value };
+    project: $('f_project').value, client: $('f_client').value, checked: $('f_checked').value, date: $('f_date').value, status: $('f_status').value,
+    brand: $('f_brand').value };
 }
 function persistSheet() {   // sync the OPEN sheet's working state back into the sheets list, then save
   const sh = currentSheet(); if (!sh) return;
@@ -3230,6 +3238,7 @@ function openSheetById(id) {
   const f = sh.fields || {};
   $('f_sheetname').value = sh.name || '';
   ['title', 'number', 'sheet', 'author', 'project', 'client', 'checked', 'date', 'status'].forEach(k => { const el = $('f_' + k); if (el) el.value = f[k] || ''; });
+  $('f_brand').value = SHEET_BRANDS[f.brand] ? f.brand : 'buildease';
   sheetAnnots = (sh.annots || []).map(a => Object.assign({}, a));
   loadSheetVPs(sh); fitSheetPaper(); renderSheet();
   if (sheetVPs.length) selectVP(sheetVPs[0].id); else $('vpCtl').hidden = true;
@@ -3330,6 +3339,7 @@ $('vpTitle').addEventListener('input', () => { const vp = sheetVPs.find(v => v.i
 $('vpTitlesChk').addEventListener('change', () => { const sh = currentSheet(); if (sh) { sh.showVpTitles = $('vpTitlesChk').checked; drawVpCaptions(); persistSheet(); } });
 $('vpSnapChk').addEventListener('change', () => { snapOn = $('vpSnapChk').checked; drawGrid(); });
 ['f_title', 'f_number', 'f_sheet', 'f_author', 'f_project', 'f_client', 'f_checked', 'f_date', 'f_status'].forEach(id => $(id).addEventListener('input', () => { fillSheetFields(); persistSheet(); }));
+$('f_brand').addEventListener('change', () => { fillSheetFields(); persistSheet(); });
 window.addEventListener('resize', () => { if ($('sheetOverlay').classList.contains('open')) fitSheetPaper(); });
 
 // ---- sheet annotation suite: text, leader, shapes, north, scale bar, detail/section/rev tags ----
