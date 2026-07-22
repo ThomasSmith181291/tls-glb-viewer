@@ -2796,6 +2796,33 @@ async function ghPut(path, b64, message, token) {
     { method: 'PUT', headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }, body: JSON.stringify(body) });
   if (!r.ok) { let m = ''; try { m = (await r.json()).message; } catch (e) {} throw new Error('Upload failed (' + r.status + ')' + (m ? ': ' + m : '')); }
 }
+// --- Git Data API upload (blob → tree → commit → ref) ------------------------
+// The Contents API (ghPut) base64-inflates the WHOLE file into one request and
+// GitHub rejects that near ~50 MB ("too large"). The Git Data blob endpoint
+// accepts up to ~100 MB, so real models must go this way. Commits every file in
+// ONE atomic commit.
+async function ghApi(method, endpoint, token, body) {
+  const r = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/${endpoint}`,
+    { method,
+      headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined });
+  if (!r.ok) { let m = ''; try { m = (await r.json()).message; } catch (e) {} throw new Error('GitHub ' + endpoint.split('?')[0].split('/')[0] + ' failed (' + r.status + ')' + (m ? ': ' + m : '')); }
+  return r.json();
+}
+async function ghCommitFiles(files, message, token) {   // files: [{path, b64}]
+  const ref = await ghApi('GET', `git/ref/heads/${GH_BRANCH}`, token);
+  const headSha = ref.object.sha;
+  const headCommit = await ghApi('GET', `git/commits/${headSha}`, token);
+  const baseTree = headCommit.tree.sha;
+  const treeItems = [];
+  for (const f of files) {   // one blob per file — the endpoint that takes big files
+    const blob = await ghApi('POST', 'git/blobs', token, { content: f.b64, encoding: 'base64' });
+    treeItems.push({ path: f.path, mode: '100644', type: 'blob', sha: blob.sha });
+  }
+  const tree = await ghApi('POST', 'git/trees', token, { base_tree: baseTree, tree: treeItems });
+  const commit = await ghApi('POST', 'git/commits', token, { message, tree: tree.sha, parents: [headSha] });
+  await ghApi('PATCH', `git/refs/heads/${GH_BRANCH}`, token, { sha: commit.sha });
+}
 function safeName(n) { return (n || 'model').replace(/\.(glb|gltf)$/i, '').replace(/[^\w.\-]+/g, '_'); }
 
 function shareResultView(link) {
@@ -2845,16 +2872,19 @@ async function runShareUpload() {
   try {
     const buf = await modelFile.arrayBuffer();
     shareBusyView('Uploading model (' + (buf.byteLength / 1048576).toFixed(1) + ' MB) to GitHub…');
-    await ghPut(glbPath, bufToB64(buf), 'Share: ' + base + '.glb', token);
-    shareBusyView('Uploading annotations…');
-    await ghPut(annPath, strToB64(JSON.stringify(annotationBundle())), 'Share: ' + base + ' annotations', token);
+    // Git Data API (blob→tree→commit) — handles up to ~100 MB, unlike the
+    // Contents API which chokes near ~50 MB. Model + annotations in one commit.
+    await ghCommitFiles([
+      { path: glbPath, b64: bufToB64(buf) },
+      { path: annPath, b64: strToB64(JSON.stringify(annotationBundle())) }
+    ], 'Share: ' + base, token);
     shareResultView(link);
   } catch (e) {
     const m = (e && e.message) || String(e);
     if (/\b401\b/.test(m)) { try { localStorage.removeItem(GH_TOKEN_KEY); } catch (x) {} shareTokenView('That token was rejected as invalid (401). Please paste a valid one.'); }   // ONLY a genuine auth failure clears the token
     else {
       const hint = /\b403\b/.test(m) ? '<p class="note">403 = the token is valid but blocked: check it has <strong>Contents: Read and write</strong> on <strong>' + GH_REPO + '</strong>, or you may have hit a GitHub rate limit — wait a minute and retry.</p>'
-        : /\b(413|422)\b/.test(m) ? '<p class="note">The model may be too large for the GitHub Contents API — try <strong>⤓ Optimise GLB</strong> first, or strip webs.</p>' : '';
+        : /\b(413|422)\b/.test(m) ? '<p class="note">GitHub caps a single file near <strong>100 MB</strong> and this model is over that. Strip webs / re-export lighter, or host it on object storage (R2).</p>' : '';
       shareCard.innerHTML = `<h3>⚠ Share failed</h3><div class="errline">${m}</div>${hint}<div class="row"><button class="sec" id="shareRetry">Retry</button><button id="shareDone">Close</button></div>`;
       $('shareDone').onclick = closeShare; $('shareRetry').onclick = runShareUpload;
     }
