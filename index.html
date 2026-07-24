@@ -1647,14 +1647,39 @@ function optimizeModel() {
 // Reads glTF node extras.tls (written by the exporter's bake_edges step) BEFORE the merge,
 // records partIndex -> fields and source mesh -> partIndex. optimizeModel() bakes that index
 // into a per-vertex _partId attribute so a raycast on the merged mesh resolves back to a part.
+// Decode a compact v2 metadata record (scene.extras.tls_meta: interned string
+// pool `s`, prop-key pool `K`, one record per part) back into the SAME
+// {id,name,type,material,size,level,panel,parent,def,tag,props} object the old
+// fat per-node extras.tls carried — so everything downstream is unaffected.
+function decodeCompactPart(meta, tp) {
+  const rec = meta.parts && meta.parts[tp]; if (!rec) return null;
+  const s = meta.s || [], K = meta.K || [];
+  const S = i => (i == null || i < 0) ? undefined : s[i];
+  const o = {};
+  if (rec.i != null) o.id = S(rec.i);
+  if (rec.n != null) o.name = S(rec.n);
+  if (rec.t != null) o.type = S(rec.t);
+  if (rec.m != null) o.material = S(rec.m);
+  if (rec.d != null) o.def = S(rec.d);
+  if (rec.g != null) o.tag = S(rec.g);
+  if (rec.p != null) o.panel = S(rec.p);
+  if (rec.l != null) o.level = S(rec.l);
+  if (rec.r != null) o.parent = S(rec.r);
+  if (rec.z) o.size = { l: rec.z[0], w: rec.z[1], h: rec.z[2], unit: S(rec.z[3]) };
+  if (rec.k) { const props = {}; for (let i = 0; i < rec.k.length; i++) { const v = rec.v[i]; props[K[rec.k[i]]] = Array.isArray(v) ? s[v[0]] : v; } o.props = props; }
+  return o;
+}
 function buildPartRegistry() {
   partRegistry = new Map(); partIdByMesh = new Map(); selectedPart = -1; clearPartHighlight();
   partGeoms = []; hiddenParts = new Set(); partFacets = null;
   if (!modelRoot) return;
   sectionOpenings = (modelRoot.userData && modelRoot.userData.tls_manifest && modelRoot.userData.tls_manifest.openings) || [];   // for opening hatch
+  const meta = modelRoot.userData && modelRoot.userData.tls_meta;   // v2 compact table (absent on old GLBs)
   let idx = 0;
   modelRoot.traverse(o => {
-    const tls = o.userData && o.userData.tls;
+    let tls = o.userData && o.userData.tls;                         // v1 fat format (back-compat)
+    if ((!tls || typeof tls !== 'object') && meta && o.userData && o.userData.tp != null)
+      tls = decodeCompactPart(meta, o.userData.tp);                // v2 compact format
     if (tls && typeof tls === 'object') {
       const pi = idx++;
       partRegistry.set(pi, tls);
